@@ -1,0 +1,145 @@
+<div class="login-container">
+
+  <div class="login-background">
+    <div class="parking-icon-bg"><mat-icon>local_shipping</mat-icon></div>
+    <div class="parking-icon-bg"><mat-icon>local_parking</mat-icon></div>
+    <div class="parking-icon-bg"><mat-icon>directions_car</mat-icon></div>
+    <div class="parking-icon-bg"><mat-icon>delivery_dining</mat-icon></div>
+    <div class="parking-icon-bg"><mat-icon>garage</mat-icon></div>
+    <div class="parking-icon-bg"><mat-icon>airport_shuttle</mat-icon></div>
+    <div class="parking-icon-bg"><mat-icon>ev_station</mat-icon></div>
+    <div class="parking-icon-bg"><mat-icon>navigation</mat-icon></div>
+    <div class="login-background">
+      <div class="parking-icon-bg">
+        <mat-icon>local_parking</mat-icon>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card de Login -->
+  <mat-card class="login-card" *ngIf="!mostrarDialogToken">
+    <!-- Header con logo -->
+    <div class="login-header">
+      <div class="logo-section">
+        <div class="logo-icon">
+          <mat-icon>local_parking</mat-icon>
+        </div>
+        <div class="company-info">
+          <h1>ParkControl</h1>
+          <p class="subtitle">Sistema de Gestión de Parqueos</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenido del formulario -->
+    <mat-card-content class="login-content">
+      <h2 class="welcome-text">Bienvenido</h2>
+      <p class="description">Ingrese sus credenciales para acceder al sistema</p>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+        <!-- Usuario -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Usuario</mat-label>
+          <mat-icon matPrefix>person</mat-icon>
+          <input matInput formControlName="nombreUsuario" placeholder="Ingrese su usuario">
+          <mat-error *ngIf="loginForm.get('nombreUsuario')?.hasError('required')">
+            El usuario es requerido
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Contraseña -->
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Contraseña</mat-label>
+          <mat-icon matPrefix>lock</mat-icon>
+          <input matInput [type]="hidePassword ? 'password' : 'text'" 
+                 formControlName="contrasenia" placeholder="Ingrese su contraseña">
+          <button mat-icon-button matSuffix type="button" 
+                  (click)="hidePassword = !hidePassword" [attr.aria-label]="'Ocultar contraseña'">
+            <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+          </button>
+          <mat-error *ngIf="loginForm.get('contrasenia')?.hasError('required')">
+            La contraseña es requerida
+          </mat-error>
+          <mat-error *ngIf="loginForm.get('contrasenia')?.hasError('minlength')">
+            La contraseña debe tener al menos 6 caracteres
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Olvidó contraseña -->
+        <div class="form-options">
+          <button mat-button type="button" class="forgot-password" (click)="irARecuperarContrasenia()">
+            ¿Olvidó su contraseña?
+          </button>
+        </div>
+
+        <!-- Botón de login -->
+        <button mat-raised-button type="submit" class="login-button full-width" [disabled]="isLoading">
+          <mat-spinner *ngIf="isLoading" diameter="20" class="button-spinner"></mat-spinner>
+          {{ isLoading ? 'Iniciando...' : 'Iniciar Sesión' }}
+        </button>
+
+        <!-- Divider -->
+        <div class="divider">
+          <span>o</span>
+        </div>
+
+        <!-- Registro -->
+        <div class="register-section">
+          <button mat-raised-button type="button" class="register-button full-width" (click)="irARegistrame()">
+            <mat-icon>person_add</mat-icon>
+            Crear Cuenta
+          </button>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Modal de Verificación 2FA -->
+  <div class="modal-overlay" *ngIf="mostrarDialogToken" (click)="cerrarDialogToken($event)">
+    <div class="verification-modal" (click)="$event.stopPropagation()">
+      <div class="modal-icon">
+        <mat-icon>verified_user</mat-icon>
+      </div>
+
+      <h2>Verificación en Dos Pasos</h2>
+      <p class="verification-description">
+        Ingrese el código de 6 dígitos generado por su aplicación de autenticación
+      </p>
+
+      <form [formGroup]="tokenForm" class="verification-form">
+        <div class="verification-input-wrapper">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Código de Verificación</mat-label>
+            <mat-icon matPrefix>dialpad</mat-icon>
+            <input matInput formControlName="token" placeholder="000000" 
+                   maxlength="6" type="text" inputmode="numeric">
+            <mat-hint align="end">{{tokenForm.get('token')?.value?.length || 0}}/6</mat-hint>
+            <mat-error *ngIf="tokenForm.get('token')?.hasError('required')">
+              El código es requerido
+            </mat-error>
+            <mat-error *ngIf="tokenForm.get('token')?.hasError('pattern') || tokenForm.get('token')?.hasError('minlength')">
+              Debe ingresar un código de 6 dígitos
+            </mat-error>
+            <mat-error *ngIf="tokenForm.get('token')?.hasError('incorrect')">
+              Código incorrecto o expirado
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="verification-actions">
+          <button mat-raised-button type="button" class="cancel-button" 
+                  (click)="cerrarDialogToken()" [disabled]="isVerificandoToken">
+            <mat-icon>close</mat-icon>
+            Cancelar
+          </button>
+          <button mat-raised-button type="button" class="verify-button" 
+                  (click)="verificarToken()" [disabled]="!tokenForm.valid || isVerificandoToken">
+            <mat-spinner *ngIf="isVerificandoToken" diameter="20" class="button-spinner"></mat-spinner>
+            <mat-icon *ngIf="!isVerificandoToken">check_circle</mat-icon>
+            {{ isVerificandoToken ? 'Verificando...' : 'Verificar' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

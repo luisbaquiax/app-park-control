@@ -1,0 +1,61 @@
+@use 'sass:color';
+
+::ng-deep .success {
+  .mdc-snackbar__surface {
+    background-color: #4caf50 !important;
+  }
+  
+  .mdc-snackbar__label {
+    color: white !important;
+  }
+  
+  .mat-mdc-snack-bar-action {
+    --mdc-text-button-label-text-color: white !important;
+    color: white !important;
+  }
+}
+
+::ng-deep .error {
+  .mdc-snackbar__surface {
+    background-color: #f44336 !important;
+  }
+  
+  .mdc-snackbar__label {
+    color: white !important;
+  }
+  
+  .mat-mdc-snack-bar-action {
+    --mdc-text-button-label-text-color: white !important;
+    color: white !important;
+  }
+}
+
+::ng-deep .warning {
+  .mdc-snackbar__surface {
+    background-color: #ff9800 !important;
+  }
+  
+  .mdc-snackbar__label {
+    color: white !important;
+  }
+  
+  .mat-mdc-snack-bar-action {
+    --mdc-text-button-label-text-color: white !important;
+    color: white !important;
+  }
+}
+
+::ng-deep .info {
+  .mdc-snackbar__surface {
+    background-color: #2196f3 !important;
+  }
+  
+  .mdc-snackbar__label {
+    color: white !important;
+  }
+  
+  .mat-mdc-snack-bar-action {
+    --mdc-text-button-label-text-color: white !important;
+    color: white !important;
+  }
+}
