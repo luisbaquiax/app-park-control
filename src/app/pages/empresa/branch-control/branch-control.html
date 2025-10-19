@@ -1,0 +1,725 @@
+<div class="crear-usuario-container">
+  <div class="floating-icons">
+    <div class="icon"><mat-icon>store</mat-icon></div>
+    <div class="icon"><mat-icon>business</mat-icon></div>
+    <div class="icon"><mat-icon>local_parking</mat-icon></div>
+    <div class="icon"><mat-icon>location_city</mat-icon></div>
+    <div class="icon"><mat-icon>domain</mat-icon></div>
+    <div class="icon"><mat-icon>place</mat-icon></div>
+    <div class="icon"><mat-icon>apartment</mat-icon></div>
+    <div class="icon"><mat-icon>map</mat-icon></div>
+  </div>
+
+  <mat-card class="usuario-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="header-icon">store</mat-icon>
+        Gestión de Sucursales
+      </mat-card-title>
+      <mat-card-subtitle>Administre las sucursales de su empresa</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <mat-tab-group animationDuration="300ms" class="sucursales-tabs">
+        
+        <!-- TAB 1: Crear Nueva Sucursal -->
+        <mat-tab label="Nueva Sucursal">
+          <div class="tab-content">
+            <form [formGroup]="sucursalForm" (ngSubmit)="enviarFormulario()" class="usuario-form">
+              
+              <!-- Sección Selección de Empresa -->
+              <div class="form-section">
+                <h3 class="section-title">
+                  <mat-icon>business_center</mat-icon>
+                  Información de la Empresa
+                </h3>
+                
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Seleccione una Empresa</mat-label>
+                    <mat-select formControlName="idEmpresa" [disabled]="isLoadingEmpresas">
+                      <mat-option *ngFor="let empresa of empresas" [value]="empresa.idEmpresa">
+                        <div class="empresa-option">
+                          <div class="empresa-nombre">{{empresa.nombreComercial}}</div>
+                          <div class="empresa-detalle">{{empresa.razonSocial}} - NIT: {{empresa.nit}}</div>
+                        </div>
+                      </mat-option>
+                    </mat-select>
+                    <mat-icon matPrefix>business</mat-icon>
+                    <mat-hint *ngIf="isLoadingEmpresas">Cargando empresas...</mat-hint>
+                    <mat-hint *ngIf="!isLoadingEmpresas && empresas.length === 0">No hay empresas disponibles</mat-hint>
+                    <mat-error *ngIf="sucursalForm.get('idEmpresa')?.hasError('required')">
+                      Debe seleccionar una empresa
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <!-- Sección Información del Encargado -->
+              <div class="form-section">
+                <h3 class="section-title">
+                  <mat-icon>person</mat-icon>
+                  Información del Encargado de Sucursal
+                </h3>
+                
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Nombre</mat-label>
+                    <input matInput formControlName="nombre" placeholder="Ingrese el nombre">
+                    <mat-icon matPrefix>badge</mat-icon>
+                    <mat-error *ngIf="sucursalForm.get('nombre')?.hasError('required')">
+                      El nombre es requerido
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Apellido</mat-label>
+                    <input matInput formControlName="apellido" placeholder="Ingrese el apellido">
+                    <mat-icon matPrefix>badge</mat-icon>
+                    <mat-error *ngIf="sucursalForm.get('apellido')?.hasError('required')">
+                      El apellido es requerido
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Fecha de Nacimiento</mat-label>
+                    <input matInput 
+                           [matDatepicker]="picker" 
+                           formControlName="fechaNacimiento"
+                           [max]="maxDate">
+                    <mat-icon matPrefix>cake</mat-icon>
+                    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                    <mat-error *ngIf="sucursalForm.get('fechaNacimiento')?.hasError('required')">
+                      La fecha de nacimiento es requerida
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>DPI</mat-label>
+                    <input matInput 
+                           formControlName="dpi" 
+                           placeholder="0000000000000" 
+                           maxlength="13"
+                           (keypress)="soloNumeros($event)">
+                    <mat-icon matPrefix>credit_card</mat-icon>
+                    <mat-hint align="end">{{sucursalForm.get('dpi')?.value?.length || 0}}/13</mat-hint>
+                    <mat-error *ngIf="sucursalForm.get('dpi')?.hasError('required')">
+                      El DPI es requerido
+                    </mat-error>
+                    <mat-error *ngIf="sucursalForm.get('dpi')?.hasError('pattern')">
+                      El DPI debe contener solo números
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Correo Electrónico</mat-label>
+                    <input matInput 
+                           type="email" 
+                           formControlName="correo" 
+                           placeholder="correo@ejemplo.com">
+                    <mat-icon matPrefix>email</mat-icon>
+                    <mat-error *ngIf="sucursalForm.get('correo')?.hasError('required')">
+                      El correo es requerido
+                    </mat-error>
+                    <mat-error *ngIf="sucursalForm.get('correo')?.hasError('email')">
+                      Ingrese un correo válido
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Teléfono</mat-label>
+                    <input matInput 
+                           type="tel" 
+                           formControlName="telefono" 
+                           placeholder="12345678"
+                           maxlength="8"
+                           (keypress)="soloNumeros($event)">
+                    <mat-icon matPrefix>phone</mat-icon>
+                    <mat-hint align="end">{{sucursalForm.get('telefono')?.value?.length || 0}}/8</mat-hint>
+                    <mat-error *ngIf="sucursalForm.get('telefono')?.hasError('required')">
+                      El teléfono es requerido
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <!-- Dirección del Encargado -->
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>País</mat-label>
+                    <mat-select formControlName="pais">
+                      <mat-option value="Guatemala">
+                        <mat-icon>flag</mat-icon>
+                        Guatemala
+                      </mat-option>
+                    </mat-select>
+                    <mat-icon matPrefix>public</mat-icon>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Departamento</mat-label>
+                    <mat-select formControlName="departamentoUsuario" (selectionChange)="onDepartamentoUsuarioChange()">
+                      <mat-option *ngFor="let depto of departamentos" [value]="depto">
+                        {{depto}}
+                      </mat-option>
+                    </mat-select>
+                    <mat-icon matPrefix>map</mat-icon>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Municipio/Ciudad</mat-label>
+                    <mat-select formControlName="ciudadUsuario" [disabled]="!sucursalForm.get('departamentoUsuario')?.value">
+                      <mat-option *ngFor="let municipio of municipiosFiltradosUsuario" [value]="municipio">
+                        {{municipio}}
+                      </mat-option>
+                    </mat-select>
+                    <mat-icon matPrefix>location_city</mat-icon>
+                    <mat-hint *ngIf="!sucursalForm.get('departamentoUsuario')?.value">
+                      Seleccione primero un departamento
+                    </mat-hint>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Código Postal</mat-label>
+                    <input matInput 
+                           formControlName="codigoPostal" 
+                           placeholder="01001"
+                           maxlength="5"
+                           (keypress)="soloNumeros($event)">
+                    <mat-icon matPrefix>markunread_mailbox</mat-icon>
+                    <mat-hint align="end">{{sucursalForm.get('codigoPostal')?.value?.length || 0}}/5</mat-hint>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Dirección Completa</mat-label>
+                    <textarea matInput 
+                              formControlName="direccionCompleta" 
+                              placeholder="Dirección del encargado" 
+                              rows="2"></textarea>
+                    <mat-icon matPrefix>home</mat-icon>
+                  </mat-form-field>
+                </div>
+
+                <!-- Credenciales del Encargado -->
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Nombre de Usuario</mat-label>
+                    <input matInput formControlName="nombreUsuario">
+                    <mat-icon matPrefix>account_circle</mat-icon>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Contraseña Temporal</mat-label>
+                    <input matInput 
+                           [type]="hidePassword ? 'password' : 'text'" 
+                           formControlName="contraseniaHash">
+                    <mat-icon matPrefix>vpn_key</mat-icon>
+                    <button mat-icon-button 
+                            matIconSuffix 
+                            (click)="hidePassword = !hidePassword"
+                            type="button">
+                      <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+                    </button>
+                  </mat-form-field>
+                </div>
+              </div>
+              <!-- Sección Información de la Sucursal -->
+              <div class="form-section">
+                <h3 class="section-title">
+                  <mat-icon>store</mat-icon>
+                  Información de la Sucursal
+                </h3>
+                
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Nombre de la Sucursal</mat-label>
+                    <input matInput formControlName="nombreSucursal" placeholder="Ej: Sucursal Central">
+                    <mat-icon matPrefix>business</mat-icon>
+                    <mat-error *ngIf="sucursalForm.get('nombreSucursal')?.hasError('required')">
+                      El nombre de la sucursal es requerido
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Departamento</mat-label>
+                    <mat-select formControlName="departamentoSucursal" (selectionChange)="onDepartamentoSucursalChange()">
+                      <mat-option *ngFor="let depto of departamentos" [value]="depto">
+                        {{depto}}
+                      </mat-option>
+                    </mat-select>
+                    <mat-icon matPrefix>map</mat-icon>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Ciudad/Municipio</mat-label>
+                    <mat-select formControlName="ciudadSucursal" [disabled]="!sucursalForm.get('departamentoSucursal')?.value">
+                      <mat-option *ngFor="let municipio of municipiosFiltradosSucursal" [value]="municipio">
+                        {{municipio}}
+                      </mat-option>
+                    </mat-select>
+                    <mat-icon matPrefix>location_city</mat-icon>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Dirección Completa de la Sucursal</mat-label>
+                    <textarea matInput 
+                              formControlName="direccionCompletaSucursal" 
+                              placeholder="Dirección completa de la sucursal" 
+                              rows="2"></textarea>
+                    <mat-icon matPrefix>place</mat-icon>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Hora de Apertura</mat-label>
+                    <input matInput 
+                           type="time" 
+                           formControlName="horaApertura">
+                    <mat-icon matPrefix>schedule</mat-icon>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Hora de Cierre</mat-label>
+                    <input matInput 
+                           type="time" 
+                           formControlName="horaCierre">
+                    <mat-icon matPrefix>schedule</mat-icon>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Capacidad 2 Ruedas</mat-label>
+                    <input matInput 
+                           type="number" 
+                           formControlName="capacidad2Ruedas"
+                           min="1">
+                    <mat-icon matPrefix>two_wheeler</mat-icon>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Capacidad 4 Ruedas</mat-label>
+                    <input matInput 
+                           type="number" 
+                           formControlName="capacidad4Ruedas"
+                           min="1">
+                    <mat-icon matPrefix>directions_car</mat-icon>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Latitud</mat-label>
+                    <input matInput 
+                           type="number" 
+                           formControlName="latitud"
+                           step="0.000001"
+                           placeholder="14.634915">
+                    <mat-icon matPrefix>my_location</mat-icon>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Longitud</mat-label>
+                    <input matInput 
+                           type="number" 
+                           formControlName="longitud"
+                           step="0.000001"
+                           placeholder="-90.506882">
+                    <mat-icon matPrefix>location_on</mat-icon>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Teléfono de Contacto</mat-label>
+                    <input matInput 
+                           type="tel" 
+                           formControlName="telefonoContactoSucursal"
+                           placeholder="12345678"
+                           maxlength="8"
+                           (keypress)="soloNumeros($event)">
+                    <mat-icon matPrefix>phone</mat-icon>
+                    <mat-hint align="end">{{sucursalForm.get('telefonoContactoSucursal')?.value?.length || 0}}/8</mat-hint>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Correo de Contacto</mat-label>
+                    <input matInput 
+                           type="email" 
+                           formControlName="correoContactoSucursal"
+                           placeholder="sucursal@ejemplo.com">
+                    <mat-icon matPrefix>email</mat-icon>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <!-- Botones de Acción -->
+              <div class="form-actions">
+                <button mat-stroked-button 
+                        type="button" 
+                        class="cancel-button" 
+                        (click)="limpiarFormulario()">
+                  <mat-icon>cancel</mat-icon>
+                  Cancelar
+                </button>
+                
+                <button mat-raised-button 
+                        color="primary" 
+                        type="submit" 
+                        [disabled]="!sucursalForm.valid || isLoading" 
+                        class="submit-button">
+                  <mat-spinner *ngIf="isLoading" diameter="20" class="button-spinner"></mat-spinner>
+                  <mat-icon *ngIf="!isLoading">add_business</mat-icon>
+                  <span *ngIf="!isLoading">Crear Sucursal</span>
+                  <span *ngIf="isLoading">Creando...</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </mat-tab>
+
+        <!-- TAB 2: Ver Sucursales -->
+        <mat-tab label="Buscar Sucursales">
+          <div class="tab-content">
+            <div class="search-section">
+              <h3 class="section-title">
+                <mat-icon>search</mat-icon>
+                Buscar Sucursales por Empresa
+              </h3>
+              
+              <div class="search-container">
+                <mat-form-field appearance="outline" class="search-field">
+                  <mat-label>Seleccione una Empresa</mat-label>
+                  <mat-select [(ngModel)]="idEmpresaBusqueda" [disabled]="isLoadingEmpresas">
+                    <mat-option *ngFor="let empresa of empresas" [value]="empresa.idEmpresa">
+                      <div class="empresa-option">
+                        <div class="empresa-nombre">{{empresa.nombreComercial}}</div>
+                        <div class="empresa-detalle">{{empresa.razonSocial}} - NIT: {{empresa.nit}}</div>
+                      </div>
+                    </mat-option>
+                  </mat-select>
+                  <mat-icon matPrefix>business</mat-icon>
+                  <mat-hint *ngIf="isLoadingEmpresas">Cargando empresas...</mat-hint>
+                </mat-form-field>
+
+                <button mat-raised-button 
+                        color="primary" 
+                        (click)="buscarSucursales()"
+                        [disabled]="!idEmpresaBusqueda || isLoadingSucursales"
+                        class="search-button">
+                  <mat-spinner *ngIf="isLoadingSucursales" diameter="20" class="button-spinner"></mat-spinner>
+                  <mat-icon *ngIf="!isLoadingSucursales">search</mat-icon>
+                  <span *ngIf="!isLoadingSucursales">Buscar</span>
+                  <span *ngIf="isLoadingSucursales">Buscando...</span>
+                </button>
+
+                <button mat-stroked-button 
+                        (click)="limpiarBusqueda()"
+                        [disabled]="isLoadingSucursales"
+                        class="clear-button">
+                  <mat-icon>clear</mat-icon>
+                  Limpiar
+                </button>
+              </div>
+            </div>
+            <!-- Resultados -->
+            <div class="results-section" *ngIf="sucursales.length > 0">
+              <h3 class="section-title">
+                <mat-icon>domain</mat-icon>
+                Sucursales Encontradas ({{sucursales.length}})
+              </h3>
+
+              <div class="table-container">
+                <table mat-table [dataSource]="sucursales" class="sucursales-table">
+                  
+                  <!-- Columna Nombre -->
+                  <ng-container matColumnDef="nombre">
+                    <th mat-header-cell *matHeaderCellDef>Nombre</th>
+                    <td mat-cell *matCellDef="let element">
+                      <div class="cell-content">
+                        <mat-icon class="cell-icon">store</mat-icon>
+                        <span class="cell-text">{{element.sucursalDTO.nombre}}</span>
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <!-- Columna Dirección -->
+                  <ng-container matColumnDef="direccion">
+                    <th mat-header-cell *matHeaderCellDef>Dirección</th>
+                    <td mat-cell *matCellDef="let element">
+                      <div class="cell-content">
+                        <mat-icon class="cell-icon">place</mat-icon>
+                        <span class="cell-text">{{element.sucursalDTO.direccionCompleta}}</span>
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <!-- Columna Ciudad -->
+                  <ng-container matColumnDef="ciudad">
+                    <th mat-header-cell *matHeaderCellDef>Ubicación</th>
+                    <td mat-cell *matCellDef="let element">
+                      <div class="cell-content">
+                        <mat-icon class="cell-icon">location_city</mat-icon>
+                        <div class="cell-text">
+                          <div>{{element.sucursalDTO.ciudad}}</div>
+                          <div class="text-secondary">{{element.sucursalDTO.departamento}}</div>
+                        </div>
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <!-- Columna Horario -->
+                  <ng-container matColumnDef="horario">
+                    <th mat-header-cell *matHeaderCellDef>Horario</th>
+                    <td mat-cell *matCellDef="let element">
+                      <div class="cell-content">
+                        <mat-icon class="cell-icon">schedule</mat-icon>
+                        <div class="cell-text">
+                          <div>{{element.sucursalDTO.horaApertura}} - {{element.sucursalDTO.horaCierre}}</div>
+                        </div>
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <!-- Columna Capacidad -->
+                  <ng-container matColumnDef="capacidad">
+                    <th mat-header-cell *matHeaderCellDef>Capacidad</th>
+                    <td mat-cell *matCellDef="let element">
+                      <div class="cell-content-capacity">
+                        <div class="capacity-item">
+                          <mat-icon class="capacity-icon">two_wheeler</mat-icon>
+                          <span>{{element.sucursalDTO.capacidad2Ruedas}}</span>
+                        </div>
+                        <div class="capacity-item">
+                          <mat-icon class="capacity-icon">directions_car</mat-icon>
+                          <span>{{element.sucursalDTO.capacidad4Ruedas}}</span>
+                        </div>
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <!-- Columna Estado -->
+                  <ng-container matColumnDef="estado">
+                    <th mat-header-cell *matHeaderCellDef>Estado</th>
+                    <td mat-cell *matCellDef="let element">
+                      <mat-chip [class]="'chip-' + element.sucursalDTO.estado.toLowerCase()">
+                        {{element.sucursalDTO.estado}}
+                      </mat-chip>
+                    </td>
+                  </ng-container>
+
+                  <!-- Columna Acciones (NUEVA - reemplaza la de encargado) -->
+                  <ng-container matColumnDef="acciones">
+                    <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                    <td mat-cell *matCellDef="let element">
+                      <button mat-raised-button 
+                              color="primary" 
+                              (click)="verDetallesEncargado(element)"
+                              class="details-button">
+                        <mat-icon>person</mat-icon>
+                        Ver Encargado
+                      </button>
+                    </td>
+                  </ng-container>
+
+                  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                </table>
+              </div>
+            </div>
+
+            <!-- Mensaje cuando no hay resultados -->
+            <div class="no-results" *ngIf="sucursales.length === 0 && idEmpresaBusqueda && !isLoadingSucursales">
+              <mat-icon>inbox</mat-icon>
+              <p>No se encontraron sucursales para esta empresa</p>
+            </div>
+
+            <!-- Mensaje inicial -->
+            <div class="no-results" *ngIf="!idEmpresaBusqueda && sucursales.length === 0">
+              <mat-icon>info</mat-icon>
+              <p>Seleccione una empresa y haga clic en "Buscar" para ver las sucursales</p>
+            </div>
+          </div>
+        </mat-tab>
+
+      </mat-tab-group>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Modal de Detalles del Encargado -->
+  <div class="modal-overlay" *ngIf="mostrarModalEncargado" (click)="cerrarModalEncargado($event)">
+    <div class="encargado-modal" (click)="$event.stopPropagation()">
+      
+      <!-- Header del Modal -->
+      <div class="modal-header">
+        <div class="modal-icon">
+          <mat-icon>person</mat-icon>
+        </div>
+        <h2>Información del Encargado</h2>
+        <p class="modal-subtitle" *ngIf="sucursalSeleccionada">
+          Sucursal: {{sucursalSeleccionada.nombre}}
+        </p>
+      </div>
+
+      <!-- Contenido del Modal -->
+      <div class="modal-content" *ngIf="encargadoSeleccionado">
+        
+        <!-- Sección: Datos Personales -->
+        <div class="info-section">
+          <h3 class="info-section-title">
+            <mat-icon>badge</mat-icon>
+            Datos Personales
+          </h3>
+          
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Nombre Completo</label>
+              <div class="info-value">
+                <mat-icon>person</mat-icon>
+                <span>{{encargadoSeleccionado.nombre}} {{encargadoSeleccionado.apellido}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>DPI</label>
+              <div class="info-value">
+                <mat-icon>credit_card</mat-icon>
+                <span>{{encargadoSeleccionado.dpi}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Fecha de Nacimiento</label>
+              <div class="info-value">
+                <mat-icon>cake</mat-icon>
+                <span>{{formatearFechaLegible(encargadoSeleccionado.fechaNacimiento)}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Estado</label>
+              <div class="info-value">
+                <mat-chip [class]="'chip-' + encargadoSeleccionado.estado.toLowerCase()">
+                  {{encargadoSeleccionado.estado}}
+                </mat-chip>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sección: Contacto -->
+        <div class="info-section">
+          <h3 class="info-section-title">
+            <mat-icon>contact_mail</mat-icon>
+            Contacto
+          </h3>
+          
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Correo Electrónico</label>
+              <div class="info-value">
+                <mat-icon>email</mat-icon>
+                <span>{{encargadoSeleccionado.correo}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Teléfono</label>
+              <div class="info-value">
+                <mat-icon>phone</mat-icon>
+                <span>{{encargadoSeleccionado.telefono}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sección: Ubicación -->
+        <div class="info-section">
+          <h3 class="info-section-title">
+            <mat-icon>place</mat-icon>
+            Ubicación
+          </h3>
+          
+          <div class="info-grid">
+            <div class="info-item full-width">
+              <label>Dirección Completa</label>
+              <div class="info-value">
+                <mat-icon>home</mat-icon>
+                <span>{{encargadoSeleccionado.direccionCompleta}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Ciudad</label>
+              <div class="info-value">
+                <mat-icon>location_city</mat-icon>
+                <span>{{encargadoSeleccionado.ciudad}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>País</label>
+              <div class="info-value">
+                <mat-icon>public</mat-icon>
+                <span>{{encargadoSeleccionado.pais}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Código Postal</label>
+              <div class="info-value">
+                <mat-icon>markunread_mailbox</mat-icon>
+                <span>{{encargadoSeleccionado.codigoPostal}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sección: Información de Cuenta -->
+        <div class="info-section">
+          <h3 class="info-section-title">
+            <mat-icon>account_circle</mat-icon>
+            Información de Cuenta
+          </h3>
+          
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Nombre de Usuario</label>
+              <div class="info-value">
+                <mat-icon>person_outline</mat-icon>
+                <span>{{encargadoSeleccionado.nombreUsuario}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+
+      <!-- Botón de Cerrar -->
+      <div class="modal-actions">
+        <button mat-raised-button 
+                color="primary" 
+                (click)="cerrarModalEncargado()"
+                class="close-button">
+          <mat-icon>close</mat-icon>
+          Cerrar
+        </button>
+      </div>
+      
+    </div>
+  </div>
+
+</div>

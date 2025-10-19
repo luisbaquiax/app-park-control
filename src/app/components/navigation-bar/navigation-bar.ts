@@ -63,7 +63,13 @@ export class NavigationBar {
       route: '/login',
       showWhenLoggedIn: false,
     },
-    // Cerrar Sesión ya no está en el menú lateral, ahora está en el menú de usuario
+    // Empresa
+    {
+      icon: 'business_center',
+      label: 'Control Sucursal',
+      route: '/control-sucursal',
+      roles: ['EMPRESA'],
+    },
   ];
 
   ngOnInit() {

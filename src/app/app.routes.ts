@@ -16,5 +16,8 @@ export const routes: Routes = [
     },
     {
         path: 'primer-ingreso', loadComponent: () => import('./pages/auth/first-password/first-password').then(m => m.FirstPassword), title: "Primer Ingreso"
+    },
+    {
+        path: 'control-sucursal', loadComponent: () => import('./pages/empresa/branch-control/branch-control').then(m => m.BranchControl), title: "Control Sucursal"
     }
 ];
