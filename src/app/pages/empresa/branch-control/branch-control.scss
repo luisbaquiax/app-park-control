@@ -1,5 +1,5 @@
 // branch-control.scss
-.crear-usuario-container {
+.control-sucursal-container {
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -127,7 +127,6 @@
   border-radius: 16px;
   overflow: hidden;
   position: relative;
-  z-index: 10;
   animation: slideUp 0.5s ease-out;
 
   .mat-mdc-card-header {
@@ -967,7 +966,7 @@
 }
 // Responsive - Tablets
 @media (max-width: 768px) {
-  .crear-usuario-container {
+  .control-sucursal-container {
     padding: 1rem 0.5rem;
 
     .floating-icons .icon mat-icon {
@@ -1119,7 +1118,7 @@
 }
 // Responsive - Móviles
 @media (max-width: 480px) {
-  .crear-usuario-container {
+  .control-sucursal-container {
     padding: 0.5rem;
 
     .floating-icons .icon mat-icon {
@@ -1513,7 +1512,7 @@
 }
 
 // Scrollbar global para el contenedor principal
-.crear-usuario-container {
+.control-sucursal-container {
   &::-webkit-scrollbar {
     width: 10px;
   }

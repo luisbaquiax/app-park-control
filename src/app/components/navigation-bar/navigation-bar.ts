@@ -70,6 +70,13 @@ export class NavigationBar {
       route: '/control-sucursal',
       roles: ['EMPRESA'],
     },
+    // Sucursal
+    {
+      icon: 'business_center',
+      label: 'Gestión Sucursal',
+      route: '/gestion-sucursal',
+      roles: ['SUCURSAL'],
+    },
   ];
 
   ngOnInit() {
