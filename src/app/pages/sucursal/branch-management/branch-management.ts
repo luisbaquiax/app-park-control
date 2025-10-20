@@ -292,8 +292,8 @@ export class BranchManagement implements OnInit {
       idTarifaSucursal: tarifa.idTarifaSucursal,
       precioPorHora: tarifa.precioPorHora,
       moneda: tarifa.moneda,
-      fechaVigenciaInicio: tarifa.fechaVigenciaInicio,
-      fechaVigenciaFin: tarifa.fechaVigenciaFin,
+      fechaVigenciaInicio: new Date(tarifa.fechaVigenciaInicio),
+      fechaVigenciaFin: new Date(tarifa.fechaVigenciaFin),
       estado: tarifa.estado
     });
   }
@@ -334,28 +334,29 @@ export class BranchManagement implements OnInit {
   private formatearFecha(fecha: any): string {
     if (!fecha) return '';
     
-    if (fecha instanceof Date) {
-      const year = fecha.getFullYear();
-      const month = String(fecha.getMonth() + 1).padStart(2, '0');
-      const day = String(fecha.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    }
+    let dateObj: Date;
     
-    if (typeof fecha === 'string') {
+    if (fecha instanceof Date) {
+      dateObj = fecha;
+    } 
+    else if (typeof fecha === 'string') {
       if (fecha.match(/^\d{4}-\d{2}-\d{2}$/)) {
         return fecha;
       }
-      
-      const dateObj = new Date(fecha);
-      if (!isNaN(dateObj.getTime())) {
-        const year = dateObj.getFullYear();
-        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-        const day = String(dateObj.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-      }
+      dateObj = new Date(fecha);
+    } 
+    else {
+      return fecha.toString();
     }
     
-    return fecha.toString();
+    if (isNaN(dateObj.getTime())) {
+      return '';
+    }
+    
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   private marcarCamposInvalidos(formGroup: FormGroup): void {
