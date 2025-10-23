@@ -1,0 +1,602 @@
+<div class="plan-management-container">
+  <!-- Iconos flotantes de fondo -->
+  <div class="floating-icons">
+    <div class="icon"><mat-icon>description</mat-icon></div>
+    <div class="icon"><mat-icon>payment</mat-icon></div>
+    <div class="icon"><mat-icon>attach_money</mat-icon></div>
+    <div class="icon"><mat-icon>calendar_today</mat-icon></div>
+    <div class="icon"><mat-icon>schedule</mat-icon></div>
+    <div class="icon"><mat-icon>trending_up</mat-icon></div>
+    <div class="icon"><mat-icon>card_membership</mat-icon></div>
+    <div class="icon"><mat-icon>local_offer</mat-icon></div>
+  </div>
+
+  <!-- Card Principal -->
+  <mat-card class="usuario-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="header-icon">card_membership</mat-icon>
+        Gestión de Planes de Suscripción
+      </mat-card-title>
+      <mat-card-subtitle>Administre los planes de suscripción de su empresa</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <mat-tab-group 
+        animationDuration="300ms" 
+        class="sucursales-tabs"
+        [(selectedIndex)]="selectedTabIndex">
+        
+        <!-- TAB 1: CREAR/EDITAR PLAN -->
+        <mat-tab [label]="isEditMode ? 'Editar Plan' : 'Nuevo Plan'">
+          <div class="tab-content">
+            
+            <!-- Banner informativo cuando está en modo edición -->
+            <div class="edit-mode-banner" *ngIf="isEditMode">
+              <mat-icon>edit</mat-icon>
+              <div>
+                <strong>Editando Plan:</strong> {{selectedPlan?.nombrePlan}} - {{selectedPlan?.codigoPlan}}
+              </div>
+            </div>
+
+            <form [formGroup]="planForm" (ngSubmit)="enviarFormulario()" class="usuario-form">
+              
+              <!-- Sección: Información Básica del Plan -->
+              <div class="form-section">
+                <h3 class="section-title">
+                  <mat-icon>info</mat-icon>
+                  Información Básica del Plan
+                </h3>
+                
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Tipo de Plan</mat-label>
+                    <mat-select formControlName="nombrePlan">
+                      <mat-option *ngFor="let tipo of tiposPlan" [value]="tipo.value">
+                        {{ tipo.label }}
+                      </mat-option>
+                    </mat-select>
+                    <mat-icon matPrefix>category</mat-icon>
+                    <mat-error *ngIf="planForm.get('nombrePlan')?.hasError('required')">
+                      El tipo de plan es requerido
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Código del Plan</mat-label>
+                    <input matInput formControlName="codigoPlan" placeholder="Ej: PLAN-001">
+                    <mat-icon matPrefix>tag</mat-icon>
+                    <mat-error *ngIf="planForm.get('codigoPlan')?.hasError('required')">
+                      El código es requerido
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Descripción</mat-label>
+                    <textarea matInput 
+                              formControlName="descripcion" 
+                              rows="3" 
+                              placeholder="Descripción detallada del plan"></textarea>
+                    <mat-icon matPrefix>description</mat-icon>
+                    <mat-error *ngIf="planForm.get('descripcion')?.hasError('required')">
+                      La descripción es requerida
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <!-- Sección: Precio y Capacidad -->
+              <div class="form-section">
+                <h3 class="section-title">
+                  <mat-icon>attach_money</mat-icon>
+                  Precio y Capacidad
+                </h3>
+                
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Precio</mat-label>
+                    <input matInput 
+                          type="number" 
+                          formControlName="precioPlan" 
+                          placeholder="0.00"
+                          step="0.01">
+                    <span matPrefix>Q&nbsp;</span>
+                    <mat-icon matPrefix>payments</mat-icon>
+                    <mat-error *ngIf="planForm.get('precioPlan')?.hasError('required')">
+                      El precio es requerido
+                    </mat-error>
+                    <mat-error *ngIf="planForm.get('precioPlan')?.hasError('min')">
+                      El precio debe ser mayor a 0
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Horas Mensuales</mat-label>
+                    <input matInput 
+                          type="number" 
+                          formControlName="horasMensuales" 
+                          placeholder="0"
+                          (keypress)="soloNumeros($event)">
+                    <span matSuffix>&nbsp;hrs</span>
+                    <mat-icon matPrefix>schedule</mat-icon>
+                    <mat-error *ngIf="planForm.get('horasMensuales')?.hasError('required')">
+                      Las horas mensuales son requeridas
+                    </mat-error>
+                    <mat-error *ngIf="planForm.get('horasMensuales')?.hasError('min')">
+                      Debe ser al menos 1 hora
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <!-- Sección: Cobertura del Servicio -->
+              <div class="form-section">
+                <h3 class="section-title">
+                  <mat-icon>calendar_month</mat-icon>
+                  Cobertura del Servicio
+                </h3>
+                
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Días Aplicables</mat-label>
+                    <mat-select formControlName="diasAplicables" multiple>
+                      <mat-option *ngFor="let dia of diasSemana" [value]="dia.value">
+                        {{ dia.label }}
+                      </mat-option>
+                    </mat-select>
+                    <mat-icon matPrefix>event</mat-icon>
+                    <mat-hint>Seleccione uno o más días</mat-hint>
+                    <mat-error *ngIf="planForm.get('diasAplicables')?.hasError('required')">
+                      Los días aplicables son requeridos
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Cobertura Horaria</mat-label>
+                    <input matInput 
+                          formControlName="coberturaHoraria" 
+                          placeholder="Ej: 8:00 AM - 5:00 PM">
+                    <mat-icon matPrefix>access_time</mat-icon>
+                    <mat-error *ngIf="planForm.get('coberturaHoraria')?.hasError('required')">
+                      La cobertura horaria es requerida
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <!-- Sección: Descuentos -->
+              <div class="form-section">
+                <h3 class="section-title">
+                  <mat-icon>local_offer</mat-icon>
+                  Descuentos
+                </h3>
+                
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Descuento Mensual</mat-label>
+                    <input matInput 
+                          type="number" 
+                          formControlName="descuentoMensual" 
+                          placeholder="0" 
+                          min="0" 
+                          max="100"
+                          (keypress)="soloNumeros($event)">
+                    <span matSuffix>&nbsp;%</span>
+                    <mat-icon matPrefix>percent</mat-icon>
+                    <mat-hint>Ingrese un porcentaje de 0 a 100</mat-hint>
+                    <mat-error *ngIf="planForm.get('descuentoMensual')?.hasError('max')">
+                      No puede ser mayor a 100%
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Descuento Anual Adicional</mat-label>
+                    <input matInput 
+                          type="number" 
+                          formControlName="descuentoAnualAdicional" 
+                          placeholder="0" 
+                          min="0" 
+                          max="100"
+                          (keypress)="soloNumeros($event)">
+                    <span matSuffix>&nbsp;%</span>
+                    <mat-icon matPrefix>card_giftcard</mat-icon>
+                    <mat-hint>Descuento adicional para pago anual</mat-hint>
+                    <mat-error *ngIf="planForm.get('descuentoAnualAdicional')?.hasError('max')">
+                      No puede ser mayor a 100%
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <!-- Sección: Vigencia -->
+              <div class="form-section">
+                <h3 class="section-title">
+                  <mat-icon>date_range</mat-icon>
+                  Período de Vigencia
+                </h3>
+                
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Fecha Inicio Vigencia</mat-label>
+                    <input matInput 
+                           [matDatepicker]="pickerInicio"
+                           formControlName="fechaVigenciaInicio">
+                    <mat-icon matPrefix>event_available</mat-icon>
+                    <mat-datepicker-toggle matIconSuffix [for]="pickerInicio"></mat-datepicker-toggle>
+                    <mat-datepicker #pickerInicio></mat-datepicker>
+                    <mat-error *ngIf="planForm.get('fechaVigenciaInicio')?.hasError('required')">
+                      La fecha de inicio es requerida
+                    </mat-error>
+                    <mat-error *ngIf="planForm.get('fechaVigenciaInicio')?.hasError('fechaPasada')">
+                      La fecha debe ser igual o posterior a hoy
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Fecha Fin Vigencia</mat-label>
+                    <input matInput 
+                           [matDatepicker]="pickerFin"
+                           formControlName="fechaVigenciaFin">
+                    <mat-icon matPrefix>event_busy</mat-icon>
+                    <mat-datepicker-toggle matIconSuffix [for]="pickerFin"></mat-datepicker-toggle>
+                    <mat-datepicker #pickerFin></mat-datepicker>
+                    <mat-error *ngIf="planForm.get('fechaVigenciaFin')?.hasError('required')">
+                      La fecha de fin es requerida
+                    </mat-error>
+                    <mat-error *ngIf="planForm.get('fechaVigenciaFin')?.hasError('fechaPasada')">
+                      La fecha debe ser igual o posterior a hoy
+                    </mat-error>
+                    <mat-error *ngIf="planForm.get('fechaVigenciaFin')?.hasError('fechaFinMenor')">
+                      La fecha de fin debe ser igual o posterior a la fecha de inicio
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <!-- Botones de Acción -->
+              <div class="form-actions">
+                <button mat-stroked-button 
+                        type="button" 
+                        class="cancel-button" 
+                        (click)="isEditMode ? cancelarEdicion() : limpiarFormulario()">
+                  <mat-icon>cancel</mat-icon>
+                  Cancelar
+                </button>
+                
+                <button mat-raised-button 
+                        [color]="isEditMode ? 'accent' : 'primary'" 
+                        type="submit" 
+                        [disabled]="!planForm.valid || isLoading" 
+                        class="submit-button">
+                  <mat-spinner *ngIf="isLoading" diameter="20" class="button-spinner"></mat-spinner>
+                  <mat-icon *ngIf="!isLoading">{{ isEditMode ? 'save' : 'add_circle' }}</mat-icon>
+                  <span *ngIf="!isLoading">{{ isEditMode ? 'Guardar Cambios' : 'Crear Plan' }}</span>
+                  <span *ngIf="isLoading">{{ isEditMode ? 'Guardando...' : 'Creando...' }}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </mat-tab>
+
+        <!-- TAB 2: VER Y GESTIONAR PLANES -->
+        <mat-tab label="Gestionar Planes">
+          <div class="tab-content">
+            
+            <!-- Sección de Resultados -->
+            <div class="results-section">
+              <h3 class="section-title">
+                <mat-icon>list</mat-icon>
+                Planes Vigentes ({{planes.length}})
+              </h3>
+
+              <!-- Loading -->
+              <div class="no-results" *ngIf="isLoadingPlanes">
+                <mat-spinner diameter="50"></mat-spinner>
+                <p>Cargando planes...</p>
+              </div>
+
+              <!-- Tabla de Planes -->
+              <div class="table-container" *ngIf="!isLoadingPlanes && planes.length > 0">
+                <table mat-table [dataSource]="planes" class="sucursales-table">
+                  
+                  <!-- Columna Código -->
+                  <ng-container matColumnDef="codigoPlan">
+                    <th mat-header-cell *matHeaderCellDef>Código</th>
+                    <td mat-cell *matCellDef="let plan">
+                      <div class="cell-content">
+                        <mat-icon class="cell-icon">tag</mat-icon>
+                        <span class="cell-text">{{plan.codigoPlan}}</span>
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <!-- Columna Nombre -->
+                  <ng-container matColumnDef="nombrePlan">
+                    <th mat-header-cell *matHeaderCellDef>Nombre del Plan</th>
+                    <td mat-cell *matCellDef="let plan">
+                      <div class="cell-content">
+                        <mat-icon class="cell-icon">card_membership</mat-icon>
+                        <div class="cell-text">
+                          <div><strong>{{plan.nombrePlan}}</strong></div>
+                          <div class="text-secondary">{{plan.descripcion}}</div>
+                        </div>
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <!-- Columna Precio -->
+                  <ng-container matColumnDef="precioPlan">
+                    <th mat-header-cell *matHeaderCellDef>Precio</th>
+                    <td mat-cell *matCellDef="let plan">
+                      <div class="cell-content">
+                        <mat-icon class="cell-icon">attach_money</mat-icon>
+                        <span class="cell-text">{{formatearPrecio(plan.precioPlan)}}</span>
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <!-- Columna Horas -->
+                  <ng-container matColumnDef="horasMensuales">
+                    <th mat-header-cell *matHeaderCellDef>Horas Mensuales</th>
+                    <td mat-cell *matCellDef="let plan">
+                      <div class="cell-content">
+                        <mat-icon class="cell-icon">schedule</mat-icon>
+                        <span class="cell-text">{{plan.horasMensuales}} hrs</span>
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <!-- Columna Vigencia -->
+                  <ng-container matColumnDef="vigencia">
+                    <th mat-header-cell *matHeaderCellDef>Vigencia</th>
+                    <td mat-cell *matCellDef="let plan">
+                      <div class="cell-content">
+                        <mat-icon class="cell-icon">date_range</mat-icon>
+                        <div class="cell-text">
+                          <div>{{formatearFecha(plan.configuracionDescuento.fechaVigenciaInicio)}}</div>
+                          <div class="text-secondary">{{formatearFecha(plan.configuracionDescuento.fechaVigenciaFin)}}</div>
+                        </div>
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <!-- Columna Estado -->
+                  <ng-container matColumnDef="estado">
+                    <th mat-header-cell *matHeaderCellDef>Estado</th>
+                    <td mat-cell *matCellDef="let plan">
+                      <mat-chip [class]="'chip-' + plan.activo.toLowerCase()">
+                        {{plan.activo}}
+                      </mat-chip>
+                    </td>
+                  </ng-container>
+
+                  <!-- Columna Acciones -->
+                  <ng-container matColumnDef="acciones">
+                    <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                    <td mat-cell *matCellDef="let plan">
+                      <div class="action-buttons">
+                        <button mat-raised-button 
+                                color="accent" 
+                                (click)="abrirModalDetalles(plan)"
+                                class="details-button">
+                          <mat-icon>visibility</mat-icon>
+                          Ver
+                        </button>
+                        <button mat-raised-button 
+                                color="primary" 
+                                (click)="prepararEdicion(plan)"
+                                class="edit-button">
+                          <mat-icon>edit</mat-icon>
+                          Editar
+                        </button>
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                </table>
+              </div>
+
+              <!-- Mensaje cuando no hay resultados -->
+              <div class="no-results" *ngIf="!isLoadingPlanes && planes.length === 0">
+                <mat-icon>inbox</mat-icon>
+                <p>No hay planes registrados</p>
+              </div>
+            </div>
+
+          </div>
+        </mat-tab>
+
+      </mat-tab-group>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- ========================================= -->
+  <!-- MODAL DE DETALLES DEL PLAN -->
+  <!-- ========================================= -->
+  <div class="modal-overlay" *ngIf="mostrarModalDetalles" (click)="cerrarModalDetalles($event)">
+    <div class="encargado-modal details-modal" (click)="$event.stopPropagation()">
+      
+      <!-- Header del Modal -->
+      <div class="modal-header">
+        <div class="modal-icon">
+          <mat-icon>info</mat-icon>
+        </div>
+        <h2>Detalles del Plan</h2>
+        <button mat-icon-button class="close-button" (click)="cerrarModalDetalles()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+
+      <!-- Contenido del Modal -->
+      <div class="modal-content" *ngIf="selectedPlan">
+        
+        <!-- Información Básica -->
+        <div class="info-section">
+          <h3 class="info-section-title">
+            <mat-icon>card_membership</mat-icon>
+            Información Básica
+          </h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Código:</span>
+              <span class="info-value">{{selectedPlan.codigoPlan}}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Nombre:</span>
+              <span class="info-value">{{selectedPlan.nombrePlan}}</span>
+            </div>
+            <div class="info-item full-width">
+              <span class="info-label">Descripción:</span>
+              <span class="info-value">{{selectedPlan.descripcion}}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Estado:</span>
+              <mat-chip [class]="'chip-' + selectedPlan.activo.toLowerCase()">
+                {{selectedPlan.activo}}
+              </mat-chip>
+            </div>
+          </div>
+        </div>
+
+        <!-- Precio y Capacidad -->
+        <div class="info-section">
+          <h3 class="info-section-title">
+            <mat-icon>attach_money</mat-icon>
+            Precio y Capacidad
+          </h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Precio:</span>
+              <span class="info-value highlight-price">{{formatearPrecio(selectedPlan.precioPlan)}}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Horas Mensuales:</span>
+              <span class="info-value">{{selectedPlan.horasMensuales}} hrs</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cobertura -->
+        <div class="info-section">
+          <h3 class="info-section-title">
+            <mat-icon>calendar_month</mat-icon>
+            Cobertura del Servicio
+          </h3>
+          <div class="info-grid">
+            <div class="info-item full-width">
+              <span class="info-label">Días Aplicables:</span>
+              <span class="info-value">{{obtenerNombresDias(selectedPlan.diasAplicables)}}</span>
+            </div>
+            <div class="info-item full-width">
+              <span class="info-label">Cobertura Horaria:</span>
+              <span class="info-value">{{selectedPlan.coberturaHoraria}}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Descuentos -->
+        <div class="info-section">
+          <h3 class="info-section-title">
+            <mat-icon>local_offer</mat-icon>
+            Descuentos
+          </h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Descuento Mensual:</span>
+              <span class="info-value highlight-discount">{{selectedPlan.configuracionDescuento.descuentoMensual}}%</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Descuento Anual Adicional:</span>
+              <span class="info-value highlight-discount">{{selectedPlan.configuracionDescuento.descuentoAnualAdicional}}%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vigencia -->
+        <div class="info-section">
+          <h3 class="info-section-title">
+            <mat-icon>date_range</mat-icon>
+            Período de Vigencia
+          </h3>
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">Fecha Inicio:</span>
+              <span class="info-value">{{formatearFecha(selectedPlan.configuracionDescuento.fechaVigenciaInicio)}}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Fecha Fin:</span>
+              <span class="info-value">{{formatearFecha(selectedPlan.configuracionDescuento.fechaVigenciaFin)}}</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Botón de cierre -->
+      <div class="modal-actions">
+        <button mat-raised-button 
+                color="primary" 
+                (click)="cerrarModalDetalles()">
+          <mat-icon>close</mat-icon>
+          Cerrar
+        </button>
+      </div>
+      
+    </div>
+  </div>
+
+  <!-- ========================================= -->
+  <!-- MODAL DE CONFIRMACIÓN -->
+  <!-- ========================================= -->
+  <div class="modal-overlay" *ngIf="mostrarModalConfirmacion" (click)="cerrarModalConfirmacion($event)">
+    <div class="encargado-modal confirmation-modal" (click)="$event.stopPropagation()">
+      
+      <!-- Header del Modal de Confirmación -->
+      <div class="modal-header warning-header">
+        <div class="modal-icon">
+          <mat-icon>warning</mat-icon>
+        </div>
+        <h2>Confirmar Edición del Plan</h2>
+        <p class="modal-subtitle">
+          Esta acción modificará el plan actual
+        </p>
+      </div>
+
+      <!-- Contenido del Modal de Confirmación -->
+      <div class="modal-content">
+        <div class="warning-message">
+          <mat-icon class="warning-icon-large">info</mat-icon>
+          <div class="warning-text">
+            <h4>¿Está seguro de sobrescribir el plan?</h4>
+            <p>
+              <strong>IMPORTANTE:</strong> Al guardar los cambios, el plan actual será archivado como <strong>HISTÓRICO</strong>.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botones del Modal de Confirmación -->
+      <div class="modal-actions">
+        <button mat-stroked-button 
+                class="cancel-button"
+                (click)="cerrarModalConfirmacion()">
+          <mat-icon>close</mat-icon>
+          Cancelar
+        </button>
+        
+        <button mat-raised-button 
+                color="warn" 
+                (click)="confirmarYEditarPlan()"
+                class="confirm-button">
+          <mat-icon>check_circle</mat-icon>
+          Sí, Sobrescribir Plan
+        </button>
+      </div>
+      
+    </div>
+  </div>
+</div>

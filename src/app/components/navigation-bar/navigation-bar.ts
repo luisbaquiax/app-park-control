@@ -1,14 +1,7 @@
-import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { MatDivider } from '@angular/material/divider';
-import { MatIcon } from '@angular/material/icon';
-import { MatNavList, MatListItem } from '@angular/material/list';
-import { MatDrawerContainer, MatDrawer } from '@angular/material/sidenav';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatToolbar } from '@angular/material/toolbar';
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
-import { NavigationEnd, Router, RouterModule } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
 import { LoginService } from '../../services/login.service';
 import { COMMON_IMPORTS } from '../../shared/common-imports';
@@ -34,6 +27,7 @@ export class NavigationBar {
   menuItems: MenuItem[] = [];
   idUsuarioActual: number | null = null;
   nombreRolActual: string | null = null;
+  nombreUsuarioActual: string | null = null;
   private routerSubscription: any;
   private menuSubscription: any;
 
@@ -63,17 +57,23 @@ export class NavigationBar {
       route: '/login',
       showWhenLoggedIn: false,
     },
-    // Empresa
+    // OPCIONES DEL USUARIO EMPRESA
     {
       icon: 'business_center',
       label: 'Control Sucursal',
       route: '/control-sucursal',
       roles: ['EMPRESA'],
     },
-    // Sucursal
     {
       icon: 'business_center',
-      label: 'Gestión Sucursal',
+      label: 'Gestionar Planes',
+      route: '/gestion-planes',
+      roles: ['EMPRESA'],
+    },
+    // OPCIONES DEL USUARIO SUCURSAL
+    {
+      icon: 'business_center',
+      label: 'Gestionar Sucursal',
       route: '/gestion-sucursal',
       roles: ['SUCURSAL'],
     },
@@ -99,13 +99,14 @@ export class NavigationBar {
   private cargarDatosUsuarioYMenu() {
     const idUsuario = sessionStorage.getItem('idUsuario');
     const nombreRol = sessionStorage.getItem('nombreRol');
+    const nombreUsuario = sessionStorage.getItem('nombreUsuario');
 
     if (idUsuario && idUsuario.trim() !== '' && !isNaN(Number(idUsuario))) {
       this.idUsuarioActual = Number(idUsuario);
       this.nombreRolActual = nombreRol && nombreRol.trim() !== '' ? nombreRol : null;
+      this.nombreUsuarioActual = nombreUsuario && nombreUsuario.trim() !== '' ? nombreUsuario : null;
       this.filtrarMenu();
     } else {
-      // Si no hay sesión válida, limpiar y mostrar menú público
       this.limpiarSesion();
     }
   }
@@ -113,6 +114,7 @@ export class NavigationBar {
   private limpiarSesion() {
     this.idUsuarioActual = null;
     this.nombreRolActual = null;
+    this.nombreUsuarioActual = null;
     this.menuItems = this.allMenuItems.filter((item) => !item.roles && !item.roleIds);
   }
 

@@ -48,9 +48,7 @@ export class CreateUser implements OnInit {
     this.cargarDepartamentos();
   }
 
-  ngOnInit(): void {
-    // No hay lógica de fortaleza de contraseña
-  }
+  ngOnInit(): void {}
 
   crearUsuarioForm(): FormGroup {
     return this.formBuilder.group({
@@ -83,7 +81,6 @@ export class CreateUser implements OnInit {
         Validators.minLength(10)
       ]],
       
-      // Credenciales - Contraseña temporal simplificada
       nombreUsuario: ['', [
         Validators.required, 
         Validators.minLength(3),
@@ -91,7 +88,7 @@ export class CreateUser implements OnInit {
       ]],
       contraseniaHash: ['', [
         Validators.required, 
-        Validators.minLength(4) // Reducido a 4 para contraseña temporal
+        Validators.minLength(4)
       ]]
     });
   }
@@ -128,38 +125,27 @@ export class CreateUser implements OnInit {
       
       const formValue = this.usuarioForm.value;
       
-      // Preparar el objeto RegistroRequest
       const registroData: RegistroRequest = {
-        // Información personal
         nombre: formValue.nombre.trim(),
         apellido: formValue.apellido.trim(),
         fechaNacimiento: this.formatearFecha(formValue.fechaNacimiento),
         dpi: formValue.dpi.trim(),
         correo: formValue.correo.trim().toLowerCase(),
         telefono: formValue.telefono.trim(),
-        
-        // Información de dirección
         direccionCompleta: formValue.direccionCompleta.trim(),
-        ciudad: formValue.ciudad, // Municipio seleccionado
+        ciudad: formValue.ciudad,
         pais: formValue.pais,
         codigoPostal: formValue.codigoPostal.trim(),
-        
-        // Credenciales
         nombreUsuario: formValue.nombreUsuario.trim(),
         contraseniaHash: formValue.contraseniaHash
       };
 
-      // Llamar al servicio de registro
       this.loginService.registrarCliente(registroData).subscribe({
         next: (response: RegistroResponse) => {
           this.isLoading = false;
           this.mostrarMensaje(response.message || 'Usuario creado exitosamente','success');
           this.limpiarFormulario();
-          
-          // Opcional: Redirigir al login después de 2 segundos
-          setTimeout(() => {
-            this.router.navigate(['/login']);
-          }, 2000);
+          this.router.navigate(['/login']);
         },
         error: (error: any) => {
           this.isLoading = false;
@@ -200,7 +186,6 @@ export class CreateUser implements OnInit {
   private formatearFecha(fecha: any): string {
     if (!fecha) return '';
     
-    // Si es una instancia de Date
     if (fecha instanceof Date) {
       const year = fecha.getFullYear();
       const month = String(fecha.getMonth() + 1).padStart(2, '0');
@@ -208,7 +193,6 @@ export class CreateUser implements OnInit {
       return `${year}-${month}-${day}`;
     }
     
-    // Si es un string, intentar parsear
     if (typeof fecha === 'string') {
       const dateObj = new Date(fecha);
       if (!isNaN(dateObj.getTime())) {

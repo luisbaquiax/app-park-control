@@ -30,6 +30,13 @@
 
       <span class="toolbar-spacer"></span>
 
+      <!-- Información del usuario logueado -->
+      <div *ngIf="idUsuarioActual" class="user-info">
+        <mat-icon>badge</mat-icon>
+        <span>{{ nombreUsuarioActual }}</span>
+        <span class="user-role">({{ nombreRolActual }})</span>
+      </div>
+
       <!-- Menú de usuario -->
       <button 
         mat-icon-button 

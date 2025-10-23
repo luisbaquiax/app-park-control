@@ -102,7 +102,7 @@ export class BranchManagement implements OnInit {
   crearTarifaForm(): FormGroup {
     const form = this.formBuilder.group({
       idTarifaSucursal: [''],
-      precioPorHora: ['', [Validators.required, Validators.min(0)]],
+      precioPorHora: [''],
       moneda: ['GTQ', [Validators.required]],
       fechaVigenciaInicio: ['', [Validators.required]],
       fechaVigenciaFin: ['', [Validators.required]],
@@ -111,6 +111,23 @@ export class BranchManagement implements OnInit {
     });
 
     form.setValidators(this.validadorFechas());
+
+    form.get('esTarifaBase')?.valueChanges.subscribe(esTarifaBase => {
+      const precioPorHoraControl = form.get('precioPorHora');
+      
+      if (esTarifaBase) {
+        precioPorHoraControl?.clearValidators();
+        precioPorHoraControl?.setValue('');
+        precioPorHoraControl?.disable();
+      } else {
+        precioPorHoraControl?.setValidators([Validators.required, Validators.min(0.01)]);
+        precioPorHoraControl?.enable();
+      }
+      
+      precioPorHoraControl?.updateValueAndValidity();
+    });
+
+    form.get('precioPorHora')?.setValidators([Validators.required, Validators.min(0.01)]);
 
     form.get('fechaVigenciaInicio')?.valueChanges.subscribe(() => {
       form.get('fechaVigenciaFin')?.updateValueAndValidity({ emitEvent: false });
@@ -149,8 +166,6 @@ export class BranchManagement implements OnInit {
       },
       error: (error: any) => {
         this.isLoadingSucursal = false;
-        const mensajeError = error.error?.message || 'Error al cargar los datos de la sucursal';
-        this.mostrarMensaje(mensajeError, 'error');
       }
     });
   }
@@ -204,8 +219,9 @@ export class BranchManagement implements OnInit {
           this.cargarDatosSucursal();
         },
         error: (error: any) => {
+          const mensajeError = error?.error?.message || 'Error al actualizar la sucursal';
+          this.mostrarMensaje(mensajeError, 'error');
           this.isSavingSucursal = false;
-          this.mostrarMensaje('Error al actualizar la sucursal', 'error');
         }
       });
     } else {
@@ -223,7 +239,6 @@ export class BranchManagement implements OnInit {
       },
       error: (error: any) => {
         this.isLoadingTarifas = false;
-        this.mostrarMensaje('Error al cargar las tarifas', 'error');
       }
     });
   }
@@ -251,19 +266,25 @@ export class BranchManagement implements OnInit {
             this.cargarTarifas();
           },
           error: (error: any) => {
+            const mensajeError = error?.error?.message || 'Error al actualizar la tarifa';
+            this.mostrarMensaje(mensajeError, 'error');
             this.isSavingTarifa = false;
-            this.mostrarMensaje('Error al actualizar la tarifa', 'error');
           }
         });
       } else {
-        const tarifaData: TarifaSucursalCreateRequest = {
+        const esTarifaBase = this.tarifaForm.get('esTarifaBase')?.value || false;
+        
+        const tarifaData: any = {
           idUsuarioSucursal: this.idUsuario,
-          precioPorHora: this.tarifaForm.value.precioPorHora.toString(),
           moneda: this.tarifaForm.value.moneda,
           fechaVigenciaInicio: this.formatearFecha(this.tarifaForm.value.fechaVigenciaInicio),
           fechaVigenciaFin: this.formatearFecha(this.tarifaForm.value.fechaVigenciaFin),
-          esTarifaBase: this.tarifaForm.value.esTarifaBase || false
+          esTarifaBase: esTarifaBase
         };
+
+        if (!esTarifaBase) {
+          tarifaData.precioPorHora = this.tarifaForm.value.precioPorHora.toString();
+        }
 
         this.gestionarSucursalService.crearTarifaSucursal(tarifaData).subscribe({
           next: (response: ApiResponse) => {
@@ -274,7 +295,8 @@ export class BranchManagement implements OnInit {
           },
           error: (error: any) => {
             this.isSavingTarifa = false;
-            this.mostrarMensaje('Error al crear la tarifa', 'error');
+            const mensajeError = error.error?.message || 'Error al crear la tarifa';
+            this.mostrarMensaje(mensajeError, 'error');
           }
         });
       }

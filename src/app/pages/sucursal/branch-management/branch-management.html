@@ -268,6 +268,11 @@
                   </mat-form-field>
                 </div>
 
+                <div class="info-tarifa-base" *ngIf="tarifaForm.get('esTarifaBase')?.value">
+                  <mat-icon>info</mat-icon>
+                  <p>Esta tarifa utilizará el precio base configurado en la empresa</p>
+                </div>
+
                 <div class="form-row">
                   <mat-form-field appearance="outline" class="half-width">
                     <mat-label>Fecha Vigencia Inicio</mat-label>

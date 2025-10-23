@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { COMMON_IMPORTS } from '../../../shared/common-imports';
-import { GestionarEmpresaService } from '../../../services/empresa/gestinarEmpresa.service';
+import { GestionarEmpresaService } from '../../../services/empresa/gestionarEmpresa.service';
 import { CrearSucursalRequest, CrearSucursalResponse, SucursalResponse } from '../../../models/empresa/control.model';
 import { InformacionEmpresaResponse } from '../../../models/empresa/gestionarEmpresa.model';
 import { departamentosMunicipios, Departamento, Municipio } from '../../../models/extras/ubicacion.model';
@@ -50,6 +50,9 @@ export class BranchControl implements OnInit {
   
   // Fechas
   maxDate: Date;
+
+  // Datos Recuperados
+  idEmpresa = Number(sessionStorage.getItem('idEmpresa'));
   
   // Columnas para la tabla
   displayedColumns: string[] = ['nombre', 'direccion', 'ciudad', 'horario', 'capacidad', 'estado', 'acciones'];
@@ -68,6 +71,7 @@ export class BranchControl implements OnInit {
 
   ngOnInit(): void {
     this.cargarEmpresas();
+    this.buscarSucursales();
   }
 
   crearSucursalForm(): FormGroup {
@@ -109,7 +113,6 @@ export class BranchControl implements OnInit {
       ]],
       
       // Información de la Sucursal
-      idEmpresa: ['', [Validators.required]],
       nombreSucursal: ['', [Validators.required, Validators.minLength(3)]],
       direccionCompletaSucursal: ['', [
         Validators.required,
@@ -142,16 +145,12 @@ export class BranchControl implements OnInit {
         this.isLoadingEmpresas = false;
         this.empresas = response.filter(empresa => empresa.estado === 'ACTIVA');
         
-        console.log(response)
-
         if (this.empresas.length === 0) {
           this.mostrarMensaje('No hay empresas activas disponibles', 'info');
         }
       },
       error: (error: any) => {
         this.isLoadingEmpresas = false;
-        const mensajeError = error.error?.message || 'Error al cargar las empresas';
-        this.mostrarMensaje(mensajeError, 'error');
       }
     });
   }
@@ -213,7 +212,7 @@ export class BranchControl implements OnInit {
         contraseniaHash: formValue.contraseniaHash,
         
         // Información de la sucursal
-        idEmpresa: Number(formValue.idEmpresa),
+        idEmpresa: this.idEmpresa,
         nombreSucursal: formValue.nombreSucursal.trim(),
         direccionCompletaSucursal: formValue.direccionCompletaSucursal.trim(),
         ciudadSucursal: formValue.ciudadSucursal,
@@ -247,13 +246,9 @@ export class BranchControl implements OnInit {
   }
 
   buscarSucursales(): void {
-    if (!this.idEmpresaBusqueda || this.idEmpresaBusqueda <= 0) {
-      this.mostrarMensaje('Por favor, seleccione una empresa', 'warning');
-      return;
-    }
-
     this.isLoadingSucursales = true;
-    this.controlSucursalService.obtenerSucursalesPorEmpresa(this.idEmpresaBusqueda).subscribe({
+
+    this.controlSucursalService.obtenerSucursalesPorEmpresa(this.idEmpresa).subscribe({
       next: (response: SucursalResponse[]) => {
         this.isLoadingSucursales = false;
         this.sucursales = response;
@@ -274,14 +269,12 @@ export class BranchControl implements OnInit {
     });
   }
 
-  // Nuevo método para ver detalles del encargado
   verDetallesEncargado(sucursal: SucursalResponse): void {
     this.encargadoSeleccionado = sucursal.sucursalDTO.usuario;
     this.sucursalSeleccionada = sucursal.sucursalDTO;
     this.mostrarModalEncargado = true;
   }
 
-  // Nuevo método para cerrar modal
   cerrarModalEncargado(event?: MouseEvent): void {
     if (event) {
       const target = event.target as HTMLElement;
@@ -295,7 +288,6 @@ export class BranchControl implements OnInit {
     this.sucursalSeleccionada = null;
   }
 
-  // Método auxiliar para formatear fecha legible
   formatearFechaLegible(fecha: string): string {
     if (!fecha) return 'N/A';
     const date = new Date(fecha);

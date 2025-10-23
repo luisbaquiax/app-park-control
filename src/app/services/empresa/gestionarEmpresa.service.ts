@@ -16,4 +16,8 @@ export class GestionarEmpresaService {
   obtenerEmpresas(): Observable<InformacionEmpresaResponse[]> {
     return this.http.get<InformacionEmpresaResponse[]>(`${this.DIRECCION_API}/companies-managment/all`);
   }
+
+  obtenerEmpresaPorID(idUsuario: number): Observable<InformacionEmpresaResponse[]> {
+    return this.http.get<InformacionEmpresaResponse[]>(`${this.DIRECCION_API}/companies-managment/get-by-user-company/${idUsuario}`);
+  }
 }

@@ -42,7 +42,6 @@ export class FirstPassword implements OnInit {
   }
 
   ngOnInit() {
-    // Obtener el ID del usuario desde sessionStorage
     const idUsuarioStr = sessionStorage.getItem('idUsuario');
     
     if (idUsuarioStr && idUsuarioStr.trim() !== '' && !isNaN(Number(idUsuarioStr))) {
@@ -52,7 +51,6 @@ export class FirstPassword implements OnInit {
       this.router.navigate(['/login']);
     }
 
-    // Escuchar cambios en el campo de contraseña para actualizar requisitos
     this.contraseniaForm.get('nuevaContrasenia')?.valueChanges.subscribe(value => {
       this.actualizarRequisitos(value);
     });
@@ -117,14 +115,7 @@ export class FirstPassword implements OnInit {
     this.loginService.primerInicioContrasenia(request).subscribe({
       next: (response) => {
         this.mostrarMensaje(response.message || 'Contraseña establecida correctamente', 'success');
-        
-        // Opcional: actualizar algún flag en sessionStorage para indicar que ya no es primer inicio
-        sessionStorage.setItem('primerInicio', 'false');
-        
-        // Redirigir al dashboard o página principal
-        setTimeout(() => {
-          this.router.navigate(['/']);
-        }, 1500);
+        this.router.navigate(['/']);
       },
       error: (error) => {
         this.isLoading = false;
@@ -156,7 +147,6 @@ export class FirstPassword implements OnInit {
     if (field === 'confirmarContrasenia' && this.contraseniaForm.hasError('noCoinciden')) {
       return 'Las contraseñas no coinciden';
     }
-    
     return '';
   }
 }

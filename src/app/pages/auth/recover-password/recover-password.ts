@@ -87,7 +87,8 @@ export class RecoverPassword implements OnInit {
           this.currentStep = 2;
         },
         error: (error) => {
-          this.mostrarMensaje(error.error?.message || "Error al Solicitar Recuperación de Contraseña", "error");
+          const mensajeError = error?.error?.message || 'Error al Solicitar Recuperación de Contraseña';
+          this.mostrarMensaje(mensajeError, 'error');
         }
       });
     }
@@ -116,7 +117,8 @@ export class RecoverPassword implements OnInit {
           this.currentStep = 3;
         },
         error: (error) => {
-          this.mostrarMensaje(error.error?.message || "Error al Solicitar Cambio de Contraseña", "error");
+          const mensajeError = error?.error?.message || 'Error al Solicitar Cambio de Contraseña';
+          this.mostrarMensaje(mensajeError, 'error');
         }
       });
     }
@@ -142,7 +144,8 @@ export class RecoverPassword implements OnInit {
           this.currentStep = 4;
         },
         error: (error) => {
-          this.mostrarMensaje(error.error?.message || "Error al Cambiar la Contraseña", "error");
+          const mensajeError = error?.error?.message || 'Error al Cambiar la Contraseña';
+          this.mostrarMensaje(mensajeError, 'error');
         }
       });
     }

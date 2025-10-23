@@ -6,6 +6,8 @@ import { COMMON_IMPORTS } from '../../../shared/common-imports';
 import { LoginService } from '../../../services/login.service';
 import { LoginResponse, Verificar2FAResponse } from '../../../models/login.model';
 import { NavigationService } from '../../../services/navigation.service';
+import { GestionarEmpresaService } from '../../../services/empresa/gestionarEmpresa.service';
+import { InformacionEmpresaResponse } from '../../../models/empresa/gestionarEmpresa.model';
 
 @Component({
   selector: 'app-login',
@@ -24,7 +26,7 @@ export class Login {
   isReenviandoCodigo: boolean = false;
   nombreRolActual: string = "";
   
-  constructor( private fb: FormBuilder,  private router: Router, private snackBar: MatSnackBar, private loginService: LoginService, private navigationService: NavigationService) {
+  constructor( private fb: FormBuilder,  private router: Router, private snackBar: MatSnackBar, private loginService: LoginService, private navigationService: NavigationService, private gestionarEmpresaService: GestionarEmpresaService) {
     this.loginForm = this.fb.group({
       nombreUsuario: ['', [Validators.required]],
       contrasenia: ['', [Validators.required, Validators.minLength(6)]],
@@ -61,7 +63,8 @@ export class Login {
           }
         },
         error: (error) => {
-          this.mostrarMensaje('Credenciales incorrectas. Intente nuevamente.', 'error');
+          const mensajeError = error?.error?.message || 'Error al iniciar sesión';
+          this.mostrarMensaje(mensajeError, 'error');
           this.isLoading = false;
         }
       })
@@ -89,8 +92,9 @@ export class Login {
           this.guardarInformacionAdicionalUsuario(response);
         },
         error: (error) => {
+          const mensajeError = error?.error?.message || 'Código incorrecto o expirado';
+          this.mostrarMensaje(mensajeError, 'error');
           this.isVerificandoToken = false;
-          this.mostrarMensaje("Código incorrecto o expirado", "error");
           this.tokenForm.get('token')?.setErrors({ 'incorrect': true });
         }
       });
@@ -146,6 +150,21 @@ export class Login {
     } else if (this.nombreRolActual === "CLIENTE") {
       this.router.navigate(['/']);
     } else if (this.nombreRolActual === "SISTEMA") {
+      this.router.navigate(['/']);
+    } else if (this.nombreRolActual === "EMPRESA") {
+      // Guardamos Info de la Empresa
+      const idUsuarioEmpleado = Number (sessionStorage.getItem('idUsuario'));
+
+      this.gestionarEmpresaService.obtenerEmpresaPorID(idUsuarioEmpleado).subscribe({
+        next: (response: InformacionEmpresaResponse[]) => {
+          sessionStorage.setItem('idEmpresa', response[0].idEmpresa.toString());
+          sessionStorage.setItem('nombreEmpresa', response[0].nombreComercial);
+          sessionStorage.setItem('direccion', response[0].direccionFiscal);
+        },
+        error: (error) => {
+          this.mostrarMensaje('Error al cargar información de la empresa', 'error');
+        }
+      });
       this.router.navigate(['/']);
     }
     this.navigationService.triggerRefreshMenu();

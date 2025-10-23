@@ -26,34 +26,6 @@
         <mat-tab label="Nueva Sucursal">
           <div class="tab-content">
             <form [formGroup]="sucursalForm" (ngSubmit)="enviarFormulario()" class="usuario-form">
-              
-              <!-- Sección Selección de Empresa -->
-              <div class="form-section">
-                <h3 class="section-title">
-                  <mat-icon>business_center</mat-icon>
-                  Información de la Empresa
-                </h3>
-                
-                <div class="form-row">
-                  <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>Seleccione una Empresa</mat-label>
-                    <mat-select formControlName="idEmpresa" [disabled]="isLoadingEmpresas">
-                      <mat-option *ngFor="let empresa of empresas" [value]="empresa.idEmpresa">
-                        <div class="empresa-option">
-                          <div class="empresa-nombre">{{empresa.nombreComercial}}</div>
-                          <div class="empresa-detalle">{{empresa.razonSocial}} - NIT: {{empresa.nit}}</div>
-                        </div>
-                      </mat-option>
-                    </mat-select>
-                    <mat-icon matPrefix>business</mat-icon>
-                    <mat-hint *ngIf="isLoadingEmpresas">Cargando empresas...</mat-hint>
-                    <mat-hint *ngIf="!isLoadingEmpresas && empresas.length === 0">No hay empresas disponibles</mat-hint>
-                    <mat-error *ngIf="sucursalForm.get('idEmpresa')?.hasError('required')">
-                      Debe seleccionar una empresa
-                    </mat-error>
-                  </mat-form-field>
-                </div>
-              </div>
 
               <!-- Sección Información del Encargado -->
               <div class="form-section">
@@ -394,47 +366,6 @@
         <!-- TAB 2: Ver Sucursales -->
         <mat-tab label="Buscar Sucursales">
           <div class="tab-content">
-            <div class="search-section">
-              <h3 class="section-title">
-                <mat-icon>search</mat-icon>
-                Buscar Sucursales por Empresa
-              </h3>
-              
-              <div class="search-container">
-                <mat-form-field appearance="outline" class="search-field">
-                  <mat-label>Seleccione una Empresa</mat-label>
-                  <mat-select [(ngModel)]="idEmpresaBusqueda" [disabled]="isLoadingEmpresas">
-                    <mat-option *ngFor="let empresa of empresas" [value]="empresa.idEmpresa">
-                      <div class="empresa-option">
-                        <div class="empresa-nombre">{{empresa.nombreComercial}}</div>
-                        <div class="empresa-detalle">{{empresa.razonSocial}} - NIT: {{empresa.nit}}</div>
-                      </div>
-                    </mat-option>
-                  </mat-select>
-                  <mat-icon matPrefix>business</mat-icon>
-                  <mat-hint *ngIf="isLoadingEmpresas">Cargando empresas...</mat-hint>
-                </mat-form-field>
-
-                <button mat-raised-button 
-                        color="primary" 
-                        (click)="buscarSucursales()"
-                        [disabled]="!idEmpresaBusqueda || isLoadingSucursales"
-                        class="search-button">
-                  <mat-spinner *ngIf="isLoadingSucursales" diameter="20" class="button-spinner"></mat-spinner>
-                  <mat-icon *ngIf="!isLoadingSucursales">search</mat-icon>
-                  <span *ngIf="!isLoadingSucursales">Buscar</span>
-                  <span *ngIf="isLoadingSucursales">Buscando...</span>
-                </button>
-
-                <button mat-stroked-button 
-                        (click)="limpiarBusqueda()"
-                        [disabled]="isLoadingSucursales"
-                        class="clear-button">
-                  <mat-icon>clear</mat-icon>
-                  Limpiar
-                </button>
-              </div>
-            </div>
             <!-- Resultados -->
             <div class="results-section" *ngIf="sucursales.length > 0">
               <h3 class="section-title">
@@ -559,7 +490,6 @@
     </mat-card-content>
   </mat-card>
 
-  <!-- Modal de Detalles del Encargado -->
   <div class="modal-overlay" *ngIf="mostrarModalEncargado" (click)="cerrarModalEncargado($event)">
     <div class="encargado-modal" (click)="$event.stopPropagation()">
       
