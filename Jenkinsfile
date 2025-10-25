@@ -7,7 +7,7 @@ pipeline {
         stage('Build Angular') {
             steps {
                 // Ejecuta el build dentro de un contenedor Node con docker run
-                sh 'docker run --rm -v $PWD:/app -w /app node:22 sh -c "npm ci && npm install -g @angular/cli && ng build --configuration=production"'
+                sh 'docker run --rm -v $PWD:/app -w /app node:22 sh -c "npm install && npm install -g @angular/cli && ng build --configuration=production"'
             }
         }
         stage('Deploy') {
