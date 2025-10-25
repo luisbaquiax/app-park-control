@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api-produccion.com',
-  enableLogs: false
+  apiUrl: 'http://http://3.82.57.35/:8081',
+  enableLogs: false,
 };
