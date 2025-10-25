@@ -25,5 +25,8 @@ export const routes: Routes = [
     },
     {
         path: 'gestion-planes', loadComponent: () => import('./pages/empresa/plan-management/plan-management').then(m => m.PlanManagement), title: "Gestión Planes"
+    },
+    {
+        path: 'suscripciones', loadComponent: () => import('./pages/cliente/subscription/subscription').then(m => m.Subscription), title: "Suscripciónes"
     }
 ];

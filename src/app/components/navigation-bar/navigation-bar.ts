@@ -77,6 +77,13 @@ export class NavigationBar {
       route: '/gestion-sucursal',
       roles: ['SUCURSAL'],
     },
+    // OPCIONES DEL USUARIO CLIENTE
+    {
+      icon: 'business_center',
+      label: 'Suscripciones',
+      route: '/suscripciones',
+      roles: ['CLIENTE'],
+    },
   ];
 
   ngOnInit() {

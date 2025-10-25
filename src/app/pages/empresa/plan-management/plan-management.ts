@@ -67,7 +67,7 @@ export class PlanManagement implements OnInit {
   diasSemana = [
     { value: 'L', label: 'Lunes' },
     { value: 'M', label: 'Martes' },
-    { value: 'Mi', label: 'Miércoles' },
+    { value: 'X', label: 'Miércoles' },
     { value: 'J', label: 'Jueves' },
     { value: 'V', label: 'Viernes' },
     { value: 'S', label: 'Sábado' },
@@ -333,7 +333,8 @@ export class PlanManagement implements OnInit {
         this.selectedTabIndex = 1;
       },
       error: (error) => {
-        this.mostrarMensaje('Error al actualizar el plan', 'error');
+        const mensajeError = error.error?.message || 'Error al editar plan';
+        this.mostrarMensaje(mensajeError, 'error');
         this.isLoading = false;
       }
     });
