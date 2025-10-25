@@ -1,0 +1,9 @@
+version: '3.9'
+
+services:
+  angular-app:
+    build: .
+    container_name: app-park-control
+    ports:
+      - "4200:80"
+    restart: always

@@ -30,30 +30,30 @@ export class BranchControl implements OnInit {
   isLoading = false;
   isLoadingSucursales = false;
   isLoadingEmpresas = false;
-  
+
   // Empresas disponibles
   empresas: InformacionEmpresaResponse[] = [];
-  
+
   // Para búsqueda de sucursales
   idEmpresaBusqueda: number | null = null;
   sucursales: SucursalResponse[] = [];
-  
+
   // Modal de detalles del encargado
   mostrarModalEncargado: boolean = false;
   encargadoSeleccionado: UsuarioDTO | null = null;
   sucursalSeleccionada: SucursalDTO | null = null;
-  
+
   // Datos de ubicación
   departamentos: Departamento[] = [];
   municipiosFiltradosUsuario: Municipio[] = [];
   municipiosFiltradosSucursal: Municipio[] = [];
-  
+
   // Fechas
   maxDate: Date;
 
   // Datos Recuperados
   idEmpresa = Number(sessionStorage.getItem('idEmpresa'));
-  
+
   // Columnas para la tabla
   displayedColumns: string[] = ['nombre', 'direccion', 'ciudad', 'horario', 'capacidad', 'estado', 'acciones'];
 
@@ -111,7 +111,7 @@ export class BranchControl implements OnInit {
         Validators.required,
         Validators.minLength(4)
       ]],
-      
+
       // Información de la Sucursal
       nombreSucursal: ['', [Validators.required, Validators.minLength(3)]],
       direccionCompletaSucursal: ['', [
@@ -144,7 +144,7 @@ export class BranchControl implements OnInit {
       next: (response: InformacionEmpresaResponse[]) => {
         this.isLoadingEmpresas = false;
         this.empresas = response.filter(empresa => empresa.estado === 'ACTIVA');
-        
+
         if (this.empresas.length === 0) {
           this.mostrarMensaje('No hay empresas activas disponibles', 'info');
         }
@@ -157,7 +157,7 @@ export class BranchControl implements OnInit {
 
   onDepartamentoUsuarioChange(): void {
     const departamentoSeleccionado = this.sucursalForm.get('departamentoUsuario')?.value;
-    
+
     if (departamentoSeleccionado) {
       this.municipiosFiltradosUsuario = departamentosMunicipios[departamentoSeleccionado] || [];
       this.sucursalForm.get('ciudadUsuario')?.reset();
@@ -170,7 +170,7 @@ export class BranchControl implements OnInit {
 
   onDepartamentoSucursalChange(): void {
     const departamentoSeleccionado = this.sucursalForm.get('departamentoSucursal')?.value;
-    
+
     if (departamentoSeleccionado) {
       this.municipiosFiltradosSucursal = departamentosMunicipios[departamentoSeleccionado] || [];
       this.sucursalForm.get('ciudadSucursal')?.reset();
@@ -193,9 +193,9 @@ export class BranchControl implements OnInit {
   enviarFormulario(): void {
     if (this.sucursalForm.valid) {
       this.isLoading = true;
-      
+
       const formValue = this.sucursalForm.value;
-      
+
       const sucursalData: CrearSucursalRequest = {
         // Información del usuario encargado
         nombre: formValue.nombre.trim(),
@@ -210,7 +210,7 @@ export class BranchControl implements OnInit {
         codigoPostal: formValue.codigoPostal.trim(),
         nombreUsuario: formValue.nombreUsuario.trim(),
         contraseniaHash: formValue.contraseniaHash,
-        
+
         // Información de la sucursal
         idEmpresa: this.idEmpresa,
         nombreSucursal: formValue.nombreSucursal.trim(),
@@ -252,7 +252,7 @@ export class BranchControl implements OnInit {
       next: (response: SucursalResponse[]) => {
         this.isLoadingSucursales = false;
         this.sucursales = response;
-        
+
         if (this.sucursales.length === 0) {
           this.mostrarMensaje('No se encontraron sucursales para esta empresa', 'info');
         } else {
@@ -282,7 +282,7 @@ export class BranchControl implements OnInit {
         return;
       }
     }
-    
+
     this.mostrarModalEncargado = false;
     this.encargadoSeleccionado = null;
     this.sucursalSeleccionada = null;
@@ -291,10 +291,10 @@ export class BranchControl implements OnInit {
   formatearFechaLegible(fecha: string): string {
     if (!fecha) return 'N/A';
     const date = new Date(fecha);
-    return date.toLocaleDateString('es-GT', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+    return date.toLocaleDateString('es-GT', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
   }
 
@@ -302,10 +302,10 @@ export class BranchControl implements OnInit {
     this.sucursalForm.reset({
       pais: 'Guatemala'
     });
-    
+
     this.municipiosFiltradosUsuario = [];
     this.municipiosFiltradosSucursal = [];
-    
+
     Object.keys(this.sucursalForm.controls).forEach(key => {
       const control = this.sucursalForm.get(key);
       control?.markAsPristine();
@@ -330,14 +330,14 @@ export class BranchControl implements OnInit {
 
   private formatearFecha(fecha: any): string {
     if (!fecha) return '';
-    
+
     if (fecha instanceof Date) {
       const year = fecha.getFullYear();
       const month = String(fecha.getMonth() + 1).padStart(2, '0');
       const day = String(fecha.getDate()).padStart(2, '0');
       return `${year}-${month}-${day}`;
     }
-    
+
     if (typeof fecha === 'string') {
       const dateObj = new Date(fecha);
       if (!isNaN(dateObj.getTime())) {
@@ -347,7 +347,7 @@ export class BranchControl implements OnInit {
         return `${year}-${month}-${day}`;
       }
     }
-    
+
     return fecha.toString();
   }
 

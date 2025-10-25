@@ -28,5 +28,8 @@ export const routes: Routes = [
     },
     {
         path: 'suscripciones', loadComponent: () => import('./pages/cliente/subscription/subscription').then(m => m.Subscription), title: "Suscripciónes"
+    },
+    {
+      path: 'gestion-empresas', loadComponent: () => import('./pages/admin/gestion-empresas-component/gestion-empresas-component').then(m => m.GestionEmpresasComponent), title: "Gestion Empresas"
     }
 ];
