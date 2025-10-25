@@ -1,0 +1,387 @@
+// crear-usuario.scss
+.crear-usuario-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  background: linear-gradient(135deg, #d4dce6 0%, #a0aec0 100%);
+  position: relative;
+  overflow: hidden;
+
+  // Capa de patrón sutil
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 35px,
+        rgba(255, 255, 255, 0.08) 35px,
+        rgba(255, 255, 255, 0.08) 70px
+      );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  // Iconos de fondo fijos
+  .floating-icons {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0.45;
+    z-index: 0;
+
+    .icon {
+      position: absolute;
+      color: #4c51bf;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+      
+      mat-icon {
+        font-size: 56px;
+        width: 56px;
+        height: 56px;
+      }
+
+      // Posiciones fijas
+      &:nth-child(1) {
+        top: 8%;
+        left: 12%;
+      }
+
+      &:nth-child(2) {
+        top: 18%;
+        right: 10%;
+      }
+
+      &:nth-child(3) {
+        bottom: 12%;
+        left: 18%;
+      }
+
+      &:nth-child(4) {
+        bottom: 20%;
+        right: 15%;
+      }
+
+      &:nth-child(5) {
+        top: 45%;
+        left: 8%;
+      }
+
+      &:nth-child(6) {
+        top: 55%;
+        right: 8%;
+      }
+
+      &:nth-child(7) {
+        top: 30%;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+
+      &:nth-child(8) {
+        bottom: 35%;
+        left: 28%;
+      }
+    }
+  }
+
+  .usuario-card {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    z-index: 10;
+    animation: slideUp 0.5s ease-out;
+
+    .mat-mdc-card-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 2rem;
+
+      .mat-mdc-card-title {
+        font-size: 1.75rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+      }
+
+      .mat-mdc-card-subtitle {
+        opacity: 0.9;
+        font-size: 1rem;
+      }
+    }
+
+    .mat-mdc-card-content {
+      padding: 2rem;
+      background: white;
+    }
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.usuario-form {
+  .form-section {
+    margin-bottom: 2.5rem;
+    
+    &:last-of-type {
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      color: #333;
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #e0e0e0;
+      position: relative;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 50px;
+        height: 2px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+    }
+  }
+
+  .form-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 0;
+    }
+  }
+
+  .full-width {
+    flex: 1;
+    width: 100%;
+  }
+
+  .half-width {
+    flex: 1;
+    min-width: 280px;
+
+    @media (max-width: 768px) {
+      width: 100%;
+      min-width: auto;
+    }
+  }
+
+  // Estilos para mat-form-field
+  .mat-mdc-form-field {
+    &.mat-form-field-appearance-outline {
+      .mat-mdc-form-field-outline {
+        border-radius: 8px;
+      }
+
+      &:not(.mat-form-field-disabled) {
+        .mat-mdc-form-field-outline-thick {
+          .mat-mdc-form-field-outline-start,
+          .mat-mdc-form-field-outline-notch,
+          .mat-mdc-form-field-outline-end {
+            border-color: #667eea;
+          }
+        }
+      }
+
+      .mat-mdc-form-field-label {
+        color: #666;
+      }
+
+      &.mat-focused .mat-mdc-form-field-label {
+        color: #667eea;
+      }
+    }
+
+    .mat-mdc-input-element {
+      color: #333;
+    }
+
+    .mat-mdc-select-value {
+      color: #333;
+    }
+  }
+
+  // Estilos para textarea
+  textarea.mat-mdc-input-element {
+    resize: vertical;
+    min-height: 80px;
+  }
+}
+
+// Botones de acción
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e0e0e0;
+
+  @media (max-width: 480px) {
+    flex-direction: column-reverse;
+    gap: 0.75rem;
+  }
+
+  .cancel-button {
+    min-width: 120px;
+    border-color: #ccc;
+    color: #666;
+    transition: all 0.3s ease;
+
+    &:hover {
+      border-color: #999;
+      background-color: #f5f5f5;
+    }
+
+    .mat-icon {
+      margin-right: 0.5rem;
+    }
+  }
+
+  .submit-button {
+    min-width: 150px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    transition: all 0.3s ease;
+
+    &:hover:not([disabled]) {
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      transform: translateY(-1px);
+    }
+
+    &:disabled {
+      background: #ccc;
+      color: #666;
+    }
+
+    .mat-icon {
+      margin-right: 0.5rem;
+    }
+  }
+}
+
+// Estilos para mensajes de error
+.mat-mdc-form-field-error {
+  font-size: 0.875rem;
+  color: #f44336;
+}
+
+// Estilos para el datepicker
+.mat-mdc-form-field-subscript-wrapper {
+  margin-top: 0.25rem;
+}
+
+// Animaciones
+.usuario-form {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Estilos responsivos adicionales
+@media (max-width: 768px) {
+  .crear-usuario-container {
+    padding: 1rem 0.5rem;
+
+    .floating-icons .icon mat-icon {
+      font-size: 40px;
+      width: 40px;
+      height: 40px;
+    }
+
+    .usuario-card {
+      .mat-mdc-card-header {
+        padding: 1.5rem;
+
+        .mat-mdc-card-title {
+          font-size: 1.5rem;
+        }
+      }
+
+      .mat-mdc-card-content {
+        padding: 1.5rem;
+      }
+    }
+  }
+
+  .usuario-form .form-section .section-title {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .crear-usuario-container {
+    padding: 0.5rem;
+
+    .usuario-card {
+      .mat-mdc-card-header {
+        padding: 1rem;
+
+        .mat-mdc-card-title {
+          font-size: 1.25rem;
+        }
+
+        .mat-mdc-card-subtitle {
+          font-size: 0.9rem;
+        }
+      }
+
+      .mat-mdc-card-content {
+        padding: 1rem;
+      }
+    }
+  }
+}
+
+// Clases globales para snackbar (agregar a styles.scss global)
+:host ::ng-deep {
+  .success-snackbar {
+    background-color: #4caf50 !important;
+    color: white !important;
+  }
+
+  .error-snackbar {
+    background-color: #f44336 !important;
+    color: white !important;
+  }
+}

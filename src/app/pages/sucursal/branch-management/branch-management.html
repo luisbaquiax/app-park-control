@@ -1,0 +1,455 @@
+<div class="gestion-sucusal-container">
+  <div class="floating-icons">
+    <div class="icon"><mat-icon>store</mat-icon></div>
+    <div class="icon"><mat-icon>settings</mat-icon></div>
+    <div class="icon"><mat-icon>attach_money</mat-icon></div>
+    <div class="icon"><mat-icon>schedule</mat-icon></div>
+    <div class="icon"><mat-icon>business</mat-icon></div>
+    <div class="icon"><mat-icon>local_offer</mat-icon></div>
+    <div class="icon"><mat-icon>place</mat-icon></div>
+    <div class="icon"><mat-icon>map</mat-icon></div>
+  </div>
+
+  <mat-card class="usuario-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="header-icon">settings_applications</mat-icon>
+        Gestión de Mi Sucursal
+      </mat-card-title>
+      <mat-card-subtitle>Administre la información y tarifas de su sucursal</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <mat-tab-group animationDuration="300ms" class="sucursales-tabs">
+        
+        <!-- TAB 1: Información de la Sucursal -->
+        <mat-tab label="Información de la Sucursal">
+          
+          <div class="tab-content">
+            <!-- Loading -->
+            <div class="loading-container" *ngIf="isLoadingSucursal">
+              <mat-spinner diameter="50"></mat-spinner>
+              <p>Cargando información de la sucursal...</p>
+            </div>
+
+            <!-- Formulario -->
+            <form [formGroup]="sucursalForm" (ngSubmit)="guardarSucursal()" class="usuario-form" *ngIf="!isLoadingSucursal">
+              
+              <!-- Información de la Empresa -->
+              <div class="form-section" *ngIf="sucursalActual">
+                <h3 class="section-title">
+                  <mat-icon>business_center</mat-icon>
+                  Información de la Empresa
+                </h3>
+                
+                <div class="info-empresa">
+                  <div class="info-item">
+                    <span class="label">Nombre Comercial:</span>
+                    <span class="value">{{sucursalActual.empresa.nombreComercial}}</span>
+                  </div>
+                  <div class="info-item">
+                    <span class="label">Razón Social:</span>
+                    <span class="value">{{sucursalActual.empresa.razonSocial}}</span>
+                  </div>
+                  <div class="info-item">
+                    <span class="label">NIT:</span>
+                    <span class="value">{{sucursalActual.empresa.nit}}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Información General -->
+              <div class="form-section">
+                <h3 class="section-title">
+                  <mat-icon>info</mat-icon>
+                  Información General
+                </h3>
+                
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Nombre de la Sucursal</mat-label>
+                    <input matInput formControlName="nombreSucursal">
+                    <mat-icon matPrefix>business</mat-icon>
+                    <mat-error *ngIf="sucursalForm.get('nombreSucursal')?.hasError('required')">
+                      El nombre es requerido
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Estado</mat-label>
+                    <mat-select formControlName="estadoSucursal">
+                      <mat-option *ngFor="let estado of estadosSucursal" [value]="estado">
+                        {{estado}}
+                      </mat-option>
+                    </mat-select>
+                    <mat-icon matPrefix>toggle_on</mat-icon>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Teléfono de Contacto</mat-label>
+                    <input matInput 
+                           formControlName="telefonoContactoSucursal"
+                           maxlength="8"
+                           (keypress)="soloNumeros($event)">
+                    <mat-icon matPrefix>phone</mat-icon>
+                    <mat-hint align="end">{{sucursalForm.get('telefonoContactoSucursal')?.value?.length || 0}}/8</mat-hint>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Correo de Contacto (Opcional)</mat-label>
+                    <input matInput 
+                           type="email"
+                           formControlName="correoContactoSucursal">
+                    <mat-icon matPrefix>email</mat-icon>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <!-- Ubicación -->
+              <div class="form-section">
+                <h3 class="section-title">
+                  <mat-icon>place</mat-icon>
+                  Ubicación
+                </h3>
+                
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Departamento</mat-label>
+                    <mat-select formControlName="departamentoSucursal" (selectionChange)="onDepartamentoChange()">
+                      <mat-option *ngFor="let depto of departamentos" [value]="depto">
+                        {{depto}}
+                      </mat-option>
+                    </mat-select>
+                    <mat-icon matPrefix>map</mat-icon>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Ciudad/Municipio</mat-label>
+                    <mat-select formControlName="ciudadSucursal">
+                      <mat-option *ngFor="let municipio of municipiosFiltrados" [value]="municipio">
+                        {{municipio}}
+                      </mat-option>
+                    </mat-select>
+                    <mat-icon matPrefix>location_city</mat-icon>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Dirección Completa</mat-label>
+                    <textarea matInput 
+                              formControlName="direccionCompletaSucursal"
+                              rows="2"></textarea>
+                    <mat-icon matPrefix>home</mat-icon>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Latitud</mat-label>
+                    <input matInput 
+                           type="number"
+                           formControlName="latitud"
+                           step="0.000001">
+                    <mat-icon matPrefix>my_location</mat-icon>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Longitud</mat-label>
+                    <input matInput 
+                           type="number"
+                           formControlName="longitud"
+                           step="0.000001">
+                    <mat-icon matPrefix>location_on</mat-icon>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <!-- Horarios y Capacidad -->
+              <div class="form-section">
+                <h3 class="section-title">
+                  <mat-icon>schedule</mat-icon>
+                  Horarios y Capacidad
+                </h3>
+                
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Hora de Apertura</mat-label>
+                    <input matInput 
+                           type="time"
+                           formControlName="horaApertura">
+                    <mat-icon matPrefix>access_time</mat-icon>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Hora de Cierre</mat-label>
+                    <input matInput 
+                           type="time"
+                           formControlName="horaCierre">
+                    <mat-icon matPrefix>access_time</mat-icon>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Capacidad 2 Ruedas</mat-label>
+                    <input matInput 
+                           type="number"
+                           formControlName="capacidad2Ruedas"
+                           min="1">
+                    <mat-icon matPrefix>two_wheeler</mat-icon>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Capacidad 4 Ruedas</mat-label>
+                    <input matInput 
+                           type="number"
+                           formControlName="capacidad4Ruedas"
+                           min="1">
+                    <mat-icon matPrefix>directions_car</mat-icon>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <!-- Botones de Acción -->
+              <div class="form-actions">
+                <button mat-raised-button 
+                        color="primary" 
+                        type="submit" 
+                        [disabled]="!sucursalForm.valid || isSavingSucursal" 
+                        class="submit-button">
+                  <mat-spinner *ngIf="isSavingSucursal" diameter="20" class="button-spinner"></mat-spinner>
+                  <mat-icon *ngIf="!isSavingSucursal">save</mat-icon>
+                  <span *ngIf="!isSavingSucursal">Guardar Cambios</span>
+                  <span *ngIf="isSavingSucursal">Guardando...</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </mat-tab>
+
+        <!-- TAB 2: Tarifas -->
+        <mat-tab label="Tarifas">
+          <div class="tab-content">
+            <!-- Formulario de Tarifa -->
+            <div class="form-section">
+              <h3 class="section-title">
+                <mat-icon>{{modoEdicion ? 'edit' : 'add'}}</mat-icon>
+                {{modoEdicion ? 'Editar Tarifa' : 'Nueva Tarifa'}}
+              </h3>
+              
+              <form [formGroup]="tarifaForm" (ngSubmit)="guardarTarifa()" class="usuario-form">
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Precio por Hora</mat-label>
+                    <input matInput 
+                           type="number"
+                           formControlName="precioPorHora"
+                           step="0.01"
+                           min="0">
+                    <mat-icon matPrefix>attach_money</mat-icon>
+                    <mat-error *ngIf="tarifaForm.get('precioPorHora')?.hasError('required')">
+                      El precio es requerido
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Moneda</mat-label>
+                    <mat-select formControlName="moneda">
+                      <mat-option *ngFor="let moneda of monedas" [value]="moneda">
+                        {{moneda}}
+                      </mat-option>
+                    </mat-select>
+                    <mat-icon matPrefix>monetization_on</mat-icon>
+                  </mat-form-field>
+                </div>
+
+                <div class="info-tarifa-base" *ngIf="tarifaForm.get('esTarifaBase')?.value">
+                  <mat-icon>info</mat-icon>
+                  <p>Esta tarifa utilizará el precio base configurado en la empresa</p>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Fecha Vigencia Inicio</mat-label>
+                    <input matInput 
+                           [matDatepicker]="pickerInicio"
+                           formControlName="fechaVigenciaInicio">
+                    <mat-icon matPrefix>event</mat-icon>
+                    <mat-datepicker-toggle matIconSuffix [for]="pickerInicio"></mat-datepicker-toggle>
+                    <mat-datepicker #pickerInicio></mat-datepicker>
+                    <mat-error *ngIf="tarifaForm.get('fechaVigenciaInicio')?.hasError('required')">
+                        La fecha de inicio es requerida
+                    </mat-error>
+                    <mat-error *ngIf="tarifaForm.get('fechaVigenciaInicio')?.hasError('fechaPasada')">
+                        La fecha debe ser igual o posterior a hoy
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Fecha Vigencia Fin</mat-label>
+                    <input matInput 
+                           [matDatepicker]="pickerFin"
+                           formControlName="fechaVigenciaFin">
+                    <mat-icon matPrefix>event</mat-icon>
+                    <mat-datepicker-toggle matIconSuffix [for]="pickerFin"></mat-datepicker-toggle>
+                    <mat-datepicker #pickerFin></mat-datepicker>
+                    <mat-error *ngIf="tarifaForm.get('fechaVigenciaFin')?.hasError('required')">
+                        La fecha de fin es requerida
+                    </mat-error>
+                    <mat-error *ngIf="tarifaForm.get('fechaVigenciaFin')?.hasError('fechaPasada')">
+                        La fecha debe ser igual o posterior a hoy
+                    </mat-error>
+                    <mat-error *ngIf="tarifaForm.get('fechaVigenciaFin')?.hasError('fechaFinMenor')">
+                        La fecha de fin debe ser igual o posterior a la fecha de inicio
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row" *ngIf="modoEdicion">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Estado</mat-label>
+                    <mat-select formControlName="estado">
+                      <mat-option *ngFor="let estado of estadosTarifa" [value]="estado">
+                        {{estado}}
+                      </mat-option>
+                    </mat-select>
+                    <mat-icon matPrefix>toggle_on</mat-icon>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row" *ngIf="!modoEdicion">
+                  <mat-checkbox formControlName="esTarifaBase" class="tarifa-base-checkbox">
+                    <strong>Establecer como tarifa base</strong>
+                    <span class="checkbox-hint">Esta será la tarifa principal de la sucursal</span>
+                  </mat-checkbox>
+                </div>
+
+                <div class="form-actions">
+                  <button mat-stroked-button 
+                          type="button" 
+                          class="cancel-button"
+                          *ngIf="modoEdicion"
+                          (click)="cancelarEdicionTarifa()">
+                    <mat-icon>cancel</mat-icon>
+                    Cancelar
+                  </button>
+
+                  <button mat-raised-button 
+                          color="primary" 
+                          type="submit" 
+                          [disabled]="!tarifaForm.valid || isSavingTarifa" 
+                          class="submit-button">
+                    <mat-spinner *ngIf="isSavingTarifa" diameter="20" class="button-spinner"></mat-spinner>
+                    <mat-icon *ngIf="!isSavingTarifa">{{modoEdicion ? 'save' : 'add'}}</mat-icon>
+                    <span *ngIf="!isSavingTarifa">{{modoEdicion ? 'Actualizar Tarifa' : 'Crear Tarifa'}}</span>
+                    <span *ngIf="isSavingTarifa">{{modoEdicion ? 'Actualizando...' : 'Creando...'}}</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Lista de Tarifas -->
+            <div class="results-section" *ngIf="tarifas.length > 0">
+              <h3 class="section-title">
+                <mat-icon>list</mat-icon>
+                Tarifas Registradas ({{tarifas.length}})
+              </h3>
+
+              <div class="table-container">
+                <table mat-table [dataSource]="tarifas" class="sucursales-table">
+                  
+                  <!-- Columna Precio -->
+                  <ng-container matColumnDef="precio">
+                    <th mat-header-cell *matHeaderCellDef>Precio por Hora</th>
+                    <td mat-cell *matCellDef="let element">
+                      <div class="cell-content">
+                        <mat-icon class="cell-icon">attach_money</mat-icon>
+                        <span class="cell-text precio-text">{{element.precioPorHora | number:'1.2-2'}}</span>
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <!-- Columna Moneda -->
+                  <ng-container matColumnDef="moneda">
+                    <th mat-header-cell *matHeaderCellDef>Moneda</th>
+                    <td mat-cell *matCellDef="let element">
+                      <mat-chip class="chip-moneda">{{element.moneda}}</mat-chip>
+                    </td>
+                  </ng-container>
+
+                  <!-- Columna Vigencia Inicio -->
+                  <ng-container matColumnDef="vigenciaInicio">
+                    <th mat-header-cell *matHeaderCellDef>Vigencia Inicio</th>
+                    <td mat-cell *matCellDef="let element">
+                      <div class="cell-content">
+                        <mat-icon class="cell-icon">event</mat-icon>
+                        <span class="cell-text">{{element.fechaVigenciaInicio}}</span>
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <!-- Columna Vigencia Fin -->
+                  <ng-container matColumnDef="vigenciaFin">
+                    <th mat-header-cell *matHeaderCellDef>Vigencia Fin</th>
+                    <td mat-cell *matCellDef="let element">
+                      <div class="cell-content">
+                        <mat-icon class="cell-icon">event</mat-icon>
+                        <span class="cell-text">{{element.fechaVigenciaFin}}</span>
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <!-- Columna Estado -->
+                  <ng-container matColumnDef="estado">
+                    <th mat-header-cell *matHeaderCellDef>Estado</th>
+                    <td mat-cell *matCellDef="let element">
+                      <mat-chip [class]="'chip-' + element.estado.toLowerCase()">
+                        {{element.estado}}
+                      </mat-chip>
+                    </td>
+                  </ng-container>
+
+                  <!-- Columna Acciones -->
+                  <ng-container matColumnDef="acciones">
+                    <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                    <td mat-cell *matCellDef="let element">
+                      <button mat-icon-button 
+                              color="primary"
+                              class="btn-editar"
+                              (click)="editarTarifa(element)"
+                              matTooltip="Editar tarifa">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                    </td>
+                  </ng-container>
+
+                  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                </table>
+              </div>
+            </div>
+
+            <!-- Mensaje cuando no hay tarifas -->
+            <div class="no-results" *ngIf="tarifas.length === 0 && !isLoadingTarifas">
+              <mat-icon>inbox</mat-icon>
+              <p>No hay tarifas registradas</p>
+              <p class="hint">Cree su primera tarifa usando el formulario superior</p>
+            </div>
+
+            <!-- Loading tarifas -->
+            <div class="loading-container" *ngIf="isLoadingTarifas">
+              <mat-spinner diameter="50"></mat-spinner>
+              <p>Cargando tarifas...</p>
+            </div>
+          </div>
+        </mat-tab>
+
+      </mat-tab-group>
+    </mat-card-content>
+  </mat-card>
+</div>
