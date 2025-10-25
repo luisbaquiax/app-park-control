@@ -32,9 +32,9 @@ export class NavigationBar {
   private menuSubscription: any;
 
   constructor(
-    private router: Router, 
-    private snackBar: MatSnackBar, 
-    private loginService: LoginService,  
+    private router: Router,
+    private snackBar: MatSnackBar,
+    private loginService: LoginService,
     private navigationService: NavigationService
   ) {
     this.routerSubscription = this.router.events
@@ -76,6 +76,14 @@ export class NavigationBar {
       label: 'Gestionar Sucursal',
       route: '/gestion-sucursal',
       roles: ['SUCURSAL'],
+    },
+    // OPCIONES DEL USUARIO DEL SISTEMA
+    // gestion empresas
+    {
+      icon: 'business_center',
+      label: 'Gestionar Empresas',
+      route: '/gestion-empresas',
+      roles: ['SISTEMA'],
     },
   ];
 
@@ -124,7 +132,7 @@ export class NavigationBar {
       if (this.idUsuarioActual && item.showWhenLoggedIn === false) {
         return false;
       }
-      
+
       // Si el ítem no tiene restricciones de roles
       if (!item.roles && !item.roleIds) {
         // Solo mostramos si no tiene flag de showWhenLoggedIn o si este es true
