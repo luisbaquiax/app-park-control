@@ -1,16 +1,13 @@
 pipeline {
-    agent {
-        docker { image 'node:22' }  // imagen oficial con Node 22
-    }
+    agent any
     stages {
         stage('Checkout') {
             steps { checkout scm }
         }
         stage('Build Angular') {
             steps {
-                sh 'npm ci'
-                sh 'npm install -g @angular/cli'
-                sh 'ng build --configuration=production'
+                // Ejecuta el build dentro de un contenedor Node con docker run
+                sh 'docker run --rm -v $PWD:/app -w /app node:22 sh -c "npm ci && npm install -g @angular/cli && ng build --configuration=production"'
             }
         }
         stage('Deploy') {
