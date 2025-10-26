@@ -1,0 +1,1047 @@
+<div class="crear-usuario-container">
+  <div class="floating-icons">
+    <div class="icon"><mat-icon>store</mat-icon></div>
+    <div class="icon"><mat-icon>handshake</mat-icon></div>
+    <div class="icon"><mat-icon>business</mat-icon></div>
+    <div class="icon"><mat-icon>receipt_long</mat-icon></div>
+    <div class="icon"><mat-icon>local_offer</mat-icon></div>
+    <div class="icon"><mat-icon>card_giftcard</mat-icon></div>
+    <div class="icon"><mat-icon>payment</mat-icon></div>
+    <div class="icon"><mat-icon>shopping_cart</mat-icon></div>
+  </div>
+
+  <mat-card class="usuario-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="header-icon">store_mall_directory</mat-icon>
+        Gestión de Comercios Afiliados
+      </mat-card-title>
+      <mat-card-subtitle>Administre comercios y convenios de su sucursal</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <mat-tab-group animationDuration="300ms" class="sucursales-tabs">
+        
+        <!-- TAB 1: Comercios -->
+        <mat-tab label="Comercios Afiliados">
+          <div class="tab-content">
+            
+            <!-- Formulario de Comercio -->
+            <div class="form-section">
+              <h3 class="section-title">
+                <mat-icon>{{modoEdicionComercio ? 'edit' : 'add'}}</mat-icon>
+                {{modoEdicionComercio ? 'Editar Comercio' : 'Nuevo Comercio Afiliado'}}
+              </h3>
+              
+              <form [formGroup]="comercioForm" (ngSubmit)="guardarComercio()" class="usuario-form">
+                
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Nombre Comercial</mat-label>
+                    <input matInput formControlName="nombreComercial">
+                    <mat-icon matPrefix>storefront</mat-icon>
+                    <mat-error *ngIf="comercioForm.get('nombreComercial')?.hasError('required')">
+                      El nombre comercial es requerido
+                    </mat-error>
+                    <mat-error *ngIf="comercioForm.get('nombreComercial')?.hasError('minlength')">
+                      Mínimo 3 caracteres
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Razón Social</mat-label>
+                    <input matInput formControlName="razonSocial">
+                    <mat-icon matPrefix>business</mat-icon>
+                    <mat-error *ngIf="comercioForm.get('razonSocial')?.hasError('required')">
+                      La razón social es requerida
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>NIT</mat-label>
+                    <input matInput 
+                           formControlName="nit"
+                           maxlength="10"
+                           (keypress)="soloNumeros($event)">
+                    <mat-icon matPrefix>badge</mat-icon>
+                    <mat-hint align="end">{{comercioForm.get('nit')?.value?.length || 0}}/10</mat-hint>
+                    <mat-error *ngIf="comercioForm.get('nit')?.hasError('required')">
+                      El NIT es requerido
+                    </mat-error>
+                    <mat-error *ngIf="comercioForm.get('nit')?.hasError('pattern')">
+                      Solo números (6-10 dígitos)
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Tipo de Comercio</mat-label>
+                    <mat-select formControlName="tipoComercio">
+                      <mat-option *ngFor="let tipo of tiposComercio" [value]="tipo.value">
+                        {{tipo.label}}
+                      </mat-option>
+                    </mat-select>
+                    <mat-icon matPrefix>category</mat-icon>
+                    <mat-error *ngIf="comercioForm.get('tipoComercio')?.hasError('required')">
+                      Seleccione un tipo de comercio
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Teléfono</mat-label>
+                    <input matInput 
+                           formControlName="telefono"
+                           maxlength="8"
+                           (keypress)="soloNumeros($event)">
+                    <mat-icon matPrefix>phone</mat-icon>
+                    <mat-hint align="end">{{comercioForm.get('telefono')?.value?.length || 0}}/8</mat-hint>
+                    <mat-error *ngIf="comercioForm.get('telefono')?.hasError('required')">
+                      El teléfono es requerido
+                    </mat-error>
+                    <mat-error *ngIf="comercioForm.get('telefono')?.hasError('pattern')">
+                      Debe tener 8 dígitos
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Correo de Contacto</mat-label>
+                    <input matInput 
+                           type="email"
+                           formControlName="correoContacto">
+                    <mat-icon matPrefix>email</mat-icon>
+                    <mat-error *ngIf="comercioForm.get('correoContacto')?.hasError('required')">
+                      El correo es requerido
+                    </mat-error>
+                    <mat-error *ngIf="comercioForm.get('correoContacto')?.hasError('email')">
+                      Ingrese un correo válido
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-actions">
+                  <button mat-stroked-button 
+                          type="button" 
+                          class="cancel-button"
+                          *ngIf="modoEdicionComercio"
+                          (click)="cancelarEdicionComercio()">
+                    <mat-icon>cancel</mat-icon>
+                    Cancelar
+                  </button>
+
+                  <button mat-raised-button 
+                          color="primary" 
+                          type="submit" 
+                          [disabled]="!comercioForm.valid || isSavingComercio" 
+                          class="submit-button">
+                    <mat-spinner *ngIf="isSavingComercio" diameter="20" class="button-spinner"></mat-spinner>
+                    <mat-icon *ngIf="!isSavingComercio">{{modoEdicionComercio ? 'save' : 'add'}}</mat-icon>
+                    <span *ngIf="!isSavingComercio">{{modoEdicionComercio ? 'Actualizar' : 'Crear Comercio'}}</span>
+                    <span *ngIf="isSavingComercio">{{modoEdicionComercio ? 'Actualizando...' : 'Creando...'}}</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Tabla de Comercios -->
+            <div class="results-section" *ngIf="comercios.length > 0">
+              <h3 class="section-title">
+                <mat-icon>list</mat-icon>
+                Comercios Registrados ({{comercios.length}})
+              </h3>
+
+              <div class="table-container">
+                <table mat-table [dataSource]="comercios" class="sucursales-table">
+                  
+                  <!-- Columna Nombre -->
+                  <ng-container matColumnDef="nombre">
+                    <th mat-header-cell *matHeaderCellDef>Nombre Comercial</th>
+                    <td mat-cell *matCellDef="let element">
+                      <div class="cell-content">
+                        <mat-icon class="cell-icon">storefront</mat-icon>
+                        <span class="cell-text">{{element.nombreComercial}}</span>
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <!-- Columna Razón Social -->
+                  <ng-container matColumnDef="razon">
+                    <th mat-header-cell *matHeaderCellDef>Razón Social</th>
+                    <td mat-cell *matCellDef="let element">
+                      <span class="cell-text">{{element.razonSocial}}</span>
+                    </td>
+                  </ng-container>
+
+                  <!-- Columna NIT -->
+                  <ng-container matColumnDef="nit">
+                    <th mat-header-cell *matHeaderCellDef>NIT</th>
+                    <td mat-cell *matCellDef="let element">
+                      <div class="cell-content">
+                        <mat-icon class="cell-icon">badge</mat-icon>
+                        <span class="cell-text">{{element.nit}}</span>
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <!-- Columna Tipo -->
+                  <ng-container matColumnDef="tipo">
+                    <th mat-header-cell *matHeaderCellDef>Tipo</th>
+                    <td mat-cell *matCellDef="let element">
+                      <mat-chip class="chip-tipo">{{obtenerNombreTipoComercio(element.tipoComercio)}}</mat-chip>
+                    </td>
+                  </ng-container>
+
+                  <!-- Columna Contacto -->
+                  <ng-container matColumnDef="contacto">
+                    <th mat-header-cell *matHeaderCellDef>Contacto</th>
+                    <td mat-cell *matCellDef="let element">
+                      <div class="cell-content">
+                        <mat-icon class="cell-icon">contact_mail</mat-icon>
+                        <div class="cell-text">
+                          <div>{{element.telefono}}</div>
+                          <div class="text-secondary">{{element.correoContacto}}</div>
+                        </div>
+                      </div>
+                    </td>
+                  </ng-container>
+
+                  <!-- Columna Estado -->
+                  <ng-container matColumnDef="estado">
+                    <th mat-header-cell *matHeaderCellDef>Estado</th>
+                    <td mat-cell *matCellDef="let element">
+                      <mat-chip [class]="'chip-' + element.estado.toLowerCase()">
+                        {{element.estado}}
+                      </mat-chip>
+                    </td>
+                  </ng-container>
+
+                  <!-- Columna Acciones -->
+                  <ng-container matColumnDef="acciones">
+                    <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                    <td mat-cell *matCellDef="let element">
+                      <button mat-icon-button 
+                              color="primary"
+                              (click)="verDetallesComercio(element)"
+                              matTooltip="Ver detalles">
+                        <mat-icon>visibility</mat-icon>
+                      </button>
+                      <button mat-icon-button 
+                              class="btn-editar"
+                              (click)="editarComercio(element)"
+                              matTooltip="Editar">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button mat-icon-button 
+                              color="warn"
+                              (click)="desactivarComercio(element.idComercio)"
+                              matTooltip="Desactivar"
+                              *ngIf="element.estado === 'ACTIVO'">
+                        <mat-icon>block</mat-icon>
+                      </button>
+                    </td>
+                  </ng-container>
+
+                  <tr mat-header-row *matHeaderRowDef="columnasComercio"></tr>
+                  <tr mat-row *matRowDef="let row; columns: columnasComercio;"></tr>
+                </table>
+              </div>
+            </div>
+
+            <!-- Loading -->
+            <div class="loading-container" *ngIf="isLoadingComercios">
+              <mat-spinner diameter="50"></mat-spinner>
+              <p>Cargando comercios...</p>
+            </div>
+
+            <!-- Sin resultados -->
+            <div class="no-results" *ngIf="comercios.length === 0 && !isLoadingComercios">
+              <mat-icon>inbox</mat-icon>
+              <p>No hay comercios registrados</p>
+            </div>
+          </div>
+        </mat-tab>
+
+        <!-- TAB 2: Convenios -->
+        <mat-tab label="Convenios">
+          <div class="tab-content">
+            
+            <!-- Formulario de Convenio -->
+            <div class="form-section">
+              <h3 class="section-title">
+                <mat-icon>{{modoEdicionConvenio ? 'edit' : 'add'}}</mat-icon>
+                {{modoEdicionConvenio ? 'Editar Convenio' : 'Nuevo Convenio'}}
+              </h3>
+
+              <!-- Mensaje informativo sobre tarifa -->
+              <div class="info-tarifa" *ngIf="!modoEdicionConvenio">
+                <mat-icon>info</mat-icon>
+                <p><strong>Nota importante:</strong> La tarifa por hora se calculará automáticamente tomando la tarifa base de su sucursal.</p>
+              </div>
+              
+              <form [formGroup]="convenioForm" (ngSubmit)="guardarConvenio()" class="usuario-form">
+                
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Seleccionar Comercio</mat-label>
+                    <mat-select formControlName="idComercio">
+                      <mat-option *ngFor="let comercio of comercios" [value]="comercio.idComercio">
+                        {{comercio.nombreComercial}} - {{comercio.razonSocial}}
+                      </mat-option>
+                    </mat-select>
+                    <mat-icon matPrefix>store</mat-icon>
+                    <mat-error *ngIf="convenioForm.get('idComercio')?.hasError('required')">
+                      Debe seleccionar un comercio
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Periodo de Corte</mat-label>
+                    <mat-select formControlName="periodoCorte">
+                      <mat-option *ngFor="let periodo of periodosCorte" [value]="periodo.value">
+                        {{periodo.label}}
+                      </mat-option>
+                    </mat-select>
+                    <mat-icon matPrefix>event_repeat</mat-icon>
+                    <mat-error *ngIf="convenioForm.get('periodoCorte')?.hasError('required')">
+                      Seleccione un periodo
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Horas Gratis Máximo</mat-label>
+                    <input matInput 
+                           type="number"
+                           formControlName="horasGratisMaximo"
+                           min="0">
+                    <mat-icon matPrefix>schedule</mat-icon>
+                    <mat-error *ngIf="convenioForm.get('horasGratisMaximo')?.hasError('required')">
+                      Las horas gratis son requeridas
+                    </mat-error>
+                    <mat-error *ngIf="convenioForm.get('horasGratisMaximo')?.hasError('min')">
+                      Debe ser mayor o igual a 0
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Fecha Inicio Convenio</mat-label>
+                    <input matInput 
+                           [matDatepicker]="pickerInicio"
+                           formControlName="fechaInicioConvenio"
+                           [min]="fechaMinima">
+                    <mat-icon matPrefix>event</mat-icon>
+                    <mat-datepicker-toggle matIconSuffix [for]="pickerInicio"></mat-datepicker-toggle>
+                    <mat-datepicker #pickerInicio></mat-datepicker>
+                    <mat-error *ngIf="convenioForm.get('fechaInicioConvenio')?.hasError('required')">
+                      La fecha de inicio es requerida
+                    </mat-error>
+                    <mat-error *ngIf="convenioForm.get('fechaInicioConvenio')?.hasError('fechaPasada')">
+                      La fecha debe ser igual o posterior a hoy
+                    </mat-error>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="half-width">
+                    <mat-label>Fecha Fin Convenio</mat-label>
+                    <input matInput 
+                           [matDatepicker]="pickerFin"
+                           formControlName="fechaFinConvenio"
+                           [min]="fechaMinima">
+                    <mat-icon matPrefix>event</mat-icon>
+                    <mat-datepicker-toggle matIconSuffix [for]="pickerFin"></mat-datepicker-toggle>
+                    <mat-datepicker #pickerFin></mat-datepicker>
+                    <mat-error *ngIf="convenioForm.get('fechaFinConvenio')?.hasError('required')">
+                      La fecha de fin es requerida
+                    </mat-error>
+                    <mat-error *ngIf="convenioForm.get('fechaFinConvenio')?.hasError('fechaPasada')">
+                      La fecha debe ser igual o posterior a hoy
+                    </mat-error>
+                    <mat-error *ngIf="convenioForm.get('fechaFinConvenio')?.hasError('fechaFinMenor')">
+                      La fecha de fin debe ser igual o posterior a la fecha de inicio
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-actions">
+                  <button mat-stroked-button 
+                          type="button" 
+                          class="cancel-button"
+                          *ngIf="modoEdicionConvenio"
+                          (click)="cancelarEdicionConvenio()">
+                    <mat-icon>cancel</mat-icon>
+                    Cancelar
+                  </button>
+
+                  <button mat-raised-button 
+                          color="primary" 
+                          type="submit" 
+                          [disabled]="!convenioForm.valid || isSavingConvenio" 
+                          class="submit-button">
+                    <mat-spinner *ngIf="isSavingConvenio" diameter="20" class="button-spinner"></mat-spinner>
+                    <mat-icon *ngIf="!isSavingConvenio">{{modoEdicionConvenio ? 'save' : 'add'}}</mat-icon>
+                    <span *ngIf="!isSavingConvenio">{{modoEdicionConvenio ? 'Actualizar' : 'Crear Convenio'}}</span>
+                    <span *ngIf="isSavingConvenio">{{modoEdicionConvenio ? 'Actualizando...' : 'Creando...'}}</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Cards de Convenios -->
+            <div class="results-section" *ngIf="todosLosConvenios.length > 0">
+              <h3 class="section-title">
+                <mat-icon>handshake</mat-icon>
+                Convenios Registrados ({{todosLosConvenios.length}})
+              </h3>
+
+              <div class="convenios-grid">
+                <div class="convenio-card" *ngFor="let convenio of todosLosConvenios">
+                  
+                  <!-- Header del Convenio -->
+                  <div class="convenio-header">
+                    <div class="convenio-comercio">
+                      <mat-icon>store</mat-icon>
+                      <div>
+                        <h4>{{convenio.comercioAfiliado.nombreComercial}}</h4>
+                        <span class="tipo-comercio">{{obtenerNombreTipoComercio(convenio.comercioAfiliado.tipoComercio)}}</span>
+                      </div>
+                    </div>
+                    <mat-chip [class]="'chip-' + convenio.estado.toLowerCase()">
+                      {{convenio.estado}}
+                    </mat-chip>
+                  </div>
+
+                  <!-- Cuerpo del Convenio -->
+                  <div class="convenio-body">
+                    
+                    <!-- Información de la Sucursal -->
+                    <div class="info-group">
+                      <h5 class="info-group-title">
+                        <mat-icon>business</mat-icon>
+                        Sucursal
+                      </h5>
+                      <div class="info-items">
+                        <div class="info-row">
+                          <mat-icon>place</mat-icon>
+                          <span><strong>{{convenio.sucursalInfo.nombre}}</strong></span>
+                        </div>
+                        <div class="info-row">
+                          <mat-icon>location_on</mat-icon>
+                          <span>{{convenio.sucursalInfo.ciudad}}, {{convenio.sucursalInfo.departamento}}</span>
+                        </div>
+                        <div class="info-row">
+                          <mat-icon>schedule</mat-icon>
+                          <span>{{convenio.sucursalInfo.horaApertura}} - {{convenio.sucursalInfo.horaCierre}}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Detalles del Convenio -->
+                    <div class="info-group">
+                      <h5 class="info-group-title">
+                        <mat-icon>description</mat-icon>
+                        Detalles del Convenio
+                      </h5>
+                      <div class="info-items">
+                        <div class="info-row">
+                          <mat-icon>schedule</mat-icon>
+                          <span><strong>{{convenio.horasGratisMaximo}} horas</strong> gratis</span>
+                        </div>
+                        <div class="info-row">
+                          <mat-icon>event_repeat</mat-icon>
+                          <span>Corte: <strong>{{obtenerNombrePeriodo(convenio.periodoCorte)}}</strong></span>
+                        </div>
+                        <div class="info-row precio-row">
+                          <mat-icon>attach_money</mat-icon>
+                          <span>Tarifa: <strong>Q {{convenio.tarifaPorHora}}/hora</strong></span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Vigencia -->
+                    <div class="info-group">
+                      <h5 class="info-group-title">
+                        <mat-icon>calendar_month</mat-icon>
+                        Vigencia
+                      </h5>
+                      <div class="info-items">
+                        <div class="info-row">
+                          <mat-icon>event</mat-icon>
+                          <span>Desde: <strong>{{formatearFechaParaMostrar(convenio.fechaInicioConvenio)}}</strong></span>
+                        </div>
+                        <div class="info-row">
+                          <mat-icon>event</mat-icon>
+                          <span>Hasta: <strong>{{formatearFechaParaMostrar(convenio.fechaFinConvenio)}}</strong></span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Información del Comercio -->
+                    <div class="info-group">
+                      <h5 class="info-group-title">
+                        <mat-icon>contact_mail</mat-icon>
+                        Contacto del Comercio
+                      </h5>
+                      <div class="info-items">
+                        <div class="info-row">
+                          <mat-icon>business_center</mat-icon>
+                          <span>{{convenio.comercioAfiliado.razonSocial}}</span>
+                        </div>
+                        <div class="info-row">
+                          <mat-icon>badge</mat-icon>
+                          <span>NIT: {{convenio.comercioAfiliado.nit}}</span>
+                        </div>
+                        <div class="info-row">
+                          <mat-icon>phone</mat-icon>
+                          <span>{{convenio.comercioAfiliado.telefono}}</span>
+                        </div>
+                        <div class="info-row">
+                          <mat-icon>email</mat-icon>
+                          <span>{{convenio.comercioAfiliado.correoContacto}}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <!-- Footer con Acciones -->
+                  <div class="convenio-footer">
+                    <button mat-stroked-button 
+                            color="primary"
+                            (click)="verDetallesConvenio(convenio)">
+                      <mat-icon>visibility</mat-icon>
+                      Ver Más
+                    </button>
+                    <button mat-stroked-button 
+                            class="btn-editar-card"
+                            (click)="editarConvenio(convenio)">
+                      <mat-icon>edit</mat-icon>
+                      Editar
+                    </button>
+                    <button mat-stroked-button 
+                            [matMenuTriggerFor]="estadoMenu"
+                            class="btn-estado-card">
+                      <mat-icon>settings</mat-icon>
+                      Estado
+                    </button>
+                    <mat-menu #estadoMenu="matMenu">
+                      <button mat-menu-item 
+                              (click)="cambiarEstadoConvenio(convenio.idConvenio, 'ACTIVO')"
+                              [disabled]="convenio.estado === 'ACTIVO'">
+                        <mat-icon>check_circle</mat-icon>
+                        <span>Activar</span>
+                      </button>
+                      <button mat-menu-item 
+                              (click)="cambiarEstadoConvenio(convenio.idConvenio, 'INACTIVO')"
+                              [disabled]="convenio.estado === 'INACTIVO'">
+                        <mat-icon>cancel</mat-icon>
+                        <span>Inactivar</span>
+                      </button>
+                      <button mat-menu-item 
+                              (click)="cambiarEstadoConvenio(convenio.idConvenio, 'VENCIDO')"
+                              [disabled]="convenio.estado === 'VENCIDO'">
+                        <mat-icon>event_busy</mat-icon>
+                        <span>Marcar como Vencido</span>
+                      </button>
+                    </mat-menu>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <!-- Loading -->
+            <div class="loading-container" *ngIf="isLoadingConvenios">
+              <mat-spinner diameter="50"></mat-spinner>
+              <p>Cargando convenios...</p>
+            </div>
+
+            <!-- Sin resultados -->
+            <div class="no-results" *ngIf="todosLosConvenios.length === 0 && !isLoadingConvenios">
+              <mat-icon>inbox</mat-icon>
+              <p>No hay convenios registrados</p>
+              <p class="hint">Cree un nuevo convenio para comenzar</p>
+            </div>
+          </div>
+        </mat-tab>
+
+      </mat-tab-group>
+    </mat-card-content>
+  </mat-card>
+  <!-- Modal Detalles Comercio -->
+  <div class="modal-overlay" *ngIf="mostrarModalComercio" (click)="cerrarModalComercio($event)">
+    <div class="encargado-modal" (click)="$event.stopPropagation()">
+      
+      <div class="modal-header">
+        <div class="modal-icon">
+          <mat-icon>store</mat-icon>
+        </div>
+        <h2>Detalles del Comercio</h2>
+      </div>
+
+      <div class="modal-content" *ngIf="comercioSeleccionado">
+        
+        <div class="info-section">
+          <h3 class="info-section-title">
+            <mat-icon>business</mat-icon>
+            Información General
+          </h3>
+          
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Nombre Comercial:</label>
+              <div class="info-value">
+                <mat-icon>storefront</mat-icon>
+                <span>{{comercioSeleccionado.nombreComercial}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Razón Social:</label>
+              <div class="info-value">
+                <mat-icon>business_center</mat-icon>
+                <span>{{comercioSeleccionado.razonSocial}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>NIT:</label>
+              <div class="info-value">
+                <mat-icon>badge</mat-icon>
+                <span>{{comercioSeleccionado.nit}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Tipo de Comercio:</label>
+              <div class="info-value">
+                <mat-icon>category</mat-icon>
+                <span>{{obtenerNombreTipoComercio(comercioSeleccionado.tipoComercio)}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-section">
+          <h3 class="info-section-title">
+            <mat-icon>contact_mail</mat-icon>
+            Información de Contacto
+          </h3>
+          
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Teléfono:</label>
+              <div class="info-value">
+                <mat-icon>phone</mat-icon>
+                <span>{{comercioSeleccionado.telefono}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Correo:</label>
+              <div class="info-value">
+                <mat-icon>email</mat-icon>
+                <span>{{comercioSeleccionado.correoContacto}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Estado:</label>
+              <div class="info-value">
+                <mat-chip [class]="'chip-' + comercioSeleccionado.estado.toLowerCase()">
+                  {{comercioSeleccionado.estado}}
+                </mat-chip>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Fecha de Registro:</label>
+              <div class="info-value">
+                <mat-icon>event</mat-icon>
+                <span>{{formatearFechaParaMostrar(comercioSeleccionado.fechaRegistro)}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button mat-raised-button 
+                color="primary" 
+                (click)="cerrarModalComercio()"
+                class="close-button">
+          <mat-icon>close</mat-icon>
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Detalles Convenio -->
+  <div class="modal-overlay" *ngIf="mostrarModalConvenio" (click)="cerrarModalConvenio($event)">
+    <div class="encargado-modal convenio-modal-large" (click)="$event.stopPropagation()">
+      
+      <div class="modal-header">
+        <div class="modal-icon">
+          <mat-icon>handshake</mat-icon>
+        </div>
+        <h2>Detalles Completos del Convenio</h2>
+      </div>
+
+      <div class="modal-content" *ngIf="convenioSeleccionado">
+        
+        <!-- Información del Comercio Afiliado -->
+        <div class="info-section">
+          <h3 class="info-section-title">
+            <mat-icon>store</mat-icon>
+            Comercio Afiliado
+          </h3>
+          
+          <div class="info-grid info-grid-3">
+            <div class="info-item">
+              <label>Nombre Comercial:</label>
+              <div class="info-value">
+                <mat-icon>storefront</mat-icon>
+                <span>{{convenioSeleccionado.comercioAfiliado.nombreComercial}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Razón Social:</label>
+              <div class="info-value">
+                <mat-icon>business</mat-icon>
+                <span>{{convenioSeleccionado.comercioAfiliado.razonSocial}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Tipo de Comercio:</label>
+              <div class="info-value">
+                <mat-icon>category</mat-icon>
+                <span>{{obtenerNombreTipoComercio(convenioSeleccionado.comercioAfiliado.tipoComercio)}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>NIT:</label>
+              <div class="info-value">
+                <mat-icon>badge</mat-icon>
+                <span>{{convenioSeleccionado.comercioAfiliado.nit}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Teléfono:</label>
+              <div class="info-value">
+                <mat-icon>phone</mat-icon>
+                <span>{{convenioSeleccionado.comercioAfiliado.telefono}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Correo:</label>
+              <div class="info-value">
+                <mat-icon>email</mat-icon>
+                <span>{{convenioSeleccionado.comercioAfiliado.correoContacto}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Estado del Comercio:</label>
+              <div class="info-value">
+                <mat-chip [class]="'chip-' + convenioSeleccionado.comercioAfiliado.estado.toLowerCase()">
+                  {{convenioSeleccionado.comercioAfiliado.estado}}
+                </mat-chip>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Fecha de Registro:</label>
+              <div class="info-value">
+                <mat-icon>event</mat-icon>
+                <span>{{formatearFechaParaMostrar(convenioSeleccionado.comercioAfiliado.fechaRegistro)}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información de la Sucursal -->
+        <div class="info-section">
+          <h3 class="info-section-title">
+            <mat-icon>business</mat-icon>
+            Información de la Sucursal
+          </h3>
+          
+          <div class="info-grid info-grid-3">
+            <div class="info-item">
+              <label>Nombre de la Sucursal:</label>
+              <div class="info-value">
+                <mat-icon>place</mat-icon>
+                <span>{{convenioSeleccionado.sucursalInfo.nombre}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Dirección:</label>
+              <div class="info-value">
+                <mat-icon>location_on</mat-icon>
+                <span>{{convenioSeleccionado.sucursalInfo.direccionCompleta}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Ciudad:</label>
+              <div class="info-value">
+                <mat-icon>location_city</mat-icon>
+                <span>{{convenioSeleccionado.sucursalInfo.ciudad}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Departamento:</label>
+              <div class="info-value">
+                <mat-icon>map</mat-icon>
+                <span>{{convenioSeleccionado.sucursalInfo.departamento}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Horario:</label>
+              <div class="info-value">
+                <mat-icon>schedule</mat-icon>
+                <span>{{convenioSeleccionado.sucursalInfo.horaApertura}} - {{convenioSeleccionado.sucursalInfo.horaCierre}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Capacidad 2 Ruedas:</label>
+              <div class="info-value">
+                <mat-icon>two_wheeler</mat-icon>
+                <span>{{convenioSeleccionado.sucursalInfo.capacidad2Ruedas}} vehículos</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Capacidad 4 Ruedas:</label>
+              <div class="info-value">
+                <mat-icon>directions_car</mat-icon>
+                <span>{{convenioSeleccionado.sucursalInfo.capacidad4Ruedas}} vehículos</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Estado de la Sucursal:</label>
+              <div class="info-value">
+                <mat-chip [class]="'chip-' + convenioSeleccionado.sucursalInfo.estado.toLowerCase() + 'a'">
+                  {{convenioSeleccionado.sucursalInfo.estado}}
+                </mat-chip>
+              </div>
+            </div>
+          </div>
+
+          <!-- Encargado de Sucursal -->
+          <h4 class="subsection-title">
+            <mat-icon>person</mat-icon>
+            Encargado de la Sucursal
+          </h4>
+          
+          <div class="info-grid info-grid-3">
+            <div class="info-item">
+              <label>Nombre Completo:</label>
+              <div class="info-value">
+                <mat-icon>person</mat-icon>
+                <span>{{convenioSeleccionado.sucursalInfo.usuario.nombre}} {{convenioSeleccionado.sucursalInfo.usuario.apellido}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>DPI:</label>
+              <div class="info-value">
+                <mat-icon>badge</mat-icon>
+                <span>{{convenioSeleccionado.sucursalInfo.usuario.dpi}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Teléfono:</label>
+              <div class="info-value">
+                <mat-icon>phone</mat-icon>
+                <span>{{convenioSeleccionado.sucursalInfo.usuario.telefono}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Correo:</label>
+              <div class="info-value">
+                <mat-icon>email</mat-icon>
+                <span>{{convenioSeleccionado.sucursalInfo.usuario.correo}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Ciudad:</label>
+              <div class="info-value">
+                <mat-icon>location_city</mat-icon>
+                <span>{{convenioSeleccionado.sucursalInfo.usuario.ciudad}}, {{convenioSeleccionado.sucursalInfo.usuario.pais}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Usuario:</label>
+              <div class="info-value">
+                <mat-icon>account_circle</mat-icon>
+                <span>{{convenioSeleccionado.sucursalInfo.usuario.nombreUsuario}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Código Postal:</label>
+              <div class="info-value">
+                <mat-icon>local_post_office</mat-icon>
+                <span>{{convenioSeleccionado.sucursalInfo.usuario.codigoPostal}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Estado:</label>
+              <div class="info-value">
+                <mat-chip [class]="'chip-' + convenioSeleccionado.sucursalInfo.usuario.estado.toLowerCase()">
+                  {{convenioSeleccionado.sucursalInfo.usuario.estado}}
+                </mat-chip>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detalles del Convenio -->
+        <div class="info-section">
+          <h3 class="info-section-title">
+            <mat-icon>description</mat-icon>
+            Detalles del Convenio
+          </h3>
+          
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Horas Gratis Máximo:</label>
+              <div class="info-value">
+                <mat-icon>schedule</mat-icon>
+                <span>{{convenioSeleccionado.horasGratisMaximo}} horas</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Periodo de Corte:</label>
+              <div class="info-value">
+                <mat-icon>event_repeat</mat-icon>
+                <span>{{obtenerNombrePeriodo(convenioSeleccionado.periodoCorte)}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Tarifa por Hora:</label>
+              <div class="info-value precio-destacado">
+                <mat-icon>attach_money</mat-icon>
+                <span>Q {{convenioSeleccionado.tarifaPorHora}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Estado del Convenio:</label>
+              <div class="info-value">
+                <mat-chip [class]="'chip-' + convenioSeleccionado.estado.toLowerCase()">
+                  {{convenioSeleccionado.estado}}
+                </mat-chip>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vigencia del Convenio -->
+        <div class="info-section">
+          <h3 class="info-section-title">
+            <mat-icon>calendar_month</mat-icon>
+            Vigencia del Convenio
+          </h3>
+          
+          <div class="info-grid info-grid-3">
+            <div class="info-item">
+              <label>Fecha de Inicio:</label>
+              <div class="info-value">
+                <mat-icon>event</mat-icon>
+                <span>{{formatearFechaLegible(convenioSeleccionado.fechaInicioConvenio)}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Fecha de Fin:</label>
+              <div class="info-value">
+                <mat-icon>event</mat-icon>
+                <span>{{formatearFechaLegible(convenioSeleccionado.fechaFinConvenio)}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Fecha de Creación:</label>
+              <div class="info-value">
+                <mat-icon>add_circle</mat-icon>
+                <span>{{formatearFechaParaMostrar(convenioSeleccionado.fechaCreacion)}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-actions">
+        <button mat-raised-button 
+                color="primary" 
+                (click)="cerrarModalConvenio()"
+                class="close-button">
+          <mat-icon>close</mat-icon>
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  
+
+
+
+
+  <!-- Modal de Confirmación para Desactivar Comercio -->
+  <div class="modal-overlay" *ngIf="mostrarModalConfirmacion" (click)="cerrarModalConfirmacion($event)">
+    <div class="confirmacion-modal" (click)="$event.stopPropagation()">
+      
+      <div class="modal-icon-warning">
+        <mat-icon>warning</mat-icon>
+      </div>
+
+      <h2>Desactivar Comercio</h2>
+
+      <p class="modal-message">
+        ¿Está seguro de que desea desactivar este comercio?
+      </p>
+
+      <div class="modal-actions-confirm">
+        <button mat-stroked-button 
+                (click)="cerrarModalConfirmacion()"
+                class="cancel-btn">
+          <mat-icon>cancel</mat-icon>
+          Cancelar
+        </button>
+        <button mat-raised-button 
+                (click)="confirmarDesactivacion()"
+                class="confirm-btn">
+          <mat-icon>block</mat-icon>
+          Desactivar
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>

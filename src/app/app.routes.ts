@@ -31,5 +31,8 @@ export const routes: Routes = [
     },
     {
       path: 'gestion-empresas', loadComponent: () => import('./pages/admin/gestion-empresas-component/gestion-empresas-component').then(m => m.GestionEmpresasComponent), title: "Gestion Empresas"
+    },
+    {
+      path: 'comercio-afiliado', loadComponent: () => import('./pages/empresa/affiliate-commerce/affiliate-commerce').then(m => m.AffiliateCommerce), title: "Comercio Afiliado"
     }
 ];

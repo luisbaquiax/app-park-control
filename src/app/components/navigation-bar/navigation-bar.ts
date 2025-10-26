@@ -70,6 +70,12 @@ export class NavigationBar {
       route: '/gestion-planes',
       roles: ['EMPRESA'],
     },
+    {
+      icon: 'business_center',
+      label: 'Comercios Afiliados',
+      route: '/comercio-afiliado',
+      roles: ['EMPRESA'],
+    },
     // OPCIONES DEL USUARIO SUCURSAL
     {
       icon: 'business_center',
