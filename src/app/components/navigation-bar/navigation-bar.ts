@@ -83,6 +83,12 @@ export class NavigationBar {
       route: '/gestion-sucursal',
       roles: ['SUCURSAL'],
     },
+    {
+      icon: 'business_center',
+      label: 'Incidencia Ticket',
+      route: '/incidencia-ticket',
+      roles: ['SUCURSAL'],
+    },
     // OPCIONES DEL USUARIO CLIENTE
     {
       icon: 'business_center',

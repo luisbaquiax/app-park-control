@@ -34,5 +34,8 @@ export const routes: Routes = [
     },
     {
       path: 'comercio-afiliado', loadComponent: () => import('./pages/empresa/affiliate-commerce/affiliate-commerce').then(m => m.AffiliateCommerce), title: "Comercio Afiliado"
+    },
+    {
+      path: 'incidencia-ticket', loadComponent: () => import('./pages/sucursal/incident-ticket/incident-ticket').then(m => m.IncidentTicket), title: "Incidencia Ticket"
     }
 ];
