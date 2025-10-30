@@ -40,7 +40,8 @@
                       <mat-select formControlName="idUsuarioEmpresa">
                         @for (usuario of empresasUsuarios; track $index) {
                         <mat-option [value]="usuario.idUsuario">
-                        {{ usuario.nombreUsuario }} | Nombre: {{ usuario.nombre }} {{ usuario.apellido }} | Rol: {{ usuario.nombreRol }}
+                          {{ usuario.nombreUsuario }} | Nombre: {{ usuario.nombre }}
+                          {{ usuario.apellido }} | Rol: {{ usuario.nombreRol }}
                         </mat-option>
                         }
                       </mat-select>
@@ -191,10 +192,11 @@
                     ></mat-spinner>
                     @if (!isLoading) {
                     <mat-icon>add_business</mat-icon>
-                    <span>Crear Empresa</span>
 
                     } @if (isLoading) {
                     <span>Creando...</span>
+                    } @else {
+                    <span>Crear Empresa</span>
                     }
                   </button>
                 </div>
@@ -368,11 +370,7 @@
                   <div class="form-row">
                     <mat-form-field appearance="outline" class="half-width">
                       <mat-label>Fecha de Nacimiento</mat-label>
-                      <input
-                        matInput
-                        [matDatepicker]="picker"
-                        formControlName="fechaNacimiento"
-                      />
+                      <input matInput [matDatepicker]="picker" formControlName="fechaNacimiento" />
                       <mat-icon matPrefix>cake</mat-icon>
                       <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
                       <mat-datepicker #picker></mat-datepicker>
@@ -556,9 +554,7 @@
                       <mat-error *ngIf="userForm.get('direccionCompleta')?.hasError('required')">
                         La dirección completa es requerida
                       </mat-error>
-                      <mat-error
-                        *ngIf="userForm.get('direccionCompleta')?.hasError('minlength')"
-                      >
+                      <mat-error *ngIf="userForm.get('direccionCompleta')?.hasError('minlength')">
                         La dirección debe tener al menos 10 caracteres
                       </mat-error>
                     </mat-form-field>
