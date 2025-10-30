@@ -1,0 +1,608 @@
+<div class="crear-usuario-container">
+  <div class="floating-icons">
+    <div class="icon"><mat-icon>report_problem</mat-icon></div>
+    <div class="icon"><mat-icon>business</mat-icon></div>
+    <div class="icon"><mat-icon>assignment</mat-icon></div>
+    <div class="icon"><mat-icon>check_circle</mat-icon></div>
+    <div class="icon"><mat-icon>warning</mat-icon></div>
+    <div class="icon"><mat-icon>support_agent</mat-icon></div>
+    <div class="icon"><mat-icon>notification_important</mat-icon></div>
+    <div class="icon"><mat-icon>verified</mat-icon></div>
+  </div>
+
+  <mat-card class="usuario-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="header-icon">report</mat-icon>
+        Gestión de Incidencias - Empresa
+      </mat-card-title>
+      <mat-card-subtitle
+        >Administre y resuelva incidencias de todas las sucursales</mat-card-subtitle
+      >
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="content-wrapper">
+        <!-- Lista de Incidencias -->
+        <div class="results-section" *ngIf="todasLasIncidencias.length > 0">
+          <h3 class="section-title">
+            <mat-icon>list</mat-icon>
+            Todas las Incidencias ({{ todasLasIncidencias.length }})
+          </h3>
+
+          <div class="table-container">
+            <table mat-table [dataSource]="todasLasIncidencias" class="sucursales-table">
+              <!-- Columna Sucursal -->
+              <ng-container matColumnDef="sucursal">
+                <th mat-header-cell *matHeaderCellDef>Sucursal</th>
+                <td mat-cell *matCellDef="let element">
+                  <div class="cell-content">
+                    <mat-icon class="cell-icon">business</mat-icon>
+                    <div class="cell-text">
+                      <div>
+                        <strong>{{ element.sucursalInfo.nombreSucursal }}</strong>
+                      </div>
+                      <div class="text-secondary">{{ element.sucursalInfo.telefonoSucursal }}</div>
+                    </div>
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Columna Folio -->
+              <ng-container matColumnDef="folio">
+                <th mat-header-cell *matHeaderCellDef>Folio</th>
+                <td mat-cell *matCellDef="let element">
+                  <div class="cell-content">
+                    <mat-icon class="cell-icon">confirmation_number</mat-icon>
+                    <span class="cell-text folio">{{ element.folioNumerico }}</span>
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Columna Vehículo -->
+              <ng-container matColumnDef="vehiculo">
+                <th mat-header-cell *matHeaderCellDef>Vehículo</th>
+                <td mat-cell *matCellDef="let element">
+                  <div class="cell-content">
+                    <mat-icon class="cell-icon">directions_car</mat-icon>
+                    <div class="cell-text">
+                      <div>
+                        <strong>{{ element.placaVehiculo }}</strong>
+                      </div>
+                      <div class="text-secondary">{{ element.modeloVehiculo }}</div>
+                    </div>
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Columna Tipo -->
+              <ng-container matColumnDef="tipo">
+                <th mat-header-cell *matHeaderCellDef>Tipo Incidencia</th>
+                <td mat-cell *matCellDef="let element">
+                  <mat-chip class="chip-tipo">{{
+                    obtenerNombreTipoIncidencia(element.incidencias.tipoIncidencia)
+                  }}</mat-chip>
+                </td>
+              </ng-container>
+
+              <!-- Columna Descripción -->
+              <ng-container matColumnDef="descripcion">
+                <th mat-header-cell *matHeaderCellDef>Descripción</th>
+                <td mat-cell *matCellDef="let element">
+                  <div class="cell-text descripcion-truncada">
+                    {{ element.incidencias.descripcion }}
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Columna Fecha -->
+              <ng-container matColumnDef="fecha">
+                <th mat-header-cell *matHeaderCellDef>Fecha</th>
+                <td mat-cell *matCellDef="let element">
+                  <div class="cell-content">
+                    <mat-icon class="cell-icon">event</mat-icon>
+                    <span class="cell-text">{{
+                      formatearFechaParaMostrar(element.incidencias.fechaIncidencia)
+                    }}</span>
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Columna Estado -->
+              <ng-container matColumnDef="estado">
+                <th mat-header-cell *matHeaderCellDef>Estado</th>
+                <td mat-cell *matCellDef="let element">
+                  <mat-chip
+                    [class]="element.incidencias.resuelto ? 'chip-resuelto' : 'chip-pendiente'"
+                  >
+                    {{ element.incidencias.resuelto ? 'Resuelto' : 'Pendiente' }}
+                  </mat-chip>
+                </td>
+              </ng-container>
+
+              <!-- Columna Acciones -->
+              <ng-container matColumnDef="acciones">
+                <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                <td mat-cell *matCellDef="let element">
+                  <div class="acciones-grupo">
+                    <button
+                      mat-icon-button
+                      color="primary"
+                      (click)="verDetalles(element)"
+                      matTooltip="Ver detalles"
+                      class="btn-ver-detalles"
+                    >
+                      <mat-icon>visibility</mat-icon>
+                    </button>
+                    <button
+                      mat-icon-button
+                      [color]="element.incidencias.resuelto ? 'accent' : 'warn'"
+                      (click)="abrirModalResolucion(element)"
+                      [matTooltip]="
+                        element.incidencias.resuelto ? 'Ya resuelta' : 'Resolver incidencia'
+                      "
+                      [disabled]="element.incidencias.resuelto"
+                      class="btn-resolver"
+                    >
+                      <mat-icon>{{
+                        element.incidencias.resuelto ? 'check_circle' : 'support_agent'
+                      }}</mat-icon>
+                    </button>
+                  </div>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            </table>
+          </div>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading-container" *ngIf="isLoadingIncidencias">
+          <mat-spinner diameter="50"></mat-spinner>
+          <p>Cargando incidencias...</p>
+        </div>
+
+        <!-- Sin resultados -->
+        <div class="no-results" *ngIf="todasLasIncidencias.length === 0 && !isLoadingIncidencias">
+          <mat-icon>inbox</mat-icon>
+          <p>No hay incidencias registradas</p>
+          <p class="hint">Las incidencias de todas las sucursales aparecerán aquí</p>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Modal de Detalles -->
+  <div class="modal-overlay" *ngIf="mostrarModalDetalles" (click)="cerrarModalDetalles($event)">
+    <div class="encargado-modal modal-detalles-grande" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-icon">
+          <mat-icon>assignment</mat-icon>
+        </div>
+        <h2>Detalles de la Incidencia</h2>
+      </div>
+
+      <div class="modal-content" *ngIf="incidenciaSeleccionada && sucursalSeleccionada">
+        <!-- Información de la Sucursal -->
+        <div class="info-section">
+          <h3 class="info-section-title">
+            <mat-icon>business</mat-icon>
+            Información de la Sucursal
+          </h3>
+
+          <div class="info-grid info-grid-3">
+            <div class="info-item">
+              <label>Sucursal:</label>
+              <div class="info-value">
+                <mat-icon>place</mat-icon>
+                <span>{{ sucursalSeleccionada.nombreSucursal }}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Dirección:</label>
+              <div class="info-value">
+                <mat-icon>location_on</mat-icon>
+                <span>{{ sucursalSeleccionada.direccionSucursal }}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Teléfono:</label>
+              <div class="info-value">
+                <mat-icon>phone</mat-icon>
+                <span>{{ sucursalSeleccionada.telefonoSucursal }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información del Ticket -->
+        <div class="info-section">
+          <h3 class="info-section-title">
+            <mat-icon>confirmation_number</mat-icon>
+            Información del Ticket
+          </h3>
+
+          <div class="info-grid info-grid-3">
+            <div class="info-item">
+              <label>Folio:</label>
+              <div class="info-value">
+                <mat-icon>tag</mat-icon>
+                <span class="folio-grande">{{ incidenciaSeleccionada.folioNumerico }}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Tipo de Cliente:</label>
+              <div class="info-value">
+                <mat-icon>person_outline</mat-icon>
+                <span>{{ incidenciaSeleccionada.tipoCliente }}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Estado del Ticket:</label>
+              <div class="info-value">
+                <mat-chip [class]="'chip-' + incidenciaSeleccionada.estadoTicket.toLowerCase()">
+                  {{ incidenciaSeleccionada.estadoTicket }}
+                </mat-chip>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información del Vehículo -->
+        <div class="info-section">
+          <h3 class="info-section-title">
+            <mat-icon>directions_car</mat-icon>
+            Información del Vehículo
+          </h3>
+
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Placa:</label>
+              <div class="info-value">
+                <mat-icon>credit_card</mat-icon>
+                <span>{{ incidenciaSeleccionada.placaVehiculo }}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Modelo:</label>
+              <div class="info-value">
+                <mat-icon>directions_car</mat-icon>
+                <span>{{ incidenciaSeleccionada.modeloVehiculo }}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Color:</label>
+              <div class="info-value">
+                <mat-icon>palette</mat-icon>
+                <span>{{ incidenciaSeleccionada.colorVehiculo }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información del Propietario -->
+        <div class="info-section">
+          <h3 class="info-section-title">
+            <mat-icon>account_circle</mat-icon>
+            Información del Propietario
+          </h3>
+
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Nombre:</label>
+              <div class="info-value">
+                <mat-icon>person</mat-icon>
+                <span>{{ incidenciaSeleccionada.nombrePropietario }}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Teléfono:</label>
+              <div class="info-value">
+                <mat-icon>phone</mat-icon>
+                <span>{{ incidenciaSeleccionada.telefonoPropietario }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detalles de la Incidencia -->
+        <div class="info-section">
+          <h3 class="info-section-title">
+            <mat-icon>report_problem</mat-icon>
+            Detalles de la Incidencia
+          </h3>
+
+          <div class="info-grid info-grid-3">
+            <div class="info-item">
+              <label>Tipo de Incidencia:</label>
+              <div class="info-value">
+                <mat-icon>category</mat-icon>
+                <span>{{
+                  obtenerNombreTipoIncidencia(incidenciaSeleccionada.incidencias.tipoIncidencia)
+                }}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Fecha de Incidencia:</label>
+              <div class="info-value">
+                <mat-icon>event</mat-icon>
+                <span>{{
+                  formatearFechaLegible(incidenciaSeleccionada.incidencias.fechaIncidencia)
+                }}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Estado:</label>
+              <div class="info-value">
+                <mat-chip
+                  [class]="
+                    incidenciaSeleccionada.incidencias.resuelto ? 'chip-resuelto' : 'chip-pendiente'
+                  "
+                >
+                  {{ incidenciaSeleccionada.incidencias.resuelto ? 'Resuelto' : 'Pendiente' }}
+                </mat-chip>
+              </div>
+            </div>
+
+            <div class="info-item full-width">
+              <label>Descripción:</label>
+              <div class="info-value descripcion-completa">
+                <mat-icon>description</mat-icon>
+                <span>{{ incidenciaSeleccionada.incidencias.descripcion }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información de Resolución -->
+        <div class="info-section" *ngIf="incidenciaSeleccionada.incidencias.resuelto">
+          <h3 class="info-section-title">
+            <mat-icon>check_circle</mat-icon>
+            Información de Resolución
+          </h3>
+
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Fecha de Resolución:</label>
+              <div class="info-value">
+                <mat-icon>event</mat-icon>
+                <span>{{
+                  formatearFechaLegible(incidenciaSeleccionada.incidencias.fechaResolucion || '')
+                }}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Observaciones:</label>
+              <div class="info-value descripcion-completa">
+                <mat-icon>notes</mat-icon>
+                <span>{{
+                  incidenciaSeleccionada.incidencias.observacionesResolucion || 'Sin observaciones'
+                }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Evidencias -->
+        <div class="info-section">
+          <h3 class="info-section-title">
+            <mat-icon>photo_library</mat-icon>
+            Evidencias ({{ incidenciaSeleccionada.incidencias.evidencias.length }})
+          </h3>
+
+          <div class="evidencias-grid-modal">
+            <div
+              class="evidencia-card-modal"
+              *ngFor="let evidencia of incidenciaSeleccionada.incidencias.evidencias"
+            >
+              <div class="evidencia-header-modal">
+                <mat-chip class="chip-evidencia">{{
+                  obtenerNombreTipoEvidencia(evidencia.tipoEvidencia)
+                }}</mat-chip>
+                <span class="evidencia-fecha-modal">
+                  <mat-icon>event</mat-icon>
+                  {{ formatearFechaParaMostrar(evidencia.fechaCarga) }}
+                </span>
+              </div>
+
+              <div class="evidencia-preview-modal">
+                <!-- Preview para imágenes -->
+                <img
+                  *ngIf="esImagen(evidencia.nombreArchivo)"
+                  [src]="evidencia.urlEvidencia"
+                  [alt]="evidencia.descripcion"
+                  class="evidencia-imagen-modal"
+                />
+
+                <!-- Icono para videos -->
+                <div
+                  *ngIf="esVideo(evidencia.nombreArchivo)"
+                  class="evidencia-icon-container-modal icon-video"
+                >
+                  <mat-icon class="evidencia-icon-large-modal">videocam</mat-icon>
+                  <span>Video</span>
+                </div>
+
+                <!-- Icono para PDFs -->
+                <div
+                  *ngIf="esPdf(evidencia.nombreArchivo)"
+                  class="evidencia-icon-container-modal icon-pdf"
+                >
+                  <mat-icon class="evidencia-icon-large-modal">picture_as_pdf</mat-icon>
+                  <span>PDF</span>
+                </div>
+
+                <!-- Icono para Documentos -->
+                <div
+                  *ngIf="esDocumento(evidencia.nombreArchivo)"
+                  class="evidencia-icon-container-modal icon-doc"
+                >
+                  <mat-icon class="evidencia-icon-large-modal">description</mat-icon>
+                  <span>Documento</span>
+                </div>
+
+                <!-- Icono para Hojas de Cálculo -->
+                <div
+                  *ngIf="esHojaCalculo(evidencia.nombreArchivo)"
+                  class="evidencia-icon-container-modal icon-excel"
+                >
+                  <mat-icon class="evidencia-icon-large-modal">table_chart</mat-icon>
+                  <span>Excel</span>
+                </div>
+
+                <!-- Icono para Archivos Comprimidos -->
+                <div
+                  *ngIf="esComprimido(evidencia.nombreArchivo)"
+                  class="evidencia-icon-container-modal icon-zip"
+                >
+                  <mat-icon class="evidencia-icon-large-modal">folder_zip</mat-icon>
+                  <span>ZIP</span>
+                </div>
+
+                <!-- Icono genérico -->
+                <div
+                  *ngIf="
+                    !esImagen(evidencia.nombreArchivo) &&
+                    !esVideo(evidencia.nombreArchivo) &&
+                    !esPdf(evidencia.nombreArchivo) &&
+                    !esDocumento(evidencia.nombreArchivo) &&
+                    !esHojaCalculo(evidencia.nombreArchivo) &&
+                    !esComprimido(evidencia.nombreArchivo)
+                  "
+                  class="evidencia-icon-container-modal icon-otro"
+                >
+                  <mat-icon class="evidencia-icon-large-modal">insert_drive_file</mat-icon>
+                  <span>Archivo</span>
+                </div>
+              </div>
+
+              <div class="evidencia-info-modal">
+                <p class="evidencia-descripcion-modal">{{ evidencia.descripcion }}</p>
+                <a
+                  [href]="evidencia.urlEvidencia"
+                  (click)="
+                    abrirODescargarArchivo(evidencia.urlEvidencia, evidencia.nombreArchivo, $event)
+                  "
+                  mat-raised-button
+                  color="primary"
+                  class="btn-ver-evidencia-modal"
+                >
+                  <mat-icon>{{ obtenerIconoBoton(evidencia.nombreArchivo) }}</mat-icon>
+                  {{ obtenerTextoBoton(evidencia.nombreArchivo) }}
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="cerrarModalDetalles()"
+          class="close-button"
+        >
+          <mat-icon>close</mat-icon>
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Resolución -->
+  <div class="modal-overlay" *ngIf="mostrarModalResolucion" (click)="cerrarModalResolucion($event)">
+    <div class="encargado-modal modal-resolucion" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-icon">
+          <mat-icon>support_agent</mat-icon>
+        </div>
+        <h2>Resolver Incidencia</h2>
+      </div>
+
+      <div class="modal-content" *ngIf="incidenciaSeleccionada && sucursalSeleccionada">
+        <!-- Resumen de la incidencia -->
+        <div class="resumen-incidencia">
+          <div class="resumen-item">
+            <label>Sucursal:</label>
+            <span>{{ sucursalSeleccionada.nombreSucursal }}</span>
+          </div>
+          <div class="resumen-item">
+            <label>Folio:</label>
+            <span class="folio-destacado">{{ incidenciaSeleccionada.folioNumerico }}</span>
+          </div>
+          <div class="resumen-item">
+            <label>Tipo:</label>
+            <span>{{
+              obtenerNombreTipoIncidencia(incidenciaSeleccionada.incidencias.tipoIncidencia)
+            }}</span>
+          </div>
+        </div>
+
+        <!-- Formulario de resolución -->
+        <form
+          [formGroup]="resolucionForm"
+          (ngSubmit)="resolverIncidencia()"
+          class="resolucion-form"
+        >
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Observaciones de Resolución</mat-label>
+            <textarea
+              matInput
+              formControlName="observacionesResolucion"
+              rows="5"
+              placeholder="Describa cómo se resolvió la incidencia..."
+            ></textarea>
+            <mat-icon matPrefix>notes</mat-icon>
+            <mat-hint align="end"
+              >{{
+                resolucionForm.get('observacionesResolucion')?.value?.length || 0
+              }}
+              caracteres</mat-hint
+            >
+            <mat-error *ngIf="resolucionForm.get('observacionesResolucion')?.hasError('required')">
+              Las observaciones son requeridas
+            </mat-error>
+            <mat-error *ngIf="resolucionForm.get('observacionesResolucion')?.hasError('minlength')">
+              Mínimo 10 caracteres
+            </mat-error>
+          </mat-form-field>
+        </form>
+      </div>
+
+      <div class="modal-actions">
+        <button mat-stroked-button (click)="cerrarModalResolucion()" class="cancel-button-modal">
+          <mat-icon>cancel</mat-icon>
+          Cancelar
+        </button>
+        <button
+          mat-raised-button
+          [disabled]="!resolucionForm.valid || isSavingResolucion"
+          (click)="resolverIncidencia()"
+          class="resolve-button"
+        >
+          <mat-spinner
+            *ngIf="isSavingResolucion"
+            diameter="20"
+            class="button-spinner"
+          ></mat-spinner>
+          <mat-icon *ngIf="!isSavingResolucion">check_circle</mat-icon>
+          <span *ngIf="!isSavingResolucion">Resolver Incidencia</span>
+          <span *ngIf="isSavingResolucion">Resolviendo...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -59,46 +59,52 @@ export class NavigationBar {
     },
     // OPCIONES DEL USUARIO EMPRESA
     {
-      icon: 'business_center',
+      icon: 'store',
       label: 'Control Sucursal',
       route: '/control-sucursal',
       roles: ['EMPRESA'],
     },
     {
-      icon: 'business_center',
+      icon: 'assignment',
       label: 'Gestionar Planes',
       route: '/gestion-planes',
       roles: ['EMPRESA'],
     },
     {
-      icon: 'business_center',
+      icon: 'groups',
       label: 'Comercios Afiliados',
       route: '/comercio-afiliado',
       roles: ['EMPRESA'],
     },
+    {
+      icon: 'report_problem',
+      label: 'indicencia a Resolver',
+      route: '/incidencia-resolver',
+      roles: ['EMPRESA'],
+    },
     // OPCIONES DEL USUARIO SUCURSAL
     {
-      icon: 'business_center',
+      icon: 'storefront',
       label: 'Gestionar Sucursal',
       route: '/gestion-sucursal',
       roles: ['SUCURSAL'],
     },
     {
-      icon: 'business_center',
+      icon: 'confirmation_number',
       label: 'Incidencia Ticket',
       route: '/incidencia-ticket',
       roles: ['SUCURSAL'],
     },
     // OPCIONES DEL USUARIO CLIENTE
     {
-      icon: 'business_center',
+      icon: 'subscriptions',
       label: 'Suscripciones',
       route: '/suscripciones',
       roles: ['CLIENTE'],
     },
     // OPCIONES DEL USUARIO DEL SISTEMA
     {
-      icon: 'business_center',
+      icon: 'domain',
       label: 'Gestionar Empresas',
       route: '/gestion-empresas',
       roles: ['SISTEMA'],

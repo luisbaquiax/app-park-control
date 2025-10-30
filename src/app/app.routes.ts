@@ -37,5 +37,8 @@ export const routes: Routes = [
     },
     {
       path: 'incidencia-ticket', loadComponent: () => import('./pages/sucursal/incident-ticket/incident-ticket').then(m => m.IncidentTicket), title: "Incidencia Ticket"
+    },
+    {
+      path: 'incidencia-resolver', loadComponent: () => import('./pages/empresa/incident-resolve/incident-resolve').then(m => m.IncidentResolve), title: "Incidencia Resolver"
     }
 ];
