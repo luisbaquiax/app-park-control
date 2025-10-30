@@ -1,0 +1,337 @@
+<div class="control-sucursal-container">
+  <div class="floating-icons">
+    <div class="icon"><mat-icon>store</mat-icon></div>
+    <div class="icon"><mat-icon>business</mat-icon></div>
+    <div class="icon"><mat-icon>local_parking</mat-icon></div>
+    <div class="icon"><mat-icon>location_city</mat-icon></div>
+    <div class="icon"><mat-icon>domain</mat-icon></div>
+    <div class="icon"><mat-icon>place</mat-icon></div>
+    <div class="icon"><mat-icon>apartment</mat-icon></div>
+    <div class="icon"><mat-icon>map</mat-icon></div>
+  </div>
+  <mat-card class="usuario-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="header-icon">store</mat-icon>
+        Registro de vehículos
+      </mat-card-title>
+      <mat-card-subtitle>Asignación de vehículos a clientes</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card class="usuario-card">
+      <mat-card-content>
+        <mat-tab-group #tabGroup animationDuration="300ms" class="sucursales-tabs">
+          <!-- TAB 1: create vehicle -->
+          <mat-tab label="Nuevo Vehículo">
+            <div class="tab-content">
+              <form [formGroup]="vehiculoForm" (ngSubmit)="sendForm()" class="usuario-form">
+                @if(!isEditing){
+                <!-- Sección Información del propietario -->
+                <div class="form-section">
+                  <h3 class="section-title">
+                    <mat-icon>person</mat-icon>
+                    Información sobre el propietario
+                  </h3>
+
+                  <!-- Propietario -->
+                  <div class="form-row">
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Propietario</mat-label>
+                      <mat-select formControlName="dpi">
+                        @for (usuario of clientes; track $index) {
+                        <mat-option [value]="usuario.dpi">
+                          Nombre: {{ usuario.nombre }} {{ usuario.apellido }} | DPI:
+                          {{ usuario.dpi }}
+                        </mat-option>
+                        }
+                      </mat-select>
+                      <mat-icon matPrefix>person</mat-icon>
+                      @if (vehiculoForm.get('propietario')?.hasError('required')) {
+                      <mat-error>Debe seleccionar al propietario</mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+                </div>
+                }
+
+                <div class="form-section">
+                  <h3 class="section-title">
+                    <mat-icon>directions_car</mat-icon>
+                    Información del vehículo
+                  </h3>
+                  <div class="form-row">
+                    <!-- Placa -->
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Placa</mat-label>
+                      <input matInput formControlName="placa" placeholder="Ej: P123BCD" readonly="{{ isEditing }}" />
+                      <mat-icon matPrefix>directions_car</mat-icon>
+                      @if (vehiculoForm.get('placa')?.hasError('required')) {
+                      <mat-error> La placa es requerida </mat-error>
+                      }
+                    </mat-form-field>
+                    <!-- Tipo de Vehículo -->
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Tipo de Vehículo</mat-label>
+                      <mat-select formControlName="tipoVehiculo">
+                        <mat-option value="CUATRO_RUEDAS">Cuatro ruedas</mat-option>
+                        <mat-option value="DOS_RUEDAS">Dos ruedas</mat-option>
+                      </mat-select>
+                      <mat-icon matPrefix>category</mat-icon>
+                      @if (vehiculoForm.get('tipoVehiculo')?.hasError('required')) {
+                      <mat-error> El tipo de vehículo es requerido </mat-error>
+                      }
+                    </mat-form-field>
+                    <!-- Marca -->
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Marca</mat-label>
+                      <input matInput formControlName="marca" placeholder="Ej: Toyota" />
+                      <mat-icon matPrefix>build</mat-icon>
+                      @if (vehiculoForm.get('marca')?.hasError('required')) {
+                      <mat-error> La marca es requerida </mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+
+                  <!-- Modelo -->
+                  <div class="form-row">
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Modelo</mat-label>
+                      <input matInput formControlName="modelo" placeholder="Ej: Corolla" />
+                      <mat-icon matPrefix>style</mat-icon>
+                      @if (vehiculoForm.get('modelo')?.hasError('required')) {
+                      <mat-error> El modelo es requerido </mat-error>
+                      }
+                    </mat-form-field>
+                    <!-- Año -->
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Año</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        formControlName="anio"
+                        placeholder="Ej: 2020"
+                        min="1900"
+                        max="2099"
+                      />
+                      <mat-icon matPrefix>calendar_today</mat-icon>
+                      @if (vehiculoForm.get('anio')?.hasError('required')) {
+                      <mat-error> El año es requerido </mat-error>
+                      } @if (vehiculoForm.get('anio')?.hasError('min')) {
+                      <mat-error> Año no válido </mat-error>
+                      }
+                    </mat-form-field>
+                    <!-- Color -->
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Color</mat-label>
+                      <input matInput formControlName="color" placeholder="Ej: Azul" />
+                      <mat-icon matPrefix>palette</mat-icon>
+                      @if (vehiculoForm.get('color')?.hasError('required')) {
+                      <mat-error> El color es requerido </mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+
+                  <!-- Estado del Vehículo -->
+                  <div class="form-row">
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Estado del Vehículo</mat-label>
+                      <mat-select formControlName="estadoVehiculo">
+                        @for (item of estadosVehiculos; track $index) {
+                        <mat-option [value]="item">
+                          {{ item }}
+                        </mat-option>
+                        }
+                      </mat-select>
+                      <mat-icon matPrefix>check_circle</mat-icon>
+                      @if (vehiculoForm.get('estadoVehiculo')?.hasError('required')) {
+                      <mat-error> El estado del vehículo es requerido </mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="form-actions">
+                  <button
+                    mat-stroked-button
+                    type="button"
+                    class="cancel-button"
+                    (click)="clearForm()"
+                  >
+                    <mat-icon>cancel</mat-icon>
+                    Cancelar
+                  </button>
+
+                  <button
+                    mat-raised-button
+                    color="primary"
+                    type="submit"
+                    [disabled]="!vehiculoForm.valid || isLoading"
+                    class="submit-button"
+                  >
+                    <mat-spinner
+                      *ngIf="isLoading"
+                      diameter="20"
+                      class="button-spinner"
+                    ></mat-spinner>
+                    @if (!isLoading) {
+                    <mat-icon>add_business</mat-icon>
+
+                    } @if (isLoading) {
+                    <span>Creando...</span>
+                    } @else {
+                    <span>{{ isEditing ? 'Guardar cambios' : 'Registrar vehículo' }}</span>
+                    }
+                  </button>
+                </div>
+              </form>
+            </div>
+          </mat-tab>
+
+          <!-- TAB 2: view vehicles -->
+          <mat-tab label="Vehículos registrados en el sistema">
+            <div class="tab-content">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Estado</mat-label>
+                <mat-select (selectionChange)="filtrarVehiculoPorEstado($event)">
+                  @for (estado of estadosVehiculos; track $index) {
+                  <mat-option [value]="estado">
+                    {{ estado }}
+                  </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <!-- Resultados -->
+              @if (vehicles.length > 0) {
+              <div class="results-section">
+                <h3 class="section-title">
+                  <mat-icon>directions_car</mat-icon>
+                  Vehículos ({{ vehicles.length }})
+                </h3>
+
+                <div class="table-container">
+                  <table mat-table [dataSource]="vehicles" class="sucursales-table">
+                    <!-- Placa -->
+                    <ng-container matColumnDef="placa">
+                      <th mat-header-cell *matHeaderCellDef>Placa</th>
+                      <td mat-cell *matCellDef="let element">
+                        <div class="cell-content">
+                          <mat-icon class="cell-icon">confirmation_number</mat-icon>
+                          <span class="cell-text">{{ element.placa }}</span>
+                        </div>
+                      </td>
+                    </ng-container>
+
+                    <!-- Marca -->
+                    <ng-container matColumnDef="marca">
+                      <th mat-header-cell *matHeaderCellDef>Marca</th>
+                      <td mat-cell *matCellDef="let element">
+                        <div class="cell-content">
+                          <mat-icon class="cell-icon">build</mat-icon>
+                          <span class="cell-text">{{ element.marca }}</span>
+                        </div>
+                      </td>
+                    </ng-container>
+
+                    <!-- Modelo -->
+                    <ng-container matColumnDef="modelo">
+                      <th mat-header-cell *matHeaderCellDef>Modelo</th>
+                      <td mat-cell *matCellDef="let element">
+                        <div class="cell-content">
+                          <mat-icon class="cell-icon">style</mat-icon>
+                          <span class="cell-text">{{ element.modelo }}</span>
+                        </div>
+                      </td>
+                    </ng-container>
+
+                    <!-- Color -->
+                    <ng-container matColumnDef="color">
+                      <th mat-header-cell *matHeaderCellDef>Color</th>
+                      <td mat-cell *matCellDef="let element">
+                        <div class="cell-content">
+                          <mat-icon class="cell-icon">palette</mat-icon>
+                          <span class="cell-text">{{ element.color }}</span>
+                        </div>
+                      </td>
+                    </ng-container>
+
+                    <!-- Tipo de Vehículo -->
+                    <ng-container matColumnDef="tipoVehiculo">
+                      <th mat-header-cell *matHeaderCellDef>Tipo</th>
+                      <td mat-cell *matCellDef="let element">
+                        <div class="cell-content">
+                          <mat-icon class="cell-icon">
+                            {{
+                              element.tipoVehiculo === 'CUATRO_RUEDAS'
+                                ? 'directions_car'
+                                : 'two_wheeler'
+                            }}
+                          </mat-icon>
+                          <span class="cell-text">
+                            {{
+                              element.tipoVehiculo === 'CUATRO_RUEDAS'
+                                ? 'Cuatro Ruedas'
+                                : 'Dos Ruedas'
+                            }}
+                          </span>
+                        </div>
+                      </td>
+                    </ng-container>
+
+                    <!-- Año -->
+                    <ng-container matColumnDef="anio">
+                      <th mat-header-cell *matHeaderCellDef>Año</th>
+                      <td mat-cell *matCellDef="let element">
+                        <div class="cell-content">
+                          <mat-icon class="cell-icon">calendar_today</mat-icon>
+                          <span class="cell-text">{{ element.anio }}</span>
+                        </div>
+                      </td>
+                    </ng-container>
+
+                    <!-- Estado -->
+                    <ng-container matColumnDef="estadoVehiculo">
+                      <th mat-header-cell *matHeaderCellDef>Estado</th>
+                      <td mat-cell *matCellDef="let element">
+                        <div class="cell-content">
+                          <span class="cell-text">{{ element.estado }}</span>
+                        </div>
+                      </td>
+                    </ng-container>
+
+                    <!-- Acciones -->
+                    <ng-container matColumnDef="acciones">
+                      <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                      <td mat-cell *matCellDef="let element">
+                        <button mat-icon-button [matMenuTriggerFor]="menu">
+                          <mat-icon>more_vert</mat-icon>
+                        </button>
+                        <!-- Definición del menú -->
+                        <mat-menu #menu="matMenu">
+                          <button mat-menu-item (click)="changeStatus(element)">
+                            Cambiar estado
+                          </button>
+                          <button mat-menu-item (click)="editVehicle(element)">Editar</button>
+                        </mat-menu>
+                      </td>
+                    </ng-container>
+
+                    <!-- Filas -->
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+                  </table>
+                </div>
+              </div>
+              }
+              <!-- Mensaje cuando no hay resultados -->
+              <div class="no-results" *ngIf="vehicles.length === 0 && idUsuario && !isLoadingCars">
+                <mat-icon>inbox</mat-icon>
+                <p>No se encontraron sucursales para esta empresa</p>
+              </div>
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+      </mat-card-content>
+    </mat-card>
+  </mat-card>
+</div>

@@ -1,0 +1,32 @@
+<div class="control-sucursal-container">
+  <mat-card class="usuario-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="header-icon">group</mat-icon>
+        Reporte de Vehículos por propietario
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-card class="prop-card" *ngFor="let item of vehiculos">
+        <mat-card-header>
+          <mat-card-title>{{ item.usuario.nombre }} {{ item.usuario.apellido }}</mat-card-title>
+          <mat-card-subtitle
+            >{{ item.usuario.nombreRol }} | DPI: {{ item.usuario.dpi }}</mat-card-subtitle
+          >
+        </mat-card-header>
+        @if(item.vehiculos.length > 0){
+        <h1><strong>{{ item.vehiculos.length }} Vehículos</strong></h1>
+        }
+        <div class="vehiculos-container">
+          <mat-card class="vehiculo-card" *ngFor="let v of item.vehiculos">
+            <mat-card-title class="p-2">{{ v.placa }}</mat-card-title>
+            <mat-card-subtitle class="px-2">{{ v.marca }} {{ v.modelo }} ({{ v.anio }})</mat-card-subtitle>
+            <p class="px-2"><b>Tipo:</b> {{ v.tipoVehiculo }}</p>
+            <p class="px-2"><b>Color:</b> {{ v.color }}</p>
+            <p class="px-2"><b>Estado:</b> {{ v.estado }}</p>
+          </mat-card>
+        </div>
+      </mat-card>
+    </mat-card-content>
+  </mat-card>
+</div>

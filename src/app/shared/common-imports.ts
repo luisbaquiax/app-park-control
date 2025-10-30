@@ -20,6 +20,7 @@ import { MatDrawer, MatDrawerContainer } from '@angular/material/sidenav';
 import { MatTab, MatTabGroup } from '@angular/material/tabs';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
+import { MatMenuModule } from '@angular/material/menu';
 
 export const COMMON_IMPORTS = [
   CommonModule,
@@ -60,5 +61,6 @@ export const COMMON_IMPORTS = [
   MatButtonModule,
   MatHint,
   MatPrefix,
-  MatSuffix
+  MatSuffix,
+  MatMenuModule
 ];

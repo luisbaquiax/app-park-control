@@ -30,6 +30,13 @@ export const routes: Routes = [
         path: 'suscripciones', loadComponent: () => import('./pages/cliente/subscription/subscription').then(m => m.Subscription), title: "Suscripciónes"
     },
     {
+      path: 'gestion-vehiculos', loadComponent: () => import('./pages/sucursal/gestion-vehiculos-component/gestion-vehiculos-component').then(m => m.GestionVehiculosComponent), title: "Gestion Vehiculos"
+    },
+    {
+      path: 'vehiculos-propietario', loadComponent: () => import('./pages/sucursal/gestion-vehiculos-component/vehiculos-propietario/vehiculos-propietario').then(m => m.VehiculosPropietarioComponent), title: "Vehiculos Propietario"
+    }
+    ,
+    {
       path: 'gestion-empresas', loadComponent: () => import('./pages/admin/gestion-empresas-component/gestion-empresas-component').then(m => m.GestionEmpresasComponent), title: "Gestion Empresas"
     }
 ];

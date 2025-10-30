@@ -21,7 +21,7 @@ interface MenuItem {
   standalone: true,
   imports: [...COMMON_IMPORTS, MatMenu, MatMenuTrigger],
   templateUrl: './navigation-bar.html',
-  styleUrl: './navigation-bar.scss'
+  styleUrl: './navigation-bar.scss',
 })
 export class NavigationBar {
   menuItems: MenuItem[] = [];
@@ -77,6 +77,19 @@ export class NavigationBar {
       route: '/gestion-sucursal',
       roles: ['SUCURSAL'],
     },
+    //gestionar vehiculos y clientes
+    {
+      icon: 'airport_shuttle',
+      label: 'Gestionar Vehiculos',
+      route: '/gestion-vehiculos',
+      roles: ['SUCURSAL'],
+    },
+    {
+      icon: 'garage',
+      label: 'Vehiculos y propietarios',
+      route: '/vehiculos-propietario',
+      roles: ['SUCURSAL'],
+    },
     // OPCIONES DEL USUARIO CLIENTE
     {
       icon: 'business_center',
@@ -118,7 +131,8 @@ export class NavigationBar {
     if (idUsuario && idUsuario.trim() !== '' && !isNaN(Number(idUsuario))) {
       this.idUsuarioActual = Number(idUsuario);
       this.nombreRolActual = nombreRol && nombreRol.trim() !== '' ? nombreRol : null;
-      this.nombreUsuarioActual = nombreUsuario && nombreUsuario.trim() !== '' ? nombreUsuario : null;
+      this.nombreUsuarioActual =
+        nombreUsuario && nombreUsuario.trim() !== '' ? nombreUsuario : null;
       this.filtrarMenu();
     } else {
       this.limpiarSesion();
@@ -168,7 +182,7 @@ export class NavigationBar {
           this.mostrarMensaje(response.message, 'success');
         },
         error: (error) => {
-          this.mostrarMensaje('Error al cambiar Autentificación','error');
+          this.mostrarMensaje('Error al cambiar Autentificación', 'error');
         },
       });
     } else {
