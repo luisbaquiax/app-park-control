@@ -2515,3 +2515,119 @@ mat-icon {
     page-break-inside: avoid;
   }
 }
+
+
+// Estadísticas
+.stats-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  mat-icon {
+    font-size: 2.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .stat-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      opacity: 0.8;
+    }
+  }
+
+  &.pendiente {
+    border-left-color: $warning-color;
+
+    mat-icon {
+      color: $warning-color;
+    }
+
+    .stat-value {
+      color: $warning-color;
+    }
+
+    .stat-label {
+      color: #d68910;
+    }
+  }
+
+  &.aprobada {
+    border-left-color: $success-color;
+
+    mat-icon {
+      color: $success-color;
+    }
+
+    .stat-value {
+      color: $success-color;
+    }
+
+    .stat-label {
+      color: #25a25a;
+    }
+  }
+
+  &.rechazada {
+    border-left-color: $error-color;
+
+    mat-icon {
+      color: $error-color;
+    }
+
+    .stat-value {
+      color: $error-color;
+    }
+
+    .stat-label {
+      color: #c44133;
+    }
+  }
+
+  &.total {
+    border-left-color: $info-color;
+
+    mat-icon {
+      color: $info-color;
+    }
+
+    .stat-value {
+      color: $info-color;
+    }
+
+    .stat-label {
+      color: #2c81ba;
+    }
+  }
+}

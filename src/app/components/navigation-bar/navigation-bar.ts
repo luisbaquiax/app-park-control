@@ -103,7 +103,7 @@ export class NavigationBar {
       roles: ['CLIENTE'],
     },
     {
-      icon: 'subscriptions',
+      icon: 'change_circle',
       label: 'Cambió Placa',
       route: '/cambio-placa',  
       roles: ['CLIENTE'],
@@ -114,6 +114,13 @@ export class NavigationBar {
       label: 'Gestionar Empresas',
       route: '/gestion-empresas',
       roles: ['SISTEMA'],
+    },
+    // OPCIONES DEL USUARIO BACKOFFICE
+    {
+      icon: 'assignment_turned_in',
+      label: 'Placa Resolución',
+      route: '/placa-resolucion',
+      roles: ['BACKOFFICE'],
     },
   ];
 

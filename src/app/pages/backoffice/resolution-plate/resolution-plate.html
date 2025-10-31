@@ -1,394 +1,183 @@
 <div class="crear-usuario-container">
   <div class="floating-icons">
-    <div class="icon"><mat-icon>sync_alt</mat-icon></div>
-    <div class="icon"><mat-icon>directions_car</mat-icon></div>
-    <div class="icon"><mat-icon>description</mat-icon></div>
-    <div class="icon"><mat-icon>published_with_changes</mat-icon></div>
     <div class="icon"><mat-icon>fact_check</mat-icon></div>
-    <div class="icon"><mat-icon>assignment_turned_in</mat-icon></div>
-    <div class="icon"><mat-icon>swap_horiz</mat-icon></div>
+    <div class="icon"><mat-icon>admin_panel_settings</mat-icon></div>
+    <div class="icon"><mat-icon>published_with_changes</mat-icon></div>
     <div class="icon"><mat-icon>verified</mat-icon></div>
+    <div class="icon"><mat-icon>rate_review</mat-icon></div>
+    <div class="icon"><mat-icon>assignment_turned_in</mat-icon></div>
+    <div class="icon"><mat-icon>gavel</mat-icon></div>
+    <div class="icon"><mat-icon>workspace_premium</mat-icon></div>
   </div>
 
   <mat-card class="usuario-card">
     <mat-card-header>
       <mat-card-title>
-        <mat-icon class="header-icon">published_with_changes</mat-icon>
-        Gestión de Cambio de Placa
+        <mat-icon class="header-icon">fact_check</mat-icon>
+        Gestión de Solicitudes de Cambio de Placa
       </mat-card-title>
-      <mat-card-subtitle>Solicite cambios de placa y gestione sus solicitudes</mat-card-subtitle>
+      <mat-card-subtitle>Revise y procese solicitudes de cambio de placa de clientes</mat-card-subtitle>
     </mat-card-header>
 
     <mat-card-content>
-      
-      <!-- Tabs -->
-      <mat-tab-group class="tabs-container" animationDuration="300ms">
+      <div class="content-wrapper">
         
-        <!-- TAB 1: Crear Solicitud -->
-        <mat-tab>
-          <ng-template mat-tab-label>
-            <mat-icon class="tab-icon">add_circle</mat-icon>
-            Nueva Solicitud
-          </ng-template>
+        <!-- Resumen de Estados -->
+        <div class="stats-container">
+          <div class="stat-card pendiente">
+            <mat-icon>schedule</mat-icon>
+            <div class="stat-info">
+              <span class="stat-value">{{contarSolicitudesPorEstado('PENDIENTE')}}</span>
+              <span class="stat-label">Pendientes</span>
+            </div>
+          </div>
+          <div class="stat-card aprobada">
+            <mat-icon>check_circle</mat-icon>
+            <div class="stat-info">
+              <span class="stat-value">{{contarSolicitudesPorEstado('APROBADA')}}</span>
+              <span class="stat-label">Aprobadas</span>
+            </div>
+          </div>
+          <div class="stat-card rechazada">
+            <mat-icon>cancel</mat-icon>
+            <div class="stat-info">
+              <span class="stat-value">{{contarSolicitudesPorEstado('RECHAZADA')}}</span>
+              <span class="stat-label">Rechazadas</span>
+            </div>
+          </div>
+          <div class="stat-card total">
+            <mat-icon>assignment</mat-icon>
+            <div class="stat-info">
+              <span class="stat-value">{{todasLasSolicitudes.length}}</span>
+              <span class="stat-label">Total</span>
+            </div>
+          </div>
+        </div>
 
-          <div class="tab-content">
-            <div class="form-section">
-              <h3 class="section-title">
-                <mat-icon>edit_document</mat-icon>
-                Formulario de Solicitud de Cambio de Placa
-              </h3>
+        <!-- Lista de Solicitudes -->
+        <div class="results-section" *ngIf="todasLasSolicitudes.length > 0">
+          <h3 class="section-title">
+            <mat-icon>list</mat-icon>
+            Todas las Solicitudes ({{todasLasSolicitudes.length}})
+          </h3>
 
-              <form [formGroup]="cambioPlacaForm" (ngSubmit)="guardarSolicitud()" class="usuario-form">
-                
-                <!-- Selección de Suscripción -->
-                <div class="subsection">
-                  <h4 class="subsection-title">
-                    <mat-icon>card_membership</mat-icon>
-                    Seleccionar Suscripción
-                  </h4>
+          <div class="solicitudes-grid">
+            <div class="solicitud-card" *ngFor="let solicitud of todasLasSolicitudes">
+              
+              <!-- Header de la tarjeta -->
+              <div class="solicitud-header">
+                <div class="solicitud-id">
+                  <mat-icon>confirmation_number</mat-icon>
+                  <span>Solicitud #{{solicitud.idSolicitudCambio}}</span>
+                </div>
+                <mat-chip [class]="obtenerEstadoInfo(solicitud.estado).class">
+                  <mat-icon>{{obtenerEstadoInfo(solicitud.estado).icon}}</mat-icon>
+                  {{obtenerEstadoInfo(solicitud.estado).text}}
+                </mat-chip>
+              </div>
 
-                  <div class="form-row">
-                    <mat-form-field appearance="outline" class="full-width">
-                      <mat-label>Suscripción Activa</mat-label>
-                      <mat-select formControlName="idSuscripcion" (selectionChange)="onSuscripcionSeleccionada($event)">
-                        <mat-option *ngFor="let suscripcion of suscripcionesActivas" [value]="suscripcion.idSuscripcion">
-                          {{obtenerDescripcionSuscripcion(suscripcion)}}
-                        </mat-option>
-                      </mat-select>
-                      <mat-icon matPrefix>stars</mat-icon>
-                      <mat-error *ngIf="cambioPlacaForm.get('idSuscripcion')?.hasError('required')">
-                        Debe seleccionar una suscripción
-                      </mat-error>
-                      <mat-hint *ngIf="isLoadingSuscripciones">Cargando suscripciones...</mat-hint>
-                    </mat-form-field>
+              <!-- Información del Cliente -->
+              <div class="cliente-info-card">
+                <div class="cliente-header">
+                  <mat-icon>account_circle</mat-icon>
+                  <span class="cliente-nombre">{{solicitud.clienteInfo.nombreCompleto}}</span>
+                </div>
+                <div class="cliente-details">
+                  <div class="detail-item">
+                    <mat-icon>email</mat-icon>
+                    <span>{{solicitud.clienteInfo.email}}</span>
+                  </div>
+                  <div class="detail-item">
+                    <mat-icon>phone</mat-icon>
+                    <span>{{solicitud.clienteInfo.telefono}}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Información de la solicitud -->
+              <div class="solicitud-body">
+                <div class="info-row">
+                  <div class="info-label">
+                    <mat-icon>event</mat-icon>
+                    Fecha de Solicitud:
+                  </div>
+                  <div class="info-value">{{formatearFechaParaMostrar(solicitud.fechaSolicitud)}}</div>
+                </div>
+
+                <div class="info-row">
+                  <div class="info-label">
+                    <mat-icon>swap_horiz</mat-icon>
+                    Cambio de Placa:
+                  </div>
+                  <div class="info-value placa-cambio">
+                    <span class="placa-vieja">{{solicitud.vehiculoActual.placa}}</span>
+                    <mat-icon class="arrow-icon">arrow_forward</mat-icon>
+                    <span class="placa-nueva">{{solicitud.placaNueva}}</span>
                   </div>
                 </div>
 
-                <!-- Información del Vehículo Actual -->
-                <div class="subsection">
-                  <h4 class="subsection-title">
-                    <mat-icon>directions_car</mat-icon>
-                    Vehículo Actual de la Suscripción
-                  </h4>
-
-                  <div class="form-row">
-                    <mat-form-field appearance="outline" class="full-width">
-                      <mat-label>Vehículo Actual</mat-label>
-                      <mat-select formControlName="idVehiculoActual" (selectionChange)="onVehiculoSeleccionado($event)">
-                        <mat-option *ngFor="let vehiculo of vehiculosDisponibles" [value]="vehiculo.idVehiculo">
-                          {{vehiculo.placa}} - {{vehiculo.marca}} {{vehiculo.modelo}} ({{vehiculo.color}})
-                        </mat-option>
-                      </mat-select>
-                      <mat-icon matPrefix>directions_car</mat-icon>
-                      <mat-error *ngIf="cambioPlacaForm.get('idVehiculoActual')?.hasError('required')">
-                        Debe seleccionar el vehículo actual
-                      </mat-error>
-                      <mat-hint>Este vehículo será reemplazado en la suscripción</mat-hint>
-                    </mat-form-field>
-                  </div>
-                </div>
-
-                <!-- Información del Vehículo Nuevo -->
-                <div class="subsection">
-                  <h4 class="subsection-title">
-                    <mat-icon>new_label</mat-icon>
-                    Nueva Placa del Vehículo
-                  </h4>
-
-                  <div class="form-row">
-                    <mat-form-field appearance="outline" class="full-width">
-                      <mat-label>Seleccione la Nueva Placa</mat-label>
-                      <mat-select formControlName="placaNueva" (selectionChange)="onPlacaNuevaSeleccionada($event)">
-                        <mat-option *ngFor="let vehiculo of vehiculosDisponibles" [value]="vehiculo.placa">
-                          {{vehiculo.placa}} - {{vehiculo.marca}} {{vehiculo.modelo}}
-                        </mat-option>
-                      </mat-select>
-                      <mat-icon matPrefix>credit_card</mat-icon>
-                      <mat-error *ngIf="cambioPlacaForm.get('placaNueva')?.hasError('required')">
-                        Debe seleccionar la nueva placa
-                      </mat-error>
-                      <mat-hint>Seleccione la placa del vehículo que reemplazará al actual</mat-hint>
-                    </mat-form-field>
-                  </div>
-                </div>
-
-                <!-- Motivo del Cambio -->
-                <div class="subsection">
-                  <h4 class="subsection-title">
+                <div class="info-row">
+                  <div class="info-label">
                     <mat-icon>help_outline</mat-icon>
-                    Motivo del Cambio
-                  </h4>
-
-                  <div class="form-row">
-                    <mat-form-field appearance="outline" class="half-width">
-                      <mat-label>Motivo Principal</mat-label>
-                      <mat-select formControlName="motivo">
-                        <mat-option *ngFor="let motivo of motivosCambio" [value]="motivo.value">
-                          {{motivo.label}}
-                        </mat-option>
-                      </mat-select>
-                      <mat-icon matPrefix>category</mat-icon>
-                      <mat-error *ngIf="cambioPlacaForm.get('motivo')?.hasError('required')">
-                        Seleccione un motivo
-                      </mat-error>
-                    </mat-form-field>
-
-                    <mat-form-field appearance="outline" class="half-width">
-                      <mat-label>Descripción del Motivo</mat-label>
-                      <input matInput 
-                             formControlName="descripcionMotivo"
-                             placeholder="Describa el motivo del cambio">
-                      <mat-icon matPrefix>notes</mat-icon>
-                      <mat-hint align="end">{{cambioPlacaForm.get('descripcionMotivo')?.value?.length || 0}} caracteres</mat-hint>
-                      <mat-error *ngIf="cambioPlacaForm.get('descripcionMotivo')?.hasError('required')">
-                        La descripción es requerida
-                      </mat-error>
-                      <mat-error *ngIf="cambioPlacaForm.get('descripcionMotivo')?.hasError('minlength')">
-                        Mínimo 10 caracteres
-                      </mat-error>
-                    </mat-form-field>
+                    Motivo:
                   </div>
+                  <div class="info-value">{{obtenerNombreMotivo(solicitud.motivo)}}</div>
                 </div>
 
-                <!-- Documentación -->
-                <div class="subsection">
-                  <h4 class="subsection-title">
-                    <mat-icon>description</mat-icon>
-                    Documentación de Respaldo
-                  </h4>
-
-                  <div class="form-row">
-                    <mat-form-field appearance="outline" class="half-width">
-                      <mat-label>Tipo de Documento</mat-label>
-                      <mat-select formControlName="tipoDocumento">
-                        <mat-option *ngFor="let tipo of tiposDocumento" [value]="tipo.value">
-                          {{tipo.label}}
-                        </mat-option>
-                      </mat-select>
-                      <mat-icon matPrefix>insert_drive_file</mat-icon>
-                      <mat-error *ngIf="cambioPlacaForm.get('tipoDocumento')?.hasError('required')">
-                        Seleccione el tipo de documento
-                      </mat-error>
-                    </mat-form-field>
-
-                    <mat-form-field appearance="outline" class="half-width">
-                      <mat-label>Descripción del Documento</mat-label>
-                      <input matInput 
-                             formControlName="descripcionEvidencia"
-                             placeholder="Ej: Denuncia por robo ante PNC">
-                      <mat-icon matPrefix>edit_note</mat-icon>
-                      <mat-error *ngIf="cambioPlacaForm.get('descripcionEvidencia')?.hasError('required')">
-                        La descripción es requerida
-                      </mat-error>
-                      <mat-error *ngIf="cambioPlacaForm.get('descripcionEvidencia')?.hasError('minlength')">
-                        Mínimo 5 caracteres
-                      </mat-error>
-                    </mat-form-field>
+                <div class="info-row" *ngIf="solicitud.fechaRevision">
+                  <div class="info-label">
+                    <mat-icon>fact_check</mat-icon>
+                    Fecha de Revisión:
                   </div>
-
-                  <!-- Selector de Archivo -->
-                  <div class="file-upload-section">
-                    <div class="file-upload-wrapper">
-                      <input type="file" 
-                             id="archivo-input"
-                             (change)="onArchivoSeleccionado($event)"
-                             accept="image/*,application/pdf,.doc,.docx"
-                             style="display: none;">
-                      
-                      <button mat-raised-button 
-                              type="button"
-                              class="upload-button"
-                              (click)="abrirSelectorArchivo()">
-                        <mat-icon>cloud_upload</mat-icon>
-                        Seleccionar Documento
-                      </button>
-
-                      <div class="file-info" *ngIf="nombreArchivo">
-                        <mat-icon class="file-icon">attach_file</mat-icon>
-                        <span class="file-name">{{nombreArchivo}}</span>
-                        <button mat-icon-button 
-                                type="button"
-                                class="remove-file"
-                                (click)="limpiarArchivo()"
-                                matTooltip="Eliminar archivo">
-                          <mat-icon>close</mat-icon>
-                        </button>
-                      </div>
-
-                      <p class="file-hint" *ngIf="!nombreArchivo">
-                        <mat-icon>info</mat-icon>
-                        Formatos permitidos: Imágenes, PDF, Word (máx. 10MB)
-                      </p>
-                    </div>
-                  </div>
+                  <div class="info-value">{{formatearFechaParaMostrar(solicitud.fechaRevision)}}</div>
                 </div>
+              </div>
 
-                <!-- Botones de Acción -->
-                <div class="form-actions">
-                  <button mat-stroked-button 
-                          type="button" 
-                          class="cancel-button"
-                          (click)="limpiarFormulario()">
-                    <mat-icon>cancel</mat-icon>
-                    Limpiar
-                  </button>
+              <!-- Footer de la tarjeta -->
+              <div class="solicitud-footer">
+                <button mat-raised-button 
+                        (click)="verDetalles(solicitud)"
+                        class="btn-ver-detalles-card btn-secondary">
+                  <mat-icon>visibility</mat-icon>
+                  Ver Detalles
+                </button>
+                
+                <button mat-raised-button 
+                        *ngIf="solicitud.estado === 'PENDIENTE'"
+                        (click)="abrirModalResolucion(solicitud)"
+                        class="btn-resolver-card btn-primary">
+                  <mat-icon>rate_review</mat-icon>
+                  Resolver
+                </button>
 
-                  <button mat-raised-button 
-                          color="primary" 
-                          type="submit" 
-                          [disabled]="!cambioPlacaForm.valid || !archivoSeleccionado || isSavingSolicitud" 
-                          class="submit-button">
-                    <mat-spinner *ngIf="isSavingSolicitud" diameter="20" class="button-spinner"></mat-spinner>
-                    <mat-icon *ngIf="!isSavingSolicitud">send</mat-icon>
-                    <span *ngIf="!isSavingSolicitud">Enviar Solicitud</span>
-                    <span *ngIf="isSavingSolicitud">Enviando...</span>
-                  </button>
+                <div *ngIf="solicitud.estado !== 'PENDIENTE'" class="estado-procesado">
+                  <mat-icon>{{obtenerEstadoInfo(solicitud.estado).icon}}</mat-icon>
+                  <span>Procesada</span>
                 </div>
+              </div>
 
-              </form>
             </div>
           </div>
-        </mat-tab>
+        </div>
 
-        <!-- TAB 2: Mis Solicitudes -->
-        <mat-tab>
+        <!-- Loading -->
+        <div class="loading-container" *ngIf="isLoadingSolicitudes">
+          <mat-spinner diameter="50"></mat-spinner>
+          <p>Cargando solicitudes...</p>
+        </div>
 
-          <!-- Resumen de Estados -->
-          <div class="stats-container">
-            <div class="stat-card pendiente">
-              <mat-icon>schedule</mat-icon>
-              <div class="stat-info">
-                <span class="stat-value">{{contarSolicitudesPorEstado('PENDIENTE')}}</span>
-                <span class="stat-label">Pendientes</span>
-              </div>
-            </div>
-            <div class="stat-card aprobada">
-              <mat-icon>check_circle</mat-icon>
-              <div class="stat-info">
-                <span class="stat-value">{{contarSolicitudesPorEstado('APROBADA')}}</span>
-                <span class="stat-label">Aprobadas</span>
-              </div>
-            </div>
-            <div class="stat-card rechazada">
-              <mat-icon>cancel</mat-icon>
-              <div class="stat-info">
-                <span class="stat-value">{{contarSolicitudesPorEstado('RECHAZADA')}}</span>
-                <span class="stat-label">Rechazadas</span>
-              </div>
-            </div>
-            <div class="stat-card total">
-              <mat-icon>assignment</mat-icon>
-              <div class="stat-info">
-                <span class="stat-value">{{solicitudes.length}}</span>
-                <span class="stat-label">Total</span>
-              </div>
-            </div>
-          </div>
+        <!-- Sin resultados -->
+        <div class="no-results" *ngIf="todasLasSolicitudes.length === 0 && !isLoadingSolicitudes">
+          <mat-icon>inbox</mat-icon>
+          <p>No hay solicitudes de cambio de placa</p>
+          <p class="hint">Las solicitudes pendientes aparecerán aquí</p>
+        </div>
 
-          <ng-template mat-tab-label>
-            <mat-icon class="tab-icon">list_alt</mat-icon>
-            Mis Solicitudes
-          </ng-template>
-
-          <div class="tab-content">
-            
-            <!-- Lista de Solicitudes -->
-            <div class="results-section" *ngIf="solicitudes.length > 0">
-              <h3 class="section-title">
-                <mat-icon>assignment</mat-icon>
-                Historial de Solicitudes ({{solicitudes.length}})
-              </h3>
-
-              <div class="solicitudes-grid">
-                <div class="solicitud-card" *ngFor="let solicitud of solicitudes">
-                  
-                  <!-- Header de la tarjeta -->
-                  <div class="solicitud-header">
-                    <div class="solicitud-id">
-                      <mat-icon>confirmation_number</mat-icon>
-                      <span>Solicitud #{{solicitud.idSolicitudCambio}}</span>
-                    </div>
-                    <mat-chip [class]="obtenerColorEstado(solicitud.estado)">
-                      {{obtenerTextoEstado(solicitud.estado)}}
-                    </mat-chip>
-                  </div>
-
-                  <!-- Información del cambio -->
-                  <div class="solicitud-body">
-                    <div class="info-row">
-                      <div class="info-label">
-                        <mat-icon>event</mat-icon>
-                        Fecha de Solicitud:
-                      </div>
-                      <div class="info-value">{{formatearFechaParaMostrar(solicitud.fechaSolicitud)}}</div>
-                    </div>
-
-                    <div class="info-row">
-                      <div class="info-label">
-                        <mat-icon>swap_horiz</mat-icon>
-                        Cambio de Placa:
-                      </div>
-                      <div class="info-value placa-cambio">
-                        <span class="placa-vieja">{{solicitud.vehiculoActual.placa}}</span>
-                        <mat-icon class="arrow-icon">arrow_forward</mat-icon>
-                        <span class="placa-nueva">{{solicitud.placaNueva}}</span>
-                      </div>
-                    </div>
-
-                    <div class="info-row">
-                      <div class="info-label">
-                        <mat-icon>help_outline</mat-icon>
-                        Motivo:
-                      </div>
-                      <div class="info-value">{{obtenerNombreMotivo(solicitud.motivo)}}</div>
-                    </div>
-
-                    <div class="info-row" *ngIf="solicitud.fechaRevision">
-                      <div class="info-label">
-                        <mat-icon>fact_check</mat-icon>
-                        Fecha de Revisión:
-                      </div>
-                      <div class="info-value">{{formatearFechaParaMostrar(solicitud.fechaRevision)}}</div>
-                    </div>
-                  </div>
-
-                  <!-- Footer de la tarjeta -->
-                  <div class="solicitud-footer">
-                    <button mat-raised-button 
-                            color="primary"
-                            (click)="verDetalles(solicitud)"
-                            class="btn-ver-detalles-card">
-                      <mat-icon>visibility</mat-icon>
-                      Ver Detalles Completos
-                    </button>
-                  </div>
-
-                </div>
-              </div>
-            </div>
-
-            <!-- Loading -->
-            <div class="loading-container" *ngIf="isLoadingSolicitudes">
-              <mat-spinner diameter="50"></mat-spinner>
-              <p>Cargando solicitudes...</p>
-            </div>
-
-            <!-- Sin resultados -->
-            <div class="no-results" *ngIf="solicitudes.length === 0 && !isLoadingSolicitudes">
-              <mat-icon>inbox</mat-icon>
-              <p>No hay solicitudes de cambio de placa</p>
-              <p class="hint">Las solicitudes que realice aparecerán aquí</p>
-            </div>
-
-          </div>
-        </mat-tab>
-
-      </mat-tab-group>
-
+      </div>
     </mat-card-content>
   </mat-card>
 
-  <!-- Modal de Detalles Completos -->
+   <!-- Modal de Detalles Completos -->
   <div class="modal-overlay" *ngIf="mostrarModalDetalles" (click)="cerrarModalDetalles($event)">
     <div class="encargado-modal modal-detalles-grande" (click)="$event.stopPropagation()">
       
@@ -402,11 +191,11 @@
       <div class="modal-content" *ngIf="solicitudSeleccionada">
         
         <!-- Estado de la Solicitud -->
-        <div class="estado-banner" [class]="'estado-banner-' + solicitudSeleccionada.estado.toLowerCase()">
-          <mat-icon>info</mat-icon>
+        <div class="estado-banner" [class]="obtenerClaseEstadoBanner(solicitudSeleccionada.estado)">
+          <mat-icon>{{obtenerEstadoInfo(solicitudSeleccionada.estado).icon}}</mat-icon>
           <div class="estado-info">
             <span class="estado-titulo">Estado Actual:</span>
-            <span class="estado-valor">{{obtenerTextoEstado(solicitudSeleccionada.estado)}}</span>
+            <span class="estado-valor">{{obtenerEstadoInfo(solicitudSeleccionada.estado).text}}</span>
           </div>
         </div>
 
@@ -416,11 +205,46 @@
           <!-- Columna Izquierda -->
           <div class="modal-column">
 
+            <!-- Información del Cliente -->
+            <div class="info-section-compact">
+              <h3 class="info-section-title-compact">
+                <mat-icon>account_circle</mat-icon>
+                Información del Cliente
+              </h3>
+              
+              <div class="info-list">
+                <div class="info-item-compact">
+                  <label>ID Usuario:</label>
+                  <span>#{{solicitudSeleccionada.clienteInfo.idUsuario}}</span>
+                </div>
+                <div class="info-item-compact">
+                  <label>Nombre Completo:</label>
+                  <span>{{solicitudSeleccionada.clienteInfo.nombreCompleto}}</span>
+                </div>
+                <div class="info-item-compact">
+                  <label>Email:</label>
+                  <span>{{solicitudSeleccionada.clienteInfo.email}}</span>
+                </div>
+                <div class="info-item-compact">
+                  <label>Teléfono:</label>
+                  <span>{{solicitudSeleccionada.clienteInfo.telefono}}</span>
+                </div>
+                <div class="info-item-compact">
+                  <label>CUI:</label>
+                  <span>{{solicitudSeleccionada.clienteInfo.cui}}</span>
+                </div>
+                <div class="info-item-compact full-width-compact">
+                  <label>Dirección:</label>
+                  <span class="text-wrap">{{solicitudSeleccionada.clienteInfo.direccion}}</span>
+                </div>
+              </div>
+            </div>
+
             <!-- Información General -->
             <div class="info-section-compact">
               <h3 class="info-section-title-compact">
                 <mat-icon>description</mat-icon>
-                Información General
+                Información de la Solicitud
               </h3>
               
               <div class="info-list">
@@ -691,14 +515,6 @@
                   <span>{{solicitudSeleccionada.suscripcionCliente.tipoPlanSuscripcionDTO.configuracionDescuento.descuentoAnualAdicional}}%</span>
                 </div>
                 <div class="info-item-compact">
-                  <label>Vigencia Inicio:</label>
-                  <span>{{formatearFechaParaMostrar(solicitudSeleccionada.suscripcionCliente.tipoPlanSuscripcionDTO.configuracionDescuento.fechaVigenciaInicio)}}</span>
-                </div>
-                <div class="info-item-compact">
-                  <label>Vigencia Fin:</label>
-                  <span>{{formatearFechaParaMostrar(solicitudSeleccionada.suscripcionCliente.tipoPlanSuscripcionDTO.configuracionDescuento.fechaVigenciaFin)}}</span>
-                </div>
-                <div class="info-item-compact">
                   <label>Estado Configuración:</label>
                   <span>{{solicitudSeleccionada.suscripcionCliente.tipoPlanSuscripcionDTO.configuracionDescuento.estadoConfiguracion}}</span>
                 </div>
@@ -759,8 +575,11 @@
                 </div>
               </div>
             </div>
+
           </div>
+
         </div>
+
       </div>
 
       <div class="modal-actions">
@@ -775,4 +594,146 @@
     </div>
   </div>
 
+  <!-- Modal de Resolución -->
+  <div class="modal-overlay" *ngIf="mostrarModalResolucion" (click)="cerrarModalResolucion($event)">
+    <div class="encargado-modal modal-resolucion" (click)="$event.stopPropagation()">
+      
+      <div class="modal-header">
+        <div class="modal-icon">
+          <mat-icon>rate_review</mat-icon>
+        </div>
+        <h2>Resolver Solicitud de Cambio de Placa</h2>
+      </div>
+
+      <div class="modal-content" *ngIf="solicitudSeleccionada">
+        
+        <!-- Resumen de la solicitud -->
+        <div class="resumen-solicitud-card">
+          <h3 class="resumen-title">
+            <mat-icon>info</mat-icon>
+            Resumen de la Solicitud
+          </h3>
+
+          <div class="resumen-grid">
+            <div class="resumen-item">
+              <label>ID Solicitud:</label>
+              <span class="resumen-value">#{{solicitudSeleccionada.idSolicitudCambio}}</span>
+            </div>
+            <div class="resumen-item">
+              <label>Cliente:</label>
+              <span class="resumen-value">{{solicitudSeleccionada.clienteInfo.nombreCompleto}}</span>
+            </div>
+            <div class="resumen-item">
+              <label>Fecha Solicitud:</label>
+              <span class="resumen-value">{{formatearFechaParaMostrar(solicitudSeleccionada.fechaSolicitud)}}</span>
+            </div>
+            <div class="resumen-item">
+              <label>Motivo:</label>
+              <span class="resumen-value">{{obtenerNombreMotivo(solicitudSeleccionada.motivo)}}</span>
+            </div>
+          </div>
+
+          <div class="resumen-cambio-placa">
+            <label>Cambio de Placa:</label>
+            <div class="cambio-visual">
+              <div class="placa-box old">
+                <mat-icon>directions_car</mat-icon>
+                <span>{{solicitudSeleccionada.vehiculoActual.placa}}</span>
+                <small>{{solicitudSeleccionada.vehiculoActual.marca}} {{solicitudSeleccionada.vehiculoActual.modelo}}</small>
+              </div>
+              <mat-icon class="arrow-change">arrow_forward</mat-icon>
+              <div class="placa-box new">
+                <mat-icon>directions_car</mat-icon>
+                <span>{{solicitudSeleccionada.placaNueva}}</span>
+                <small>{{solicitudSeleccionada.vehiculoNuevo.marca}} {{solicitudSeleccionada.vehiculoNuevo.modelo}}</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="resumen-descripcion">
+            <label>Descripción del Motivo:</label>
+            <p>{{solicitudSeleccionada.descripcionMotivo}}</p>
+          </div>
+        </div>
+
+        <!-- Formulario de resolución -->
+        <form [formGroup]="resolucionForm" (ngSubmit)="resolverSolicitud()" class="resolucion-form">
+          
+          <div class="form-section-resolucion">
+            <h3 class="form-section-title">
+              <mat-icon>gavel</mat-icon>
+              Decisión de Resolución
+            </h3>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Decisión</mat-label>
+              <mat-select formControlName="estado">
+                <mat-option *ngFor="let estado of estadosResolucion" [value]="estado.value">
+                  <div class="estado-option">
+                    <span>{{estado.label}}</span>
+                  </div>
+                </mat-option>
+              </mat-select>
+              <mat-icon matPrefix>fact_check</mat-icon>
+              <mat-error *ngIf="resolucionForm.get('estado')?.hasError('required')">
+                Debe seleccionar una decisión
+              </mat-error>
+              <mat-hint>Seleccione si aprueba o rechaza la solicitud</mat-hint>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Observaciones de la Revisión</mat-label>
+              <textarea matInput 
+                        formControlName="observacionesRevision"
+                        rows="5"
+                        placeholder="Escriba las observaciones de su decisión..."></textarea>
+              <mat-icon matPrefix>notes</mat-icon>
+              <mat-hint align="end">{{resolucionForm.get('observacionesRevision')?.value?.length || 0}} caracteres</mat-hint>
+              <mat-error *ngIf="resolucionForm.get('observacionesRevision')?.hasError('required')">
+                Las observaciones son requeridas
+              </mat-error>
+              <mat-error *ngIf="resolucionForm.get('observacionesRevision')?.hasError('minlength')">
+                Mínimo 10 caracteres
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <!-- Preview de la decisión -->
+          <div class="decision-preview" *ngIf="resolucionForm.get('estado')?.value">
+            <div class="preview-header" [class.preview-aprobada]="resolucionForm.get('estado')?.value === 'APROBADA'" 
+                 [class.preview-rechazada]="resolucionForm.get('estado')?.value === 'RECHAZADA'">
+              <mat-icon>{{resolucionForm.get('estado')?.value === 'APROBADA' ? 'check_circle' : 'cancel'}}</mat-icon>
+              <span>{{resolucionForm.get('estado')?.value === 'APROBADA' ? 'Solicitud será APROBADA' : 'Solicitud será RECHAZADA'}}</span>
+            </div>
+            <p class="preview-warning">
+              <mat-icon>warning</mat-icon>
+              Esta acción notificará al cliente y actualizará el estado de la solicitud. Asegúrese de que la información sea correcta antes de continuar.
+            </p>
+          </div>
+
+        </form>
+
+      </div>
+
+      <div class="modal-actions">
+        <button mat-stroked-button 
+                (click)="cerrarModalResolucion()"
+                class="cancel-button-modal">
+          <mat-icon>cancel</mat-icon>
+          Cancelar
+        </button>
+        <button mat-raised-button 
+                [disabled]="!resolucionForm.valid || isSavingResolucion"
+                (click)="resolverSolicitud()"
+                class="resolve-button"
+                [class.resolve-button-aprobar]="resolucionForm.get('estado')?.value === 'APROBADA'"
+                [class.resolve-button-rechazar]="resolucionForm.get('estado')?.value === 'RECHAZADA'">
+          <mat-spinner *ngIf="isSavingResolucion" diameter="20" class="button-spinner"></mat-spinner>
+          <mat-icon *ngIf="!isSavingResolucion">{{resolucionForm.get('estado')?.value === 'APROBADA' ? 'check_circle' : 'gavel'}}</mat-icon>
+          <span *ngIf="!isSavingResolucion">{{resolucionForm.get('estado')?.value === 'APROBADA' ? 'Aprobar Solicitud' : 'Procesar Solicitud'}}</span>
+          <span *ngIf="isSavingResolucion">Procesando...</span>
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

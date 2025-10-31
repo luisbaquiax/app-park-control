@@ -488,4 +488,8 @@ export class PlateChange implements OnInit {
       verticalPosition: 'top',
     });
   }
+
+  contarSolicitudesPorEstado(estado: string): number {
+    return this.solicitudes.filter(s => s.estado.toUpperCase() === estado.toUpperCase()).length;
+  }
 }

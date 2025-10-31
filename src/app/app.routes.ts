@@ -43,5 +43,8 @@ export const routes: Routes = [
     },
     {
       path: 'cambio-placa', loadComponent: () => import('./pages/cliente/plate-change/plate-change').then(m => m.PlateChange), title: "Cambio Placa"
+    },
+    {
+      path: 'placa-resolucion', loadComponent: () => import('./pages/backoffice/resolution-plate/resolution-plate').then(m => m.ResolutionPlate), title: "Placa Resolución"
     }
 ];
