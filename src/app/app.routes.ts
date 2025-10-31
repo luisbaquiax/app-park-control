@@ -40,5 +40,8 @@ export const routes: Routes = [
     },
     {
       path: 'incidencia-resolver', loadComponent: () => import('./pages/empresa/incident-resolve/incident-resolve').then(m => m.IncidentResolve), title: "Incidencia Resolver"
+    },
+    {
+      path: 'cambio-placa', loadComponent: () => import('./pages/cliente/plate-change/plate-change').then(m => m.PlateChange), title: "Cambio Placa"
     }
 ];

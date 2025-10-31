@@ -102,6 +102,12 @@ export class NavigationBar {
       route: '/suscripciones',
       roles: ['CLIENTE'],
     },
+    {
+      icon: 'subscriptions',
+      label: 'Cambió Placa',
+      route: '/cambio-placa',  
+      roles: ['CLIENTE'],
+    },
     // OPCIONES DEL USUARIO DEL SISTEMA
     {
       icon: 'domain',

@@ -189,14 +189,18 @@
                       diameter="20"
                       class="button-spinner"
                     ></mat-spinner>
-                    @if (!isLoading) {
-                    <mat-icon>add_business</mat-icon>
-                    <span>Crear Empresa</span>
 
-                    } @if (isLoading) {
-                    <span>Creando...</span>
-                    }
+                    <ng-container *ngIf="!isLoading; else loading">
+                      <mat-icon>add_business</mat-icon>
+                      <span>Crear Empresa</span>
+                    </ng-container>
+
+                    <ng-template #loading>
+                      <span>Creando...</span>
+                    </ng-template>
                   </button>
+
+
                 </div>
               </form>
             </div>
