@@ -108,6 +108,12 @@ export class NavigationBar {
       route: '/cambio-placa',  
       roles: ['CLIENTE'],
     },
+    {
+      icon: 'hourglass_top',
+      label: 'Permiso Temporal',
+      route: '/permiso-temporal',  
+      roles: ['CLIENTE'],
+    },
     // OPCIONES DEL USUARIO DEL SISTEMA
     {
       icon: 'domain',

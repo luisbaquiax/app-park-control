@@ -2,7 +2,8 @@ import { Injectable } from "@angular/core";
 import { environment } from "../../../environments/environments";
 import { HttpClient } from "@angular/common/http";
 import { Observable, retryWhen } from "rxjs";
-import { CompraSuscripcionRequest, RenovacionSuscripcionRequest, ResponseSuscripcion, SuscripcionActivaResponse, SuscripcionResponse, VehiculoResponse } from "../../models/cliente/sucursal.model";
+import { CompraSuscripcionRequest, RenovacionSuscripcionRequest, ResponseSuscripcion, SolicitarPermisoTemporalRequest, SuscripcionActivaResponse, SuscripcionResponse, VehiculoResponse } from "../../models/cliente/sucursal.model";
+import { PermisoTemporalResponse } from "../../models/cliente/placaTemporal.model";
 
 @Injectable({providedIn: 'root'})
 export class SuscripcionService {
@@ -20,6 +21,10 @@ export class SuscripcionService {
         return this.http.post<ResponseSuscripcion>(`${this.DIRECCION_API}/suscripciones/renovar-suscripcion`, data);
     }
 
+    solicitarPermisoTemporal(data: SolicitarPermisoTemporalRequest): Observable<ResponseSuscripcion> {
+        return this.http.post<ResponseSuscripcion>(`${this.DIRECCION_API}/solicitud-temporal/solicitar`, data);
+    }
+
     /* Métodos GET */
     obtenerSuscripcionesEmpresas(): Observable<SuscripcionResponse> {
         return this.http.get<SuscripcionResponse>(`${this.DIRECCION_API}/suscripciones/planes`);
@@ -31,5 +36,9 @@ export class SuscripcionService {
     
     obtenerVehiculos(idCliente: number): Observable<VehiculoResponse[]> {
         return this.http.get<VehiculoResponse[]>(`${this.DIRECCION_API}/suscripciones/vehiculos/${idCliente}`);
+    }
+
+    obtenerPermisosTemporales(idCliente: number): Observable<PermisoTemporalResponse[]> {
+        return this.http.get<PermisoTemporalResponse[]>(`${this.DIRECCION_API}/solicitud-temporal/solicitudes/${idCliente}`);
     }
 }

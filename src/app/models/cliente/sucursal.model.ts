@@ -175,3 +175,14 @@ export interface SucursalDisponible {
   estado: string;
   usuario: string | null;
 }
+
+// ==========================================
+// INTERFACES PARA SOLICITAR PERMISO TEMPORAL
+// ==========================================
+
+export interface SolicitarPermisoTemporalRequest {
+  idSuscripcion: number,
+  placaTemporal: string
+  tipoVehiculoPermitido: 'DOS_RUEDAS' | 'CUATRO_RUEDAS',
+  motivo: string
+}

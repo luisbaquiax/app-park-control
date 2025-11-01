@@ -307,7 +307,7 @@
                   </mat-card-content>
 
                   <mat-card-actions>
-                    <!-- Solo mostrar si faltan 7 días o menos -->
+                    <!-- Botón de Renovación -->
                     <button mat-raised-button 
                             color="primary" 
                             (click)="abrirModalRenovacion(suscripcion)"
@@ -317,6 +317,16 @@
                       ¡Renovar Ahora! (Vence en {{diasRestantes(suscripcion.fechaFin)}} días)
                     </button>
                     
+                    <!-- Botón de Permiso Temporal -->
+                    <button mat-raised-button 
+                            color="accent" 
+                            (click)="abrirModalPermisoTemporal(suscripcion)"
+                            *ngIf="suscripcion.estadoSuscripcion === 'ACTIVA'"
+                            class="permiso-button">
+                      <mat-icon>car_rental</mat-icon>
+                      Solicitar Permiso Temporal
+                    </button>
+
                     <!-- Mensaje informativo si faltan más de 7 días -->
                     <div class="renovacion-info" *ngIf="!estaProximoAVencer(suscripcion.fechaFin)">
                       <mat-icon>info</mat-icon>
@@ -601,6 +611,137 @@
           <mat-spinner *ngIf="isLoading" diameter="20" class="button-spinner"></mat-spinner>
           <mat-icon *ngIf="!isLoading">autorenew</mat-icon>
           <span *ngIf="!isLoading">Confirmar Renovación</span>
+          <span *ngIf="isLoading">Procesando...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL DE PERMISO TEMPORAL -->
+  <div class="modal-overlay" *ngIf="mostrarModalPermisoTemporal" (click)="cerrarModalPermisoTemporal($event)">
+    <div class="encargado-modal" (click)="$event.stopPropagation()">
+      
+      <!-- Header del Modal -->
+      <div class="modal-header">
+        <button mat-icon-button class="close-icon-button" (click)="cerrarModalPermisoTemporal()">
+          <mat-icon>close</mat-icon>
+        </button>
+        <div class="modal-icon">
+          <mat-icon>car_rental</mat-icon>
+        </div>
+        <h2>Solicitar Permiso Temporal</h2>
+        <p class="modal-subtitle" *ngIf="suscripcionActivaSeleccionada">
+          {{suscripcionActivaSeleccionada.tipoPlanSuscripcionDTO.nombrePlan}}
+        </p>
+      </div>
+
+      <!-- Contenido del Modal -->
+      <div class="modal-content" *ngIf="suscripcionActivaSeleccionada">
+        
+        <!-- Información Actual -->
+        <div class="info-section">
+          <h3 class="info-section-title">
+            <mat-icon>info</mat-icon>
+            Información de la Suscripción
+          </h3>
+          <div class="plan-resumen">
+            <p><strong>Plan:</strong> {{suscripcionActivaSeleccionada.tipoPlanSuscripcionDTO.nombrePlan}}</p>
+            <p><strong>Vehículo Principal:</strong> {{suscripcionActivaSeleccionada.vehiculoClienteDTO.placa}}</p>
+            <p><strong>Vigencia:</strong> {{formatearFechaLegible(suscripcionActivaSeleccionada.fechaFin)}}</p>
+          </div>
+          
+          <div class="alerta-info">
+            <mat-icon>info</mat-icon>
+            <span>El permiso temporal permite utilizar otro vehículo temporalmente con esta suscripción</span>
+          </div>
+        </div>
+
+        <!-- Formulario -->
+        <form [formGroup]="permisoTemporalForm" class="usuario-form">
+          
+          <div class="info-section">
+            <h3 class="info-section-title">
+              <mat-icon>edit</mat-icon>
+              Datos del Vehículo Temporal
+            </h3>
+            
+            <mat-form-field appearance="outline" style="width: 100%; margin-bottom: 1rem;">
+              <mat-label>Vehículo Temporal</mat-label>
+              <mat-select formControlName="placaTemporal">
+                <mat-option *ngFor="let vehiculo of vehiculos" 
+                            [value]="vehiculo.placa">
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <mat-icon style="font-size: 18px; width: 18px; height: 18px;">
+                      {{getIconoVehiculo(vehiculo.tipoVehiculo)}}
+                    </mat-icon>
+                    <span>{{vehiculo.placa}} - {{vehiculo.marca}} {{vehiculo.modelo}} ({{vehiculo.color}})</span>
+                  </div>
+                </mat-option>
+              </mat-select>
+              <mat-icon matPrefix>directions_car</mat-icon>
+              <mat-hint *ngIf="vehiculos.length === 0">No hay vehículos disponibles</mat-hint>
+              <mat-hint *ngIf="vehiculos.length > 0">
+                Seleccione un vehículo diferente al de la suscripción actual
+              </mat-hint>
+              <mat-error *ngIf="permisoTemporalForm.get('placaTemporal')?.hasError('required')">
+                Debe seleccionar un vehículo
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" style="width: 100%; margin-bottom: 1rem;">
+              <mat-label>Tipo de Vehículo</mat-label>
+              <mat-select formControlName="tipoVehiculoPermitido">
+                <mat-option *ngFor="let tipo of tiposVehiculoPermiso" [value]="tipo.value">
+                  {{tipo.label}}
+                </mat-option>
+              </mat-select>
+              <mat-icon matPrefix>directions_car</mat-icon>
+              <mat-error *ngIf="permisoTemporalForm.get('tipoVehiculoPermitido')?.hasError('required')">
+                Debe seleccionar el tipo de vehículo
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" style="width: 100%;">
+              <mat-label>Motivo de la Solicitud</mat-label>
+              <textarea matInput 
+                        formControlName="motivo" 
+                        rows="4"
+                        placeholder="Explique brevemente el motivo por el cual necesita el permiso temporal..."
+                        maxlength="500"></textarea>
+              <mat-icon matPrefix>description</mat-icon>
+              <mat-hint align="end">
+                {{permisoTemporalForm.get('motivo')?.value?.length || 0}}/500 caracteres
+              </mat-hint>
+              <mat-error *ngIf="permisoTemporalForm.get('motivo')?.hasError('required')">
+                El motivo es requerido
+              </mat-error>
+              <mat-error *ngIf="permisoTemporalForm.get('motivo')?.hasError('minlength')">
+                El motivo debe tener al menos 10 caracteres
+              </mat-error>
+            </mat-form-field>
+
+          </div>
+
+        </form>
+      </div>
+
+      <!-- Botones del Modal -->
+      <div class="modal-actions">
+        <button mat-stroked-button 
+                class="cancel-button"
+                (click)="cerrarModalPermisoTemporal()">
+          <mat-icon>close</mat-icon>
+          Cancelar
+        </button>
+        
+        <button mat-raised-button 
+                color="accent" 
+                (click)="solicitarPermisoTemporal()"
+                [disabled]="permisoTemporalForm.invalid || isLoading"
+                class="submit-button">
+          <mat-spinner *ngIf="isLoading" diameter="20" class="button-spinner"></mat-spinner>
+          <mat-icon *ngIf="!isLoading">send</mat-icon>
+          <span *ngIf="!isLoading">Enviar Solicitud</span>
           <span *ngIf="isLoading">Procesando...</span>
         </button>
       </div>

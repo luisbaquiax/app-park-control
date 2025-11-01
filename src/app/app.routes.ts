@@ -46,5 +46,8 @@ export const routes: Routes = [
     },
     {
       path: 'placa-resolucion', loadComponent: () => import('./pages/backoffice/resolution-plate/resolution-plate').then(m => m.ResolutionPlate), title: "Placa Resolución"
+    },
+    {
+      path: 'permiso-temporal', loadComponent: () => import('./pages/cliente/temporary-permit/temporary-permit').then(m => m.TemporaryPermit), title: "Permiso Temporal"
     }
 ];
