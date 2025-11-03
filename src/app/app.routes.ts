@@ -55,5 +55,14 @@ export const routes: Routes = [
     },
     {
       path: 'corte', loadComponent: () => import('./pages/empresa/court/court').then(m => m.Court), title: "Cortes de Caja"
+    },
+    {
+      path: 'gestion-vehiculos', loadComponent: () => import('./pages/sucursal/gestion-vehiculos-component/gestion-vehiculos-component').then(m => m.GestionVehiculosComponent), title: "Gestion Vehiculos"
+    },
+    {
+      path: 'vehiculos-propietario', loadComponent: () => import('./pages/sucursal/gestion-vehiculos-component/vehiculos-propietario/vehiculos-propietario').then(m => m.VehiculosPropietarioComponent), title: "Vehiculos Propietario"
+    },
+    {
+      path: 'gestion-tarifa-global' , loadComponent: () => import('./pages/empresa/gestion-tarifa-global/gestion-tarifa-global').then(m => m.GestionTarifaGlobal), title: "Gestión Tarifa Global"
     }
 ];
