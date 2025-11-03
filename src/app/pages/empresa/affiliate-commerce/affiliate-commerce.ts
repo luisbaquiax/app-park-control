@@ -123,7 +123,7 @@ export class AffiliateCommerce implements OnInit {
       fechaFinConvenio: ['', [Validators.required]]
     });
 
-    form.setValidators(this.validadorFechasConvenio());
+    //form.setValidators(this.validadorFechasConvenio());
 
     form.get('fechaInicioConvenio')?.valueChanges.subscribe(() => {
       form.get('fechaFinConvenio')?.updateValueAndValidity({ emitEvent: false });

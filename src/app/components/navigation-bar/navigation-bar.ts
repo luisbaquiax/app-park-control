@@ -82,6 +82,12 @@ export class NavigationBar {
       route: '/incidencia-resolver',
       roles: ['EMPRESA'],
     },
+    {
+      icon: 'receipt_long',
+      label: 'Cortes de Caja',
+      route: '/corte',
+      roles: ['EMPRESA'],
+    },
     // OPCIONES DEL USUARIO SUCURSAL
     {
       icon: 'storefront',
@@ -126,6 +132,12 @@ export class NavigationBar {
       icon: 'assignment_turned_in',
       label: 'Placa Resolución',
       route: '/placa-resolucion',
+      roles: ['BACKOFFICE'],
+    },
+    {
+      icon: 'hourglass_disabled',
+      label: 'Permiso Temporal',
+      route: '/permiso-temporal-backoffice',
       roles: ['BACKOFFICE'],
     },
   ];

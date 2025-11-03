@@ -1,0 +1,556 @@
+<div class="crear-usuario-container">
+  <div class="floating-icons">
+    <div class="icon"><mat-icon>point_of_sale</mat-icon></div>
+    <div class="icon"><mat-icon>payments</mat-icon></div>
+    <div class="icon"><mat-icon>receipt_long</mat-icon></div>
+    <div class="icon"><mat-icon>account_balance</mat-icon></div>
+    <div class="icon"><mat-icon>attach_money</mat-icon></div>
+    <div class="icon"><mat-icon>monetization_on</mat-icon></div>
+    <div class="icon"><mat-icon>credit_card</mat-icon></div>
+    <div class="icon"><mat-icon>account_balance_wallet</mat-icon></div>
+  </div>
+
+  <mat-card class="usuario-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="header-icon">point_of_sale</mat-icon>
+        Gestión de Cortes de Caja
+      </mat-card-title>
+      <mat-card-subtitle>Administre los cortes de caja y detalles de pagos de suscripciones</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="content-wrapper">
+        
+        <!-- Tabs -->
+        <mat-tab-group [(selectedIndex)]="tabSeleccionado" class="custom-tabs">
+          
+          <!-- TAB 1: CORTES DE CAJA -->
+          <mat-tab label="Cortes de Caja">
+            <ng-template matTabLabel>
+              <mat-icon class="tab-icon">point_of_sale</mat-icon>
+              <span>Cortes de Caja</span>
+            </ng-template>
+
+            <div class="tab-content">
+              
+              <!-- Resumen de Estados de Cortes -->
+              <div class="stats-container">
+                <div class="stat-card pendiente">
+                  <mat-icon>schedule</mat-icon>
+                  <div class="stat-info">
+                    <span class="stat-value">{{contarCortesPorEstado('PRELIMINAR')}}</span>
+                    <span class="stat-label">Preliminar</span>
+                  </div>
+                </div>
+                <div class="stat-card completado">
+                  <mat-icon>check_circle</mat-icon>
+                  <div class="stat-info">
+                    <span class="stat-value">{{contarCortesPorEstado('CERRADO')}}</span>
+                    <span class="stat-label">Cerrado</span>
+                  </div>
+                </div>
+                <div class="stat-card facturado">
+                  <mat-icon>receipt</mat-icon>
+                  <div class="stat-info">
+                    <span class="stat-value">{{contarCortesPorEstado('AUDITADO')}}</span>
+                    <span class="stat-label">Auditado</span>
+                  </div>
+                </div>
+                <div class="stat-card total">
+                  <mat-icon>attach_money</mat-icon>
+                  <div class="stat-info">
+                    <span class="stat-value">{{formatearMoneda(calcularTotalCortes())}}</span>
+                    <span class="stat-label">Total Neto</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Lista de Cortes -->
+              <div class="results-section" *ngIf="cortesCaja.length > 0">
+                <h3 class="section-title">
+                  <mat-icon>list</mat-icon>
+                  Cortes de Caja ({{cortesCaja.length}})
+                </h3>
+
+                <div class="cortes-grid">
+                  <div class="corte-card" *ngFor="let corte of cortesCaja">
+                    
+                    <!-- Header -->
+                    <div class="corte-header">
+                      <div class="corte-id">
+                        <mat-icon>assignment</mat-icon>
+                        <span>#{{corte.idCorteCaja}}</span>
+                      </div>
+                      <mat-chip [class]="obtenerEstadoInfo(corte.estado).class">
+                        <mat-icon>{{obtenerEstadoInfo(corte.estado).icon}}</mat-icon>
+                        {{obtenerEstadoInfo(corte.estado).text}}
+                      </mat-chip>
+                    </div>
+
+                    <!-- Información de Sucursal y Periodo -->
+                    <div class="corte-sucursal">
+                      <mat-icon>place</mat-icon>
+                      <div class="sucursal-info">
+                        <span class="sucursal-nombre">{{corte.sucursalNombre}}</span>
+                        <span class="periodo-texto">Periodo: {{corte.periodo}}</span>
+                      </div>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="corte-body">
+                      <div class="info-row">
+                        <div class="info-label">
+                          <mat-icon>event</mat-icon>
+                          Vigencia:
+                        </div>
+                        <div class="info-value">
+                          {{formatearFechaParaMostrar(corte.fechaInicio)}} - {{formatearFechaParaMostrar(corte.fechaFin)}}
+                        </div>
+                      </div>
+
+                      <div class="info-row">
+                        <div class="info-label">
+                          <mat-icon>schedule</mat-icon>
+                          Horas Comercio:
+                        </div>
+                        <div class="info-value">
+                          {{formatearHoras(corte.totalHorasComercio)}}
+                        </div>
+                      </div>
+
+                      <div class="info-row">
+                        <div class="info-label">
+                          <mat-icon>monetization_on</mat-icon>
+                          Liquidación:
+                        </div>
+                        <div class="info-value">
+                          {{formatearMoneda(corte.totalLiquidacionComercios)}}
+                        </div>
+                      </div>
+
+                      <div class="info-row highlight">
+                        <div class="info-label">
+                          <mat-icon>attach_money</mat-icon>
+                          Total Neto:
+                        </div>
+                        <div class="info-value total-neto">
+                          {{formatearMoneda(corte.totalNeto)}}
+                        </div>
+                      </div>
+
+                      <div class="info-row">
+                        <div class="info-label">
+                          <mat-icon>store</mat-icon>
+                          Comercios:
+                        </div>
+                        <div class="info-value">
+                          {{corte.detallesComercios.length}} comercio(s)
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="corte-footer">
+                      <div class="generado-info">
+                        <mat-icon>account_circle</mat-icon>
+                        <span>Generado por: <strong>{{corte.generadoPorNombreUsuario}}</strong></span>
+                      </div>
+                      <button mat-raised-button 
+                              (click)="verDetallesCorte(corte)"
+                              class="btn-ver-detalles">
+                        <mat-icon>visibility</mat-icon>
+                        Ver Detalles
+                      </button>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+
+              <!-- Loading -->
+              <div class="loading-container" *ngIf="isLoadingCortes">
+                <mat-spinner diameter="50"></mat-spinner>
+                <p>Cargando cortes de caja...</p>
+              </div>
+
+              <!-- Sin resultados -->
+              <div class="no-results" *ngIf="cortesCaja.length === 0 && !isLoadingCortes">
+                <mat-icon>inbox</mat-icon>
+                <p>No hay cortes de caja registrados</p>
+                <p class="hint">Los cortes de caja generados aparecerán aquí</p>
+              </div>
+
+            </div>
+          </mat-tab>
+<!-- TAB 2: DETALLES DE PAGOS -->
+          <mat-tab label="Detalles de Pagos">
+            <ng-template matTabLabel>
+              <mat-icon class="tab-icon">receipt_long</mat-icon>
+              <span>Detalles de Pagos</span>
+            </ng-template>
+
+            <div class="tab-content">
+              
+              <!-- Resumen de Estados de Pagos -->
+              <div class="stats-container">
+                <div class="stat-card exitoso">
+                  <mat-icon>check_circle</mat-icon>
+                  <div class="stat-info">
+                    <span class="stat-value">{{contarPagosPorEstado('COMPLETADO')}}</span>
+                    <span class="stat-label">Completado</span>
+                  </div>
+                </div>
+                <div class="stat-card pendiente">
+                  <mat-icon>schedule</mat-icon>
+                  <div class="stat-info">
+                    <span class="stat-value">{{contarPagosPorEstado('PENDIENTE')}}</span>
+                    <span class="stat-label">Pendiente</span>
+                  </div>
+                </div>
+                <div class="stat-card fallido">
+                  <mat-icon>error</mat-icon>
+                  <div class="stat-info">
+                    <span class="stat-value">{{contarPagosPorEstado('FALLIDO')}}</span>
+                    <span class="stat-label">Fallidos</span>
+                  </div>
+                </div>
+                <div class="stat-card total">
+                  <mat-icon>payments</mat-icon>
+                  <div class="stat-info">
+                    <span class="stat-value">{{formatearMoneda(calcularTotalPagos())}}</span>
+                    <span class="stat-label">Total Pagado</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Lista de Pagos -->
+              <div class="results-section" *ngIf="detallesPagos.length > 0">
+                <h3 class="section-title">
+                  <mat-icon>list</mat-icon>
+                  Historial de Pagos ({{detallesPagos.length}})
+                </h3>
+
+                <div class="pagos-grid">
+                  <div class="pago-card" *ngFor="let pago of detallesPagos">
+                    
+                    <!-- Header -->
+                    <div class="pago-header">
+                      <div class="pago-id">
+                        <mat-icon>receipt</mat-icon>
+                        <span>#{{pago.idHistorialPago}}</span>
+                      </div>
+                      <mat-chip [class]="obtenerEstadoInfo(pago.estadoPago).class">
+                        <mat-icon>{{obtenerEstadoInfo(pago.estadoPago).icon}}</mat-icon>
+                        {{obtenerEstadoInfo(pago.estadoPago).text}}
+                      </mat-chip>
+                    </div>
+
+                    <!-- Cliente Info -->
+                    <div class="pago-cliente">
+                      <mat-icon>account_circle</mat-icon>
+                      <div class="cliente-info">
+                        <span class="cliente-nombre">{{pago.nombreCliente}}</span>
+                        <span class="suscripcion-id">Suscripción #{{pago.idSuscripcion}}</span>
+                      </div>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="pago-body">
+                      <div class="info-row">
+                        <div class="info-label">
+                          <mat-icon>event</mat-icon>
+                          Fecha de Pago:
+                        </div>
+                        <div class="info-value">
+                          {{formatearFechaLegible(pago.fechaPago)}}
+                        </div>
+                      </div>
+
+                      <div class="info-row highlight">
+                        <div class="info-label">
+                          <mat-icon>attach_money</mat-icon>
+                          Monto Pagado:
+                        </div>
+                        <div class="info-value monto-pagado">
+                          {{formatearMoneda(pago.montoPagado)}}
+                        </div>
+                      </div>
+
+                      <div class="info-row">
+                        <div class="info-label">
+                          <mat-icon>{{obtenerMetodoPagoIcono(pago.metodoPago)}}</mat-icon>
+                          Método de Pago:
+                        </div>
+                        <div class="info-value">
+                          {{pago.metodoPago}}
+                        </div>
+                      </div>
+
+                      <div class="info-row">
+                        <div class="info-label">
+                          <mat-icon>confirmation_number</mat-icon>
+                          Nº Transacción:
+                        </div>
+                        <div class="info-value transaccion-numero">
+                          {{pago.numeroTransaccion}}
+                        </div>
+                      </div>
+
+                      <div class="info-row">
+                        <div class="info-label">
+                          <mat-icon>help_outline</mat-icon>
+                          Motivo:
+                        </div>
+                        <div class="info-value">
+                          {{pago.motivoPago}}
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+
+              <!-- Loading -->
+              <div class="loading-container" *ngIf="isLoadingPagos">
+                <mat-spinner diameter="50"></mat-spinner>
+                <p>Cargando detalles de pagos...</p>
+              </div>
+
+              <!-- Sin resultados -->
+              <div class="no-results" *ngIf="detallesPagos.length === 0 && !isLoadingPagos">
+                <mat-icon>inbox</mat-icon>
+                <p>No hay pagos registrados</p>
+                <p class="hint">Los pagos realizados aparecerán aquí</p>
+              </div>
+
+            </div>
+          </mat-tab>
+
+        </mat-tab-group>
+
+      </div>
+    </mat-card-content>
+
+    <!-- Footer con botón de actualización (INDEPENDIENTE) -->
+    <mat-card-footer class="card-footer-actions">
+      <div class="footer-content">
+        <div class="footer-info">
+          <mat-icon>info</mat-icon>
+          <span>Actualice el periodo de corte para generar nuevos registros</span>
+        </div>
+        <button mat-raised-button 
+                (click)="abrirModalConfirmacion()"
+                [disabled]="isUpdatingPeriodo"
+                class="btn-actualizar-periodo">
+          <mat-spinner *ngIf="isUpdatingPeriodo" diameter="20" class="button-spinner"></mat-spinner>
+          <mat-icon *ngIf="!isUpdatingPeriodo">update</mat-icon>
+          <span *ngIf="!isUpdatingPeriodo">Actualizar Periodo de Corte</span>
+          <span *ngIf="isUpdatingPeriodo">Actualizando...</span>
+        </button>
+      </div>
+    </mat-card-footer>
+  </mat-card>
+
+  <!-- Modal de Detalles del Corte -->
+  <div class="modal-overlay" *ngIf="mostrarModalDetallesCorte" (click)="cerrarModalDetallesCorte($event)">
+    <div class="encargado-modal modal-detalles-grande" (click)="$event.stopPropagation()">
+      
+      <div class="modal-header">
+        <div class="modal-icon">
+          <mat-icon>point_of_sale</mat-icon>
+        </div>
+        <h2>Detalles del Corte de Caja</h2>
+      </div>
+
+      <div class="modal-content" *ngIf="corteSeleccionado">
+        
+        <!-- Estado del Corte -->
+        <div class="estado-banner" [class]="obtenerClaseEstadoBanner(corteSeleccionado.estado)">
+          <mat-icon>{{obtenerEstadoInfo(corteSeleccionado.estado).icon}}</mat-icon>
+          <div class="estado-info">
+            <span class="estado-titulo">Estado del Corte:</span>
+            <span class="estado-valor">{{obtenerEstadoInfo(corteSeleccionado.estado).text}}</span>
+          </div>
+        </div>
+
+        <!-- Información General -->
+        <div class="info-section-compact">
+          <h3 class="info-section-title-compact">
+            <mat-icon>info</mat-icon>
+            Información General
+          </h3>
+          
+          <div class="info-list">
+            <div class="info-item-compact">
+              <label>ID Corte:</label>
+              <span>#{{corteSeleccionado.idCorteCaja}}</span>
+            </div>
+            <div class="info-item-compact">
+              <label>Sucursal:</label>
+              <span>{{corteSeleccionado.sucursalNombre}}</span>
+            </div>
+            <div class="info-item-compact">
+              <label>Periodo:</label>
+              <span>{{corteSeleccionado.periodo}}</span>
+            </div>
+            <div class="info-item-compact">
+              <label>Fecha Inicio:</label>
+              <span>{{formatearFechaLegible(corteSeleccionado.fechaInicio)}}</span>
+            </div>
+            <div class="info-item-compact">
+              <label>Fecha Fin:</label>
+              <span>{{formatearFechaLegible(corteSeleccionado.fechaFin)}}</span>
+            </div>
+            <div class="info-item-compact">
+              <label>Fecha Generación:</label>
+              <span>{{formatearFechaLegible(corteSeleccionado.fechaGeneracion)}}</span>
+            </div>
+            <div class="info-item-compact">
+              <label>Generado Por:</label>
+              <span>{{corteSeleccionado.generadoPorNombreUsuario}}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resumen Financiero -->
+        <div class="info-section-compact">
+          <h3 class="info-section-title-compact">
+            <mat-icon>account_balance</mat-icon>
+            Resumen Financiero
+          </h3>
+          
+          <div class="resumen-financiero-card">
+            <div class="resumen-item">
+              <mat-icon>schedule</mat-icon>
+              <div class="resumen-content">
+                <span class="resumen-label">Total Horas Comercio</span>
+                <span class="resumen-value">{{formatearHoras(corteSeleccionado.totalHorasComercio)}}</span>
+              </div>
+            </div>
+            <div class="resumen-item">
+              <mat-icon>monetization_on</mat-icon>
+              <div class="resumen-content">
+                <span class="resumen-label">Total Liquidación</span>
+                <span class="resumen-value">{{formatearMoneda(corteSeleccionado.totalLiquidacionComercios)}}</span>
+              </div>
+            </div>
+            <div class="resumen-item destacado">
+              <mat-icon>attach_money</mat-icon>
+              <div class="resumen-content">
+                <span class="resumen-label">Total Neto</span>
+                <span class="resumen-value total">{{formatearMoneda(corteSeleccionado.totalNeto)}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detalles de Comercios -->
+        <div class="info-section-compact">          
+          <div class="comercios-list">
+            <div class="comercio-card" *ngFor="let comercio of corteSeleccionado?.detallesComercios || []">
+              <div class="comercio-header">
+                <div class="comercio-nombre">
+                  <mat-icon>store</mat-icon>
+                  <span>{{comercio.comercioNombre}}</span>
+                </div>
+                <mat-chip [class]="obtenerEstadoInfo(comercio.estado).class">
+                  {{obtenerEstadoInfo(comercio.estado).text}}
+                </mat-chip>
+              </div>
+
+              <div class="comercio-body">
+                <div class="comercio-info-row">
+                  <span class="label">ID Liquidación:</span>
+                  <span class="value">#{{comercio.idLiquidacion}}</span>
+                </div>
+                <div class="comercio-info-row">
+                  <span class="label">Horas Otorgadas:</span>
+                  <span class="value">{{formatearHoras(comercio.totalHorasOtorgadas)}}</span>
+                </div>
+                <div class="comercio-info-row">
+                  <span class="label">Tarifa por Hora:</span>
+                  <span class="value">{{formatearMoneda(comercio.tarifaPorHora)}}</span>
+                </div>
+                <div class="comercio-info-row destacado">
+                  <span class="label">Monto Total:</span>
+                  <span class="value total">{{formatearMoneda(comercio.montoTotal)}}</span>
+                </div>
+                <div class="comercio-info-row" *ngIf="comercio.fechaFacturacion">
+                  <span class="label">Fecha Facturación:</span>
+                  <span class="value">{{formatearFechaParaMostrar(comercio.fechaFacturacion)}}</span>
+                </div>
+                <div class="comercio-info-row" *ngIf="comercio.fechaPago">
+                  <span class="label">Fecha Pago:</span>
+                  <span class="value">{{formatearFechaParaMostrar(comercio.fechaPago)}}</span>
+                </div>
+                <div class="comercio-observaciones" *ngIf="comercio.observaciones">
+                  <mat-icon>notes</mat-icon>
+                  <span>{{comercio.observaciones}}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-actions">
+        <button mat-raised-button 
+                color="primary" 
+                (click)="cerrarModalDetallesCorte()"
+                class="close-button">
+          <mat-icon>close</mat-icon>
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Confirmación -->
+  <div class="modal-overlay" *ngIf="mostrarModalConfirmacion" (click)="cerrarModalConfirmacion($event)">
+    <div class="encargado-modal modal-confirmacion" (click)="$event.stopPropagation()">
+      
+      <div class="modal-header modal-header-warning">
+        <div class="modal-icon">
+          <mat-icon>warning</mat-icon>
+        </div>
+        <h2>Confirmar Actualización</h2>
+      </div>
+
+      <div class="modal-content">
+        
+        <div class="confirmacion-card">
+          <mat-icon class="confirmacion-icon">help_outline</mat-icon>
+          <h3 class="confirmacion-titulo">¿Seguro de Actualizar los Cortes de Caja?</h3>
+          <p class="confirmacion-texto">
+            Esta acción actualizará el periodo de corte de caja y generará nuevos registros. 
+            Los cortes actuales se mantendrán en el historial.
+          </p>
+        </div>
+
+      </div>
+
+      <div class="modal-actions">
+        <button mat-stroked-button 
+                (click)="cerrarModalConfirmacion()"
+                [disabled]="isUpdatingPeriodo"
+                class="cancel-button-modal">
+          <mat-icon>cancel</mat-icon>
+          Cancelar
+        </button>
+        <button mat-raised-button 
+                (click)="actualizarPeriodoCorte()"
+                [disabled]="isUpdatingPeriodo"
+                class="confirm-button">
+          <mat-spinner *ngIf="isUpdatingPeriodo" diameter="20" class="button-spinner"></mat-spinner>
+          <mat-icon *ngIf="!isUpdatingPeriodo">check_circle</mat-icon>
+          <span *ngIf="!isUpdatingPeriodo">Sí, Actualizar</span>
+          <span *ngIf="isUpdatingPeriodo">Actualizando...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

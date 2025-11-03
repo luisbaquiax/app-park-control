@@ -49,5 +49,11 @@ export const routes: Routes = [
     },
     {
       path: 'permiso-temporal', loadComponent: () => import('./pages/cliente/temporary-permit/temporary-permit').then(m => m.TemporaryPermit), title: "Permiso Temporal"
+    },
+    {
+      path: 'permiso-temporal-backoffice', loadComponent: () => import('./pages/backoffice/temporary-permit-backoffice/temporary-permit-backoffice').then(m => m.TemporaryPermitBackoffice), title: "Permiso Temporal Backoffice"
+    },
+    {
+      path: 'corte', loadComponent: () => import('./pages/empresa/court/court').then(m => m.Court), title: "Cortes de Caja"
     }
 ];
