@@ -49,5 +49,14 @@ export const routes: Routes = [
     },
     {
       path: 'permiso-temporal', loadComponent: () => import('./pages/cliente/temporary-permit/temporary-permit').then(m => m.TemporaryPermit), title: "Permiso Temporal"
+    },
+     {
+      path: 'gestion-vehiculos', loadComponent: () => import('./pages/sucursal/gestion-vehiculos-component/gestion-vehiculos-component').then(m => m.GestionVehiculosComponent), title: "Gestion Vehiculos"
+    },
+    {
+      path: 'vehiculos-propietario', loadComponent: () => import('./pages/sucursal/gestion-vehiculos-component/vehiculos-propietario/vehiculos-propietario').then(m => m.VehiculosPropietarioComponent), title: "Vehiculos Propietario"
+    },
+    {
+      path: 'gestion-tarifa-global' , loadComponent: () => import('./pages/empresa/gestion-tarifa-global/gestion-tarifa-global').then(m => m.GestionTarifaGlobal), title: "Gestión Tarifa Global"
     }
 ];

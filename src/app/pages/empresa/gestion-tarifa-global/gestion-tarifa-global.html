@@ -1,0 +1,369 @@
+<div class="control-sucursal-container">
+  <div class="floating-icons">
+    <div class="icon"><mat-icon>store</mat-icon></div>
+    <div class="icon"><mat-icon>business</mat-icon></div>
+    <div class="icon"><mat-icon>local_parking</mat-icon></div>
+    <div class="icon"><mat-icon>location_city</mat-icon></div>
+    <div class="icon"><mat-icon>domain</mat-icon></div>
+    <div class="icon"><mat-icon>place</mat-icon></div>
+    <div class="icon"><mat-icon>apartment</mat-icon></div>
+    <div class="icon"><mat-icon>map</mat-icon></div>
+  </div>
+  <mat-card class="usuario-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="header-icon">store</mat-icon>
+        Registro de vehículos
+      </mat-card-title>
+      <mat-card-subtitle>Asignación de vehículos a clientes</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card class="usuario-card">
+      <mat-card-content>
+        <mat-tab-group #tabGroup animationDuration="300ms" class="sucursales-tabs">
+          <!-- TAB 1: create fee -->
+          <mat-tab label="{{ isEditing ? 'Editar tarifa global' : 'Registrar nueva tarifa global' }}">
+            <div class="tab-content">
+              <form [formGroup]="form" (ngSubmit)="sendForm()" class="usuario-form">
+                <div class="form-section">
+                  <h3 class="section-title">
+                    <mat-icon>paid</mat-icon>
+                    Información de la tarifa global
+                  </h3>
+                  <div class="form-row">
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Precio por Hora</mat-label>
+                      <input
+                        matInput
+                        type="number"
+                        formControlName="precioPorHora"
+                        placeholder="Ej: 5.50"
+                        min="0"
+                      />
+                      <mat-icon matPrefix>attach_money</mat-icon>
+                      @if (form.get('precioPorHora')?.hasError('required')) {
+                      <mat-error> El precio por hora es requerido </mat-error>
+                      } @if (form.get('precioPorHora')?.hasError('min')) {
+                      <mat-error> El precio debe ser positivo </mat-error>
+                      }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Fecha Inicio</mat-label>
+                      <input
+                        matInput
+                        [matDatepicker]="picker"
+                        formControlName="fechaVigenciaInicio"
+                        readonly="{{ isEditing ? true : false }}"
+                      />
+                      <mat-hint>MM/DD/YYYY</mat-hint>
+                      <mat-datepicker-toggle matIconSuffix [for]="picker">
+                        <mat-icon matDatepickerToggleIcon>keyboard_arrow_down</mat-icon>
+                      </mat-datepicker-toggle>
+                      <mat-datepicker #picker></mat-datepicker>
+                      @if (form.get('fechaVigenciaInicio')?.hasError('required')) {
+                      <mat-error> La fecha de inicio es requerida </mat-error>
+                      }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Fecha Fin</mat-label>
+                      <input
+                        matInput
+                        [matDatepicker]="pickerFin"
+                        formControlName="fechaVigenciaFin"
+                        readonly="{{ isEditing ? true : false }}"
+                      />
+                      <mat-hint>MM/DD/YYYY</mat-hint>
+                      <mat-datepicker-toggle matIconSuffix [for]="pickerFin">
+                        <mat-icon matDatepickerToggleIcon>keyboard_arrow_down</mat-icon>
+                      </mat-datepicker-toggle>
+                      <mat-datepicker #pickerFin></mat-datepicker>
+                      @if (form.get('fechaVigenciaFin')?.hasError('required')) {
+                      <mat-error> La fecha de fin es requerida </mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="form-actions">
+                  <button
+                    mat-stroked-button
+                    type="button"
+                    class="cancel-button"
+                    (click)="clearForm()"
+                  >
+                    <mat-icon>cancel</mat-icon>
+                    Cancelar
+                  </button>
+
+                  <button
+                    mat-raised-button
+                    color="primary"
+                    type="submit"
+                    [disabled]="!form.valid || isLoading"
+                    class="submit-button"
+                  >
+                    @if (isLoading) {
+                    <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
+                    } @if (!isLoading) {
+                    <mat-icon>paid</mat-icon>
+
+                    } @if (isLoading) {
+                    <span>Creando...</span>
+                    } @else {
+                    <span>{{ isEditing ? 'Guardar cambios' : 'Registrar tarifa global' }}</span>
+                    }
+                  </button>
+                </div>
+              </form>
+            </div>
+          </mat-tab>
+
+          <!-- TAB 2:  -->
+          <mat-tab label="Tarifas registradas y programadas">
+            <div class="tab-content">
+               <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Estado</mat-label>
+                <mat-select (selectionChange)="filterPeedByStatus($event)">
+                  @for (estado of estados; track $index) {
+                  <mat-option [value]="estado">
+                    {{ estado }}
+                  </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+              <!-- Resultados -->
+              @if (historialTarifas.length > 0) {
+              <div class="results-section">
+                <h3 class="section-title">
+                  <mat-icon>acute</mat-icon>
+                  Registros ({{ historialTarifas.length }})
+                </h3>
+
+                <div class="table-container">
+                  <table mat-table [dataSource]="historialTarifas" class="sucursales-table">
+                    <ng-container matColumnDef="idTarifaBase">
+                      <th mat-header-cell *matHeaderCellDef>ID Tarifa</th>
+                      <td mat-cell *matCellDef="let element">
+                        <div class="cell-content">
+                          <mat-icon class="cell-icon">tag</mat-icon>
+                          <span class="cell-text">{{ element.idTarifaBase }}</span>
+                        </div>
+                      </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="precioPorHora">
+                      <th mat-header-cell *matHeaderCellDef>Precio / Hora</th>
+                      <td mat-cell *matCellDef="let element">
+                        <div class="cell-content">
+                          <mat-icon class="cell-icon">monetization_on</mat-icon>
+                          <span class="cell-text">{{
+                            element.precioPorHora | currency : element.moneda
+                          }}</span>
+                        </div>
+                      </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="moneda">
+                      <th mat-header-cell *matHeaderCellDef>Moneda</th>
+                      <td mat-cell *matCellDef="let element">
+                        <div class="cell-content">
+                          <mat-icon class="cell-icon">payments</mat-icon>
+                          <span class="cell-text">{{ element.moneda }}</span>
+                        </div>
+                      </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="fechaVigenciaInicio">
+                      <th mat-header-cell *matHeaderCellDef>Inicio Vigencia</th>
+                      <td mat-cell *matCellDef="let element">
+                        <div class="cell-content">
+                          <mat-icon class="cell-icon">event_available</mat-icon>
+                          <span class="cell-text">{{
+                            element.fechaVigenciaInicio | date : 'shortDate'
+                          }}</span>
+                        </div>
+                      </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="fechaVigenciaFin">
+                      <th mat-header-cell *matHeaderCellDef>Fin Vigencia</th>
+                      <td mat-cell *matCellDef="let element">
+                        <div class="cell-content">
+                          <mat-icon class="cell-icon">event_busy</mat-icon>
+                          <span class="cell-text">{{
+                            element.fechaVigenciaFin | date : 'shortDate'
+                          }}</span>
+                        </div>
+                      </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="estado">
+                      <th mat-header-cell *matHeaderCellDef>Estado</th>
+                      <td mat-cell *matCellDef="let element">
+                        <div class="cell-content">
+                          <mat-icon
+                            class="cell-icon"
+                            [ngClass]="{
+                              'green-text': element.estado === 'VIGENTE',
+                              'red-text': element.estado !== 'VIGENTE'
+                            }"
+                          >
+                            {{ element.estado === 'VIGENTE' ? 'check_circle' : 'block' }}
+                          </mat-icon>
+                          <span class="cell-text">{{ element.estado }}</span>
+                        </div>
+                      </td>
+                    </ng-container>
+
+                    <!-- Acciones -->
+                    <ng-container matColumnDef="acciones">
+                      <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                      <td mat-cell *matCellDef="let element">
+                        <button mat-icon-button [matMenuTriggerFor]="menu">
+                          <mat-icon>more_vert</mat-icon>
+                        </button>
+                        <!-- Definición del menú -->
+                        <mat-menu #menu="matMenu">
+                          @if (element.estado === 'VIGENTE' || element.estado === 'PROGRAMADO') {
+                          <button mat-menu-item (click)="desactivarTarifa(element)">
+                            <mat-icon>block</mat-icon>
+                            <span>Desactivar Tarifa</span>
+                          </button>
+                           <button mat-menu-item (click)="editarTarifa(element)">
+                            <mat-icon>edit</mat-icon>
+                            <span>Editar precio de la tarifa</span>
+                          </button>
+                          }
+                          @if(element.estado === 'PROGRAMADO'){
+                          <button mat-menu-item (click)="activarTarifa(element)">
+                            <mat-icon>check_circle</mat-icon>
+                            <span>Activar Tarifa</span>
+                          </button>
+                          }
+                        </mat-menu>
+                      </td>
+                    </ng-container>
+
+                    <!-- Filas -->
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns1"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns1"></tr>
+                  </table>
+                </div>
+              </div>
+              }
+              <!-- Mensaje cuando no hay resultados -->
+              @if(historialTarifas.length === 0 && idUsuario && !isLoadingHistoryFees){
+              <div class="no-results">
+                <mat-icon>inbox</mat-icon>
+                <p>No se encontraron sucursales para esta empresa</p>
+              </div>
+              }
+            </div>
+          </mat-tab>
+
+          <!-- TAB 3:  -->
+          <mat-tab label="Bitacora general de tarifas">
+            <div class="tab-content">
+              <!-- Resultados -->
+              @if (bitacoraTarifa.length > 0) {
+              <div class="results-section">
+                <h3 class="section-title">
+                  <mat-icon>acute</mat-icon>
+                  Registros ({{ bitacoraTarifa.length }})
+                </h3>
+
+                <div class="table-container">
+                  <table mat-table [dataSource]="bitacoraTarifa" class="sucursales-table">
+                    <ng-container matColumnDef="idTarifaBase">
+                      <th mat-header-cell *matHeaderCellDef>ID Tarifa</th>
+                      <td mat-cell *matCellDef="let element">
+                        <div class="cell-content">
+                          <mat-icon class="cell-icon">tag</mat-icon>
+                          <span class="cell-text">{{ element.idTarifaBase }}</span>
+                        </div>
+                      </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="accion">
+                      <th mat-header-cell *matHeaderCellDef>Acción</th>
+                      <td mat-cell *matCellDef="let element">
+                        <div class="cell-content">
+                          <mat-icon class="cell-icon">bolt</mat-icon>
+                          <span class="cell-text">{{ element.accion }}</span>
+                        </div>
+                      </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="precioAnterior">
+                      <th mat-header-cell *matHeaderCellDef>Precio Anterior</th>
+                      <td mat-cell *matCellDef="let element">
+                        <div class="cell-content">
+                          <mat-icon class="cell-icon">money_off</mat-icon>
+                          <span class="cell-text">{{ element.precioAnterior | currency }}</span>
+                        </div>
+                      </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="precioNuevo">
+                      <th mat-header-cell *matHeaderCellDef>Precio Nuevo</th>
+                      <td mat-cell *matCellDef="let element">
+                        <div class="cell-content">
+                          <mat-icon class="cell-icon">attach_money</mat-icon>
+                          <span class="cell-text">{{ element.precioNuevo | currency }}</span>
+                        </div>
+                      </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="idUsuarioResponsable">
+                      <th mat-header-cell *matHeaderCellDef>ID Usuario</th>
+                      <td mat-cell *matCellDef="let element">
+                        <div class="cell-content">
+                          <mat-icon class="cell-icon">person</mat-icon>
+                          <span class="cell-text">{{ element.idUsuarioResponsable }}</span>
+                        </div>
+                      </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="fechaCambio">
+                      <th mat-header-cell *matHeaderCellDef>Fecha de Cambio</th>
+                      <td mat-cell *matCellDef="let element">
+                        <div class="cell-content">
+                          <mat-icon class="cell-icon">calendar_today</mat-icon>
+                          <span class="cell-text">{{ element.fechaCambio | date : 'short' }}</span>
+                        </div>
+                      </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="observaciones">
+                      <th mat-header-cell *matHeaderCellDef>Observaciones</th>
+                      <td mat-cell *matCellDef="let element">
+                        <div class="cell-content">
+                          <mat-icon class="cell-icon">notes</mat-icon>
+                          <span class="cell-text">{{ element.observaciones }}</span>
+                        </div>
+                      </td>
+                    </ng-container>
+                    <!-- Filas -->
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+                  </table>
+                </div>
+              </div>
+              }
+              <!-- Mensaje cuando no hay resultados -->
+              @if(bitacoraTarifa.length === 0 && idUsuario && !isLoadingBitacora){
+              <div class="no-results">
+                <mat-icon>inbox</mat-icon>
+                <p>No se encontraron sucursales para esta empresa</p>
+              </div>
+              }
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+      </mat-card-content>
+    </mat-card>
+  </mat-card>
+</div>
