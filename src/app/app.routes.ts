@@ -64,5 +64,8 @@ export const routes: Routes = [
     },
     {
       path: 'gestion-tarifa-global' , loadComponent: () => import('./pages/empresa/gestion-tarifa-global/gestion-tarifa-global').then(m => m.GestionTarifaGlobal), title: "Gestión Tarifa Global"
+    },
+    {
+      path: 'gestion-flotilla' , loadComponent: () => import('./pages/empresa/flotilla/flotilla').then(m => m.Flotilla), title: "Gestión Flotilla"
     }
 ];

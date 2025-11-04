@@ -88,6 +88,12 @@ export class NavigationBar {
       route: '/corte',
       roles: ['EMPRESA'],
     },
+    {
+      icon: 'directions_car',
+      label: 'Gestión Flotilla',
+      route: '/gestion-flotilla',
+      roles: ['EMPRESA'],
+    },
     // OPCIONES DEL USUARIO SUCURSAL
     {
       icon: 'storefront',
