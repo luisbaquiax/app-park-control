@@ -56,3 +56,28 @@ export interface DetallePago {
     estadoPago: string;
     motivoPago: string;
 }
+
+// ========================================
+// INTERFACES PARA TRANSACCIONES DE TICKETS
+// ========================================
+
+export interface TransaccionTicketResponse { 
+    transacciones: TransaccionTicket[];
+}
+
+export interface TransaccionTicket {
+    idTransaccion: number;
+    idTicket: number;
+    nombreCliente: string;
+    tipoCobro: string;
+    horasCobradas: string;
+    horasGratisComercio: string;
+    tarifaAplicada: string;
+    subtotal: string;
+    descuento: string;
+    total: string;
+    metodoPago: string;
+    numeroTransaccion: string;
+    estado: string;
+    fechaTransaccion: string;
+}

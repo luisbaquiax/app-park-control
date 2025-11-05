@@ -144,13 +144,13 @@ export class Login {
 
   private mostrarVista() {
     if (this.nombreRolActual === "SUCURSAL") {
-      this.router.navigate(['/']);
+      this.router.navigate(['/gestion-sucursal']);
     } else if (this.nombreRolActual === "BACKOFFICE") {
-      this.router.navigate(['/']);
+      this.router.navigate(['/placa-resolucion']);
     } else if (this.nombreRolActual === "CLIENTE") {
-      this.router.navigate(['/']);
+      this.router.navigate(['/suscripciones']);
     } else if (this.nombreRolActual === "SISTEMA") {
-      this.router.navigate(['/']);
+      this.router.navigate(['/gestion-empresas']);
     } else if (this.nombreRolActual === "EMPRESA") {
       // Guardamos Info de la Empresa
       const idUsuarioEmpleado = Number (sessionStorage.getItem('idUsuario'));
@@ -165,7 +165,7 @@ export class Login {
           this.mostrarMensaje('Error al cargar información de la empresa', 'error');
         }
       });
-      this.router.navigate(['/']);
+      this.router.navigate(['/control-sucursal']);
     }
     this.navigationService.triggerRefreshMenu();
   }

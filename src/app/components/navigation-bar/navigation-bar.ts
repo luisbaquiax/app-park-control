@@ -46,12 +46,6 @@ export class NavigationBar {
 
   private allMenuItems: MenuItem[] = [
     {
-      icon: 'local_shipping',
-      label: 'General',
-      route: '/',
-      showWhenLoggedIn: false,
-    },
-    {
       icon: 'account_circle',
       label: 'Iniciar Sesión',
       route: '/login',
@@ -94,6 +88,12 @@ export class NavigationBar {
       route: '/gestion-flotilla',
       roles: ['EMPRESA'],
     },
+    {
+      icon: 'bar_chart',
+      label: 'Reportes',
+      route: '/reportes',
+      roles: ['EMPRESA'],
+    },
     // OPCIONES DEL USUARIO SUCURSAL
     {
       icon: 'storefront',
@@ -111,8 +111,8 @@ export class NavigationBar {
       icon: 'confirmation_number',
       label: 'Incidencia Ticket',
       route: '/incidencia-ticket',
+      roles: ['SUCURSAL'],
     },
-    //gestionar vehiculos y clientes
     {
       icon: 'airport_shuttle',
       label: 'Gestionar Vehiculos',

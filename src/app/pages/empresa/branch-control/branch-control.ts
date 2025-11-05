@@ -53,6 +53,8 @@ export class BranchControl implements OnInit {
 
   // Datos Recuperados
   idEmpresa = Number(sessionStorage.getItem('idEmpresa'));
+  nombreEmpresa = sessionStorage.getItem('nombreEmpresa') || 'No disponible';
+  direccionEmpresa = sessionStorage.getItem('direccion') || 'No disponible';
 
   // Columnas para la tabla
   displayedColumns: string[] = ['nombre', 'direccion', 'ciudad', 'horario', 'capacidad', 'estado', 'acciones'];

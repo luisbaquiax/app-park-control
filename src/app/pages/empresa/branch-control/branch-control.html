@@ -24,6 +24,22 @@
         
         <!-- TAB 1: Crear Nueva Sucursal -->
         <mat-tab label="Nueva Sucursal">
+          <!-- Información de la Empresa -->
+          <div class="empresa-info-section">
+            <div class="empresa-info-card">
+              <div class="empresa-header">
+                <mat-icon class="empresa-icon">business</mat-icon>
+                <div class="empresa-details">
+                  <h3 class="empresa-nombre">{{nombreEmpresa}}</h3>
+                  <p class="empresa-direccion">
+                    <mat-icon>place</mat-icon>
+                    <span>{{direccionEmpresa}}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="tab-content">
             <form [formGroup]="sucursalForm" (ngSubmit)="enviarFormulario()" class="usuario-form">
 
@@ -488,6 +504,7 @@
 
       </mat-tab-group>
     </mat-card-content>
+
   </mat-card>
 
   <div class="modal-overlay" *ngIf="mostrarModalEncargado" (click)="cerrarModalEncargado($event)">

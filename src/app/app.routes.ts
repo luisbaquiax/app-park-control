@@ -80,5 +80,8 @@ export const routes: Routes = [
     },
     {
       path: 'gestion-flotilla' , loadComponent: () => import('./pages/empresa/flotilla/flotilla').then(m => m.Flotilla), title: "Gestión Flotilla"
+    },
+    {
+      path: 'reportes' , loadComponent: () => import('./pages/empresa/reports/reports').then(m => m.Reports), title: "Reportes"
     }
 ];

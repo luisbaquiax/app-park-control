@@ -16,7 +16,7 @@
         <mat-icon class="header-icon">point_of_sale</mat-icon>
         Gestión de Cortes de Caja
       </mat-card-title>
-      <mat-card-subtitle>Administre los cortes de caja y detalles de pagos de suscripciones</mat-card-subtitle>
+      <mat-card-subtitle>Administre los cortes de caja, pagos de suscripciones y transacciones de tickets</mat-card-subtitle>
     </mat-card-header>
 
     <mat-card-content>
@@ -183,7 +183,8 @@
 
             </div>
           </mat-tab>
-<!-- TAB 2: DETALLES DE PAGOS -->
+
+          <!-- TAB 2: DETALLES DE PAGOS -->
           <mat-tab label="Detalles de Pagos">
             <ng-template matTabLabel>
               <mat-icon class="tab-icon">receipt_long</mat-icon>
@@ -323,6 +324,201 @@
                 <mat-icon>inbox</mat-icon>
                 <p>No hay pagos registrados</p>
                 <p class="hint">Los pagos realizados aparecerán aquí</p>
+              </div>
+
+            </div>
+          </mat-tab>
+
+          <!-- TAB 3: TRANSACCIONES DE TICKETS -->
+          <mat-tab label="Transacciones de Tickets">
+            <ng-template matTabLabel>
+              <mat-icon class="tab-icon">confirmation_number</mat-icon>
+              <span>Transacciones de Tickets</span>
+            </ng-template>
+
+            <div class="tab-content">
+              
+              <!-- Resumen de Estados de Transacciones -->
+              <div class="stats-container">
+                <div class="stat-card exitoso">
+                  <mat-icon>check_circle</mat-icon>
+                  <div class="stat-info">
+                    <span class="stat-value">{{contarTransaccionesPorEstado('PAGADO')}}</span>
+                    <span class="stat-label">Pagados</span>
+                  </div>
+                </div>
+                <div class="stat-card pendiente">
+                  <mat-icon>schedule</mat-icon>
+                  <div class="stat-info">
+                    <span class="stat-value">{{contarTransaccionesPorEstado('PENDIENTE')}}</span>
+                    <span class="stat-label">Pendiente</span>
+                  </div>
+                </div>
+                <div class="stat-card fallido">
+                  <mat-icon>error</mat-icon>
+                  <div class="stat-info">
+                    <span class="stat-value">{{contarTransaccionesPorEstado('CANCELADO')}}</span>
+                    <span class="stat-label">Cancelados</span>
+                  </div>
+                </div>
+                <div class="stat-card total">
+                  <mat-icon>confirmation_number</mat-icon>
+                  <div class="stat-info">
+                    <span class="stat-value">{{formatearMoneda(calcularTotalTransacciones())}}</span>
+                    <span class="stat-label">Total Transacciones</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Lista de Transacciones -->
+              <div class="results-section" *ngIf="transaccionesTickets && transaccionesTickets.length > 0">
+                <h3 class="section-title">
+                  <mat-icon>list</mat-icon>
+                  Historial de Transacciones ({{transaccionesTickets.length}})
+                </h3>
+
+                <div class="pagos-grid">
+                  <div class="pago-card" *ngFor="let transaccion of transaccionesTickets">
+                    
+                    <!-- Header -->
+                    <div class="pago-header">
+                      <div class="pago-id">
+                        <mat-icon>confirmation_number</mat-icon>
+                        <span>#{{transaccion.idTransaccion}}</span>
+                      </div>
+                      <mat-chip [class]="obtenerEstadoInfo(transaccion.estado).class">
+                        <mat-icon>{{obtenerEstadoInfo(transaccion.estado).icon}}</mat-icon>
+                        {{obtenerEstadoInfo(transaccion.estado).text}}
+                      </mat-chip>
+                    </div>
+
+                    <!-- Cliente Info -->
+                    <div class="pago-cliente">
+                      <mat-icon>account_circle</mat-icon>
+                      <div class="cliente-info">
+                        <span class="cliente-nombre">{{transaccion.nombreCliente}}</span>
+                        <span class="suscripcion-id">Ticket #{{transaccion.idTicket}}</span>
+                      </div>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="pago-body">
+                      <div class="info-row">
+                        <div class="info-label">
+                          <mat-icon>event</mat-icon>
+                          Fecha Transacción:
+                        </div>
+                        <div class="info-value">
+                          {{formatearFechaLegible(transaccion.fechaTransaccion)}}
+                        </div>
+                      </div>
+
+                      <div class="info-row">
+                        <div class="info-label">
+                          <mat-icon>{{obtenerTipoCobroIcono(transaccion.tipoCobro)}}</mat-icon>
+                          Tipo de Cobro:
+                        </div>
+                        <div class="info-value">
+                          {{transaccion.tipoCobro}}
+                        </div>
+                      </div>
+
+                      <div class="info-row">
+                        <div class="info-label">
+                          <mat-icon>schedule</mat-icon>
+                          Horas Cobradas:
+                        </div>
+                        <div class="info-value">
+                          {{formatearHoras(transaccion.horasCobradas)}}
+                        </div>
+                      </div>
+
+                      <div class="info-row">
+                        <div class="info-label">
+                          <mat-icon>card_giftcard</mat-icon>
+                          Horas Gratis:
+                        </div>
+                        <div class="info-value">
+                          {{formatearHoras(transaccion.horasGratisComercio)}}
+                        </div>
+                      </div>
+
+                      <div class="info-row">
+                        <div class="info-label">
+                          <mat-icon>local_offer</mat-icon>
+                          Tarifa Aplicada:
+                        </div>
+                        <div class="info-value">
+                          {{formatearMoneda(transaccion.tarifaAplicada)}}
+                        </div>
+                      </div>
+
+                      <div class="info-row">
+                        <div class="info-label">
+                          <mat-icon>receipt</mat-icon>
+                          Subtotal:
+                        </div>
+                        <div class="info-value">
+                          {{formatearMoneda(transaccion.subtotal)}}
+                        </div>
+                      </div>
+
+                      <div class="info-row">
+                        <div class="info-label">
+                          <mat-icon>discount</mat-icon>
+                          Descuento:
+                        </div>
+                        <div class="info-value">
+                          {{formatearMoneda(transaccion.descuento)}}
+                        </div>
+                      </div>
+
+                      <div class="info-row highlight">
+                        <div class="info-label">
+                          <mat-icon>attach_money</mat-icon>
+                          Total:
+                        </div>
+                        <div class="info-value monto-pagado">
+                          {{formatearMoneda(transaccion.total)}}
+                        </div>
+                      </div>
+
+                      <div class="info-row">
+                        <div class="info-label">
+                          <mat-icon>{{obtenerMetodoPagoIcono(transaccion.metodoPago)}}</mat-icon>
+                          Método de Pago:
+                        </div>
+                        <div class="info-value">
+                          {{transaccion.metodoPago}}
+                        </div>
+                      </div>
+
+                      <div class="info-row">
+                        <div class="info-label">
+                          <mat-icon>confirmation_number</mat-icon>
+                          Nº Transacción:
+                        </div>
+                        <div class="info-value transaccion-numero">
+                          {{transaccion.numeroTransaccion}}
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+
+              <!-- Loading -->
+              <div class="loading-container" *ngIf="isLoadingTransacciones">
+                <mat-spinner diameter="50"></mat-spinner>
+                <p>Cargando transacciones de tickets...</p>
+              </div>
+
+              <!-- Sin resultados -->
+              <div class="no-results" *ngIf="(!transaccionesTickets || transaccionesTickets.length === 0) && !isLoadingTransacciones">
+                <mat-icon>inbox</mat-icon>
+                <p>No hay transacciones de tickets registradas</p>
+                <p class="hint">Las transacciones de tickets aparecerán aquí</p>
               </div>
 
             </div>

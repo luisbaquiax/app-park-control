@@ -1,0 +1,1341 @@
+<div class="crear-usuario-container">
+  <div class="floating-icons">
+    <div class="icon"><mat-icon>assessment</mat-icon></div>
+    <div class="icon"><mat-icon>analytics</mat-icon></div>
+    <div class="icon"><mat-icon>bar_chart</mat-icon></div>
+    <div class="icon"><mat-icon>pie_chart</mat-icon></div>
+    <div class="icon"><mat-icon>trending_up</mat-icon></div>
+    <div class="icon"><mat-icon>insert_chart</mat-icon></div>
+    <div class="icon"><mat-icon>show_chart</mat-icon></div>
+    <div class="icon"><mat-icon>poll</mat-icon></div>
+  </div>
+
+  <mat-card class="usuario-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="header-icon">assessment</mat-icon>
+        Centro de Reportes
+      </mat-card-title>
+      <mat-card-subtitle>Consulte y descargue reportes detallados de su operación</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="content-wrapper">
+        
+        <!-- Tabs -->
+        <mat-tab-group [(selectedIndex)]="tabSeleccionado" 
+                       (selectedIndexChange)="onTabChange($event)"
+                       class="custom-tabs">
+          
+          <!-- TAB 1: REPORTE DE OCUPACIÓN -->
+          <mat-tab label="Ocupación">
+            <ng-template matTabLabel>
+              <mat-icon class="tab-icon">store</mat-icon>
+              <span>Ocupación</span>
+            </ng-template>
+
+            <div class="tab-content">
+              
+              <!-- Botones de descarga -->
+              <div class="download-buttons">
+                <button mat-raised-button 
+                        (click)="descargarComoImagen('ocupacion')"
+                        [disabled]="reporteOcupacionData.length === 0"
+                        class="btn-download btn-imagen">
+                  <mat-icon>image</mat-icon>
+                  Descargar Imagen
+                </button>
+                <button mat-raised-button 
+                        (click)="descargarComoPDF('ocupacion')"
+                        [disabled]="reporteOcupacionData.length === 0"
+                        class="btn-download btn-pdf">
+                  <mat-icon>picture_as_pdf</mat-icon>
+                  Descargar PDF
+                </button>
+                <button mat-raised-button 
+                        (click)="descargarComoExcel('ocupacion')"
+                        [disabled]="reporteOcupacionData.length === 0"
+                        class="btn-download btn-excel">
+                  <mat-icon>table_chart</mat-icon>
+                  Descargar Excel
+                </button>
+              </div>
+
+              <!-- Contenido del reporte -->
+              <div #reporteOcupacion class="reporte-container">
+                
+                <div class="reporte-header">
+                  <h2>Reporte de Ocupación por Sucursal</h2>
+                  <p class="fecha-generacion">Generado: {{formatearFechaLegible(fechaActual)}}</p>
+                </div>
+
+                <div *ngIf="reporteOcupacionData.length > 0" class="reporte-content">
+                  
+                  <!-- Iterar por cada sucursal -->
+                  <div *ngFor="let sucursal of reporteOcupacionData" class="sucursal-reporte-section">
+                    
+                    <!-- Información de Sucursal -->
+                    <div class="info-section">
+                      <h3 class="section-title">
+                        <mat-icon>business</mat-icon>
+                        {{sucursal.nombreSucursal}}
+                      </h3>
+                      
+                      <div class="info-grid">
+                        <div class="info-item">
+                          <span class="label">Dirección:</span>
+                          <span class="value">{{sucursal.direccionCompleta}}</span>
+                        </div>
+                        <div class="info-item">
+                          <span class="label">Ciudad:</span>
+                          <span class="value">{{sucursal.ciudad}}</span>
+                        </div>
+                        <div class="info-item">
+                          <span class="label">Departamento:</span>
+                          <span class="value">{{sucursal.departamento}}</span>
+                        </div>
+                        <div class="info-item">
+                          <span class="label">Horario:</span>
+                          <span class="value">{{sucursal.horaApertura}} - {{sucursal.horaCierre}}</span>
+                        </div>
+                        <div class="info-item">
+                          <span class="label">Capacidad 2 Ruedas:</span>
+                          <span class="value">{{sucursal.capacidad2Ruedas}}</span>
+                        </div>
+                        <div class="info-item">
+                          <span class="label">Capacidad 4 Ruedas:</span>
+                          <span class="value">{{sucursal.capacidad4Ruedas}}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Ocupación Actual -->
+                    <div class="info-section" *ngIf="sucursal.detallesOcupacion">
+                      <h3 class="section-title">
+                        <mat-icon>local_parking</mat-icon>
+                        Ocupación Actual
+                      </h3>
+
+                      <div class="ocupacion-cards">
+                        <div class="ocupacion-card dos-ruedas">
+                          <div class="ocupacion-header">
+                            <mat-icon>two_wheeler</mat-icon>
+                            <h4>Dos Ruedas</h4>
+                          </div>
+                          <div class="ocupacion-body">
+                            <div class="ocupacion-stats">
+                              <span class="ocupados">{{sucursal.detallesOcupacion.ocupacion2R}}</span>
+                              <span class="separator">/</span>
+                              <span class="capacidad">{{sucursal.detallesOcupacion.capacidad2R}}</span>
+                            </div>
+                            <div class="ocupacion-porcentaje">
+                              <div class="porcentaje-bar">
+                                <div class="porcentaje-fill" 
+                                     [style.width.%]="sucursal.detallesOcupacion.porcentajeOcupacion2R">
+                                </div>
+                              </div>
+                              <span class="porcentaje-text">{{sucursal.detallesOcupacion.porcentajeOcupacion2R}}%</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="ocupacion-card cuatro-ruedas">
+                          <div class="ocupacion-header">
+                            <mat-icon>directions_car</mat-icon>
+                            <h4>Cuatro Ruedas</h4>
+                          </div>
+                          <div class="ocupacion-body">
+                            <div class="ocupacion-stats">
+                              <span class="ocupados">{{sucursal.detallesOcupacion.ocupacion4R}}</span>
+                              <span class="separator">/</span>
+                              <span class="capacidad">{{sucursal.detallesOcupacion.capacidad4R}}</span>
+                            </div>
+                            <div class="ocupacion-porcentaje">
+                              <div class="porcentaje-bar">
+                                <div class="porcentaje-fill" 
+                                     [style.width.%]="sucursal.detallesOcupacion.porcentajeOcupacion4R">
+                                </div>
+                              </div>
+                              <span class="porcentaje-text">{{sucursal.detallesOcupacion.porcentajeOcupacion4R}}%</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="fecha-actualizacion">
+                        <mat-icon>schedule</mat-icon>
+                        <span>Última actualización: {{formatearFechaLegible(sucursal.detallesOcupacion.fechaHora)}}</span>
+                      </div>
+                    </div>
+
+                    <!-- Sin datos de ocupación -->
+                    <div class="no-results" *ngIf="!sucursal.detallesOcupacion">
+                      <mat-icon>info</mat-icon>
+                      <p>No hay datos de ocupación disponibles para esta sucursal</p>
+                    </div>
+
+                  </div>
+
+                </div>
+
+                <!-- Loading -->
+                <div class="loading-container" *ngIf="isLoadingOcupacion">
+                  <mat-spinner diameter="50"></mat-spinner>
+                  <p>Cargando reporte de ocupación...</p>
+                </div>
+
+                <!-- Sin datos -->
+                <div class="no-results" *ngIf="reporteOcupacionData.length === 0 && !isLoadingOcupacion">
+                  <mat-icon>info</mat-icon>
+                  <p>No hay datos disponibles</p>
+                </div>
+
+              </div>
+            </div>
+          </mat-tab>
+
+          <!-- TAB 2: REPORTE DE FACTURACIÓN -->
+          <mat-tab label="Facturación">
+            <ng-template matTabLabel>
+              <mat-icon class="tab-icon">receipt_long</mat-icon>
+              <span>Facturación</span>
+            </ng-template>
+
+            <div class="tab-content">
+              
+              <!-- Botones de descarga -->
+              <div class="download-buttons">
+                <button mat-raised-button 
+                        (click)="descargarComoImagen('facturacion')"
+                        [disabled]="reporteFacturacionData.length === 0"
+                        class="btn-download btn-imagen">
+                  <mat-icon>image</mat-icon>
+                  Descargar Imagen
+                </button>
+                <button mat-raised-button 
+                        (click)="descargarComoPDF('facturacion')"
+                        [disabled]="reporteFacturacionData.length === 0"
+                        class="btn-download btn-pdf">
+                  <mat-icon>picture_as_pdf</mat-icon>
+                  Descargar PDF
+                </button>
+                <button mat-raised-button 
+                        (click)="descargarComoExcel('facturacion')"
+                        [disabled]="reporteFacturacionData.length === 0"
+                        class="btn-download btn-excel">
+                  <mat-icon>table_chart</mat-icon>
+                  Descargar Excel
+                </button>
+              </div>
+
+              <!-- Contenido del reporte -->
+              <div #reporteFacturacion class="reporte-container">
+                
+                <div class="reporte-header">
+                  <h2>Reporte de Facturación</h2>
+                  <p class="fecha-generacion">Generado: {{formatearFechaLegible(fechaActual)}}</p>
+                </div>
+
+                <div *ngIf="reporteFacturacionData.length > 0" class="reporte-content">
+                  
+                  <!-- Iterar por cada sucursal -->
+                  <div *ngFor="let sucursal of reporteFacturacionData" class="sucursal-reporte-section">
+                    
+                    <!-- Información de Sucursal -->
+                    <div class="info-section">
+                      <h3 class="section-title">
+                        <mat-icon>business</mat-icon>
+                        {{sucursal.nombreSucursal}}
+                      </h3>
+                      
+                      <div class="info-grid">
+                        <div class="info-item">
+                          <span class="label">Dirección:</span>
+                          <span class="value">{{sucursal.direccionCompleta}}</span>
+                        </div>
+                        <div class="info-item">
+                          <span class="label">Ciudad:</span>
+                          <span class="value">{{sucursal.ciudad}}</span>
+                        </div>
+                        <div class="info-item">
+                          <span class="label">Total Transacciones:</span>
+                          <span class="value">{{sucursal.detallesFacturacion.length}}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Tabla de Transacciones -->
+                    <div class="info-section" *ngIf="sucursal.detallesFacturacion.length > 0">
+                      <h3 class="section-title">
+                        <mat-icon>receipt</mat-icon>
+                        Detalle de Transacciones
+                      </h3>
+
+                      <div class="table-container">
+                        <table class="reporte-table">
+                          <thead>
+                            <tr>
+                              <th>ID</th>
+                              <th>Ticket</th>
+                              <th>Cliente</th>
+                              <th>Tipo</th>
+                              <th>Horas</th>
+                              <th>Tarifa</th>
+                              <th>Total</th>
+                              <th>Método</th>
+                              <th>Estado</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr *ngFor="let trans of sucursal.detallesFacturacion">
+                              <td>{{trans.idTransaccion}}</td>
+                              <td>{{trans.idTicket}}</td>
+                              <td>{{trans.nombreCliente}}</td>
+                              <td>{{trans.tipoCobro}}</td>
+                              <td>{{trans.horasCobradas}}</td>
+                              <td>{{trans.tarifaAplicada}}</td>
+                              <td class="monto">{{formatearMoneda(trans.total)}}</td>
+                              <td>{{trans.metodoPago}}</td>
+                              <td>
+                                <mat-chip [class]="obtenerEstadoInfo(trans.estado).class">
+                                  {{obtenerEstadoInfo(trans.estado).text}}
+                                </mat-chip>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    <!-- Sin transacciones -->
+                    <div class="no-results" *ngIf="sucursal.detallesFacturacion.length === 0">
+                      <mat-icon>info</mat-icon>
+                      <p>No hay transacciones para esta sucursal</p>
+                    </div>
+
+                  </div>
+
+                </div>
+
+                <!-- Loading -->
+                <div class="loading-container" *ngIf="isLoadingFacturacion">
+                  <mat-spinner diameter="50"></mat-spinner>
+                  <p>Cargando reporte de facturación...</p>
+                </div>
+
+                <!-- Sin datos -->
+                <div class="no-results" *ngIf="reporteFacturacionData.length === 0 && !isLoadingFacturacion">
+                  <mat-icon>info</mat-icon>
+                  <p>No hay datos disponibles</p>
+                </div>
+
+              </div>
+            </div>
+          </mat-tab>
+
+          <!-- TAB 3: REPORTE DE SUSCRIPCIONES -->
+          <mat-tab label="Suscripciones">
+            <ng-template matTabLabel>
+              <mat-icon class="tab-icon">card_membership</mat-icon>
+              <span>Suscripciones</span>
+            </ng-template>
+
+            <div class="tab-content">
+              
+              <!-- Botones de descarga -->
+              <div class="download-buttons">
+                <button mat-raised-button 
+                        (click)="descargarComoImagen('suscripciones')"
+                        [disabled]="reporteSuscripcionesData.length === 0"
+                        class="btn-download btn-imagen">
+                  <mat-icon>image</mat-icon>
+                  Descargar Imagen
+                </button>
+                <button mat-raised-button 
+                        (click)="descargarComoPDF('suscripciones')"
+                        [disabled]="reporteSuscripcionesData.length === 0"
+                        class="btn-download btn-pdf">
+                  <mat-icon>picture_as_pdf</mat-icon>
+                  Descargar PDF
+                </button>
+                <button mat-raised-button 
+                        (click)="descargarComoExcel('suscripciones')"
+                        [disabled]="reporteSuscripcionesData.length === 0"
+                        class="btn-download btn-excel">
+                  <mat-icon>table_chart</mat-icon>
+                  Descargar Excel
+                </button>
+              </div>
+
+              <!-- Contenido del reporte -->
+              <div #reporteSuscripciones class="reporte-container">
+                
+                <div class="reporte-header">
+                  <h2>Reporte de Suscripciones</h2>
+                  <p class="fecha-generacion">Generado: {{formatearFechaLegible(fechaActual)}}</p>
+                </div>
+
+                <div *ngIf="reporteSuscripcionesData.length > 0" class="reporte-content">
+                  
+                  <!-- Iterar por cada plan -->
+                  <div *ngFor="let plan of reporteSuscripcionesData" class="plan-reporte-section">
+                    
+                    <!-- Información del Plan -->
+                    <div class="info-section">
+                      <h3 class="section-title">
+                        <mat-icon>label</mat-icon>
+                        Plan: {{plan.nombrePlan}}
+                      </h3>
+                      
+                      <div class="plan-info-card">
+                        <div class="plan-header-info">
+                          <div class="plan-nombre">
+                            <h4>{{plan.nombrePlan}}</h4>
+                            <span class="plan-codigo">{{plan.codigoPlan}}</span>
+                          </div>
+                          <mat-chip [class]="obtenerEstadoInfo(plan.estadoPlan).class">
+                            {{obtenerEstadoInfo(plan.estadoPlan).text}}
+                          </mat-chip>
+                        </div>
+                        
+                        <div class="plan-detalles-grid">
+                          <div class="plan-detalle">
+                            <mat-icon>description</mat-icon>
+                            <div>
+                              <span class="label">Descripción</span>
+                              <span class="value">{{plan.descripcion}}</span>
+                            </div>
+                          </div>
+                          <div class="plan-detalle">
+                            <mat-icon>attach_money</mat-icon>
+                            <div>
+                              <span class="label">Precio</span>
+                              <span class="value precio">{{formatearMoneda(plan.precioPlan)}}</span>
+                            </div>
+                          </div>
+                          <div class="plan-detalle">
+                            <mat-icon>schedule</mat-icon>
+                            <div>
+                              <span class="label">Horas Mensuales</span>
+                              <span class="value">{{plan.horasMensuales}} hrs</span>
+                            </div>
+                          </div>
+                          <div class="plan-detalle">
+                            <mat-icon>calendar_today</mat-icon>
+                            <div>
+                              <span class="label">Días Aplicables</span>
+                              <span class="value">{{plan.diasAplicables}}</span>
+                            </div>
+                          </div>
+                          <div class="plan-detalle">
+                            <mat-icon>access_time</mat-icon>
+                            <div>
+                              <span class="label">Cobertura Horaria</span>
+                              <span class="value">{{plan.coberturaHoraria}}</span>
+                            </div>
+                          </div>
+                          <div class="plan-detalle">
+                            <mat-icon>percent</mat-icon>
+                            <div>
+                              <span class="label">Descuento Mensual</span>
+                              <span class="value">{{plan.configuracionDescuento.descuentoMensual}}%</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Lista de Suscriptores -->
+                    <div class="info-section" *ngIf="plan.detallesSuscriptores.length > 0">
+                      <h3 class="section-title">
+                        <mat-icon>people</mat-icon>
+                        Suscriptores ({{plan.detallesSuscriptores.length}})
+                      </h3>
+
+                      <div class="suscriptores-grid">
+                        <div class="suscriptor-card" *ngFor="let suscriptor of plan.detallesSuscriptores">
+                          <div class="suscriptor-header">
+                            <div class="suscriptor-info">
+                              <mat-icon>account_circle</mat-icon>
+                              <div>
+                                <h5>{{suscriptor.nombreSuscriptor}}</h5>
+                                <span class="placa">{{suscriptor.placaVehiculo}}</span>
+                              </div>
+                            </div>
+                            <mat-chip [class]="obtenerEstadoInfo(suscriptor.estadoSuscripcion).class">
+                              {{obtenerEstadoInfo(suscriptor.estadoSuscripcion).text}}
+                            </mat-chip>
+                          </div>
+                          
+                          <div class="suscriptor-body">
+                            <div class="suscriptor-stat">
+                              <span class="label">Horas Utilizadas</span>
+                              <span class="value">{{suscriptor.horasUtilizadasMes}} / {{suscriptor.horasMensualesIncluidas}}</span>
+                            </div>
+                            <div class="suscriptor-stat">
+                              <span class="label">Total Horas</span>
+                              <span class="value">{{suscriptor.totalHorasUtilizadas}} hrs</span>
+                            </div>
+                            <div class="suscriptor-stat">
+                              <span class="label">Excedente Pagado</span>
+                              <span class="value precio">{{formatearMoneda(suscriptor.totalExcedentePagado)}}</span>
+                            </div>
+                            <div class="suscriptor-stat">
+                              <span class="label">Vigencia</span>
+                              <span class="value">{{formatearFechaParaMostrar(suscriptor.fechaInicioSuscripcion)}} - {{formatearFechaParaMostrar(suscriptor.fechaFinSuscripcion)}}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Sin suscriptores -->
+                    <div class="no-results" *ngIf="plan.detallesSuscriptores.length === 0">
+                      <mat-icon>info</mat-icon>
+                      <p>No hay suscriptores para este plan</p>
+                    </div>
+
+                  </div>
+
+                </div>
+
+                <!-- Loading -->
+                <div class="loading-container" *ngIf="isLoadingSuscripciones">
+                  <mat-spinner diameter="50"></mat-spinner>
+                  <p>Cargando reporte de suscripciones...</p>
+                </div>
+
+                <!-- Sin datos -->
+                <div class="no-results" *ngIf="reporteSuscripcionesData.length === 0 && !isLoadingSuscripciones">
+                  <mat-icon>info</mat-icon>
+                  <p>No hay datos disponibles</p>
+                </div>
+
+              </div>
+            </div>
+          </mat-tab>
+
+          <!-- TAB 4: REPORTE DE INCIDENCIAS -->
+          <mat-tab label="Incidencias">
+            <ng-template matTabLabel>
+              <mat-icon class="tab-icon">report_problem</mat-icon>
+              <span>Incidencias</span>
+            </ng-template>
+
+            <div class="tab-content">
+              
+              <!-- Botones de descarga -->
+              <div class="download-buttons">
+                <button mat-raised-button 
+                        (click)="descargarComoImagen('incidencias')"
+                        [disabled]="!reporteIncidenciasData"
+                        class="btn-download btn-imagen">
+                  <mat-icon>image</mat-icon>
+                  Descargar Imagen
+                </button>
+                <button mat-raised-button 
+                        (click)="descargarComoPDF('incidencias')"
+                        [disabled]="!reporteIncidenciasData"
+                        class="btn-download btn-pdf">
+                  <mat-icon>picture_as_pdf</mat-icon>
+                  Descargar PDF
+                </button>
+                <button mat-raised-button 
+                        (click)="descargarComoExcel('incidencias')"
+                        [disabled]="!reporteIncidenciasData"
+                        class="btn-download btn-excel">
+                  <mat-icon>table_chart</mat-icon>
+                  Descargar Excel
+                </button>
+              </div>
+
+              <!-- Contenido del reporte -->
+              <div #reporteIncidencias class="reporte-container">
+                
+                <div class="reporte-header">
+                  <h2>Reporte de Incidencias</h2>
+                  <p class="fecha-generacion">Generado: {{formatearFechaLegible(fechaActual)}}</p>
+                </div>
+
+                <div *ngIf="reporteIncidenciasData" class="reporte-content">
+                  
+                  <!-- Incidencias por Sucursal -->
+                  <div class="sucursales-incidencias">
+                    <div class="sucursal-incidencia-section" 
+                         *ngFor="let sucursal of reporteIncidenciasData.detalleSucursalesIncidenciasDTO">
+                      
+                      <div class="sucursal-incidencia-header">
+                        <mat-icon>business</mat-icon>
+                        <div class="sucursal-info-header">
+                          <h3>{{sucursal.nombreSucursal}}</h3>
+                          <p>{{sucursal.direccionSucursal}}</p>
+                          <p class="telefono">
+                            <mat-icon>phone</mat-icon>
+                            {{sucursal.telefonoSucursal}}
+                          </p>
+                        </div>
+                        <span class="badge-incidencias">
+                          {{sucursal.incidenciasSucursalDTOList.length}} incidencia(s)
+                        </span>
+                      </div>
+
+                      <div class="incidencias-list" *ngIf="sucursal.incidenciasSucursalDTOList.length > 0">
+                        <div class="incidencia-card" 
+                             *ngFor="let incidencia of sucursal.incidenciasSucursalDTOList">
+                          
+                          <div class="incidencia-header">
+                            <div class="incidencia-folio">
+                              <mat-icon>confirmation_number</mat-icon>
+                              <span>Folio: {{incidencia.folioNumerico}}</span>
+                            </div>
+                            <mat-chip [class]="incidencia.incidencias.resuelto ? 'chip-exitoso' : 'chip-pendiente'">
+                              <mat-icon>{{incidencia.incidencias.resuelto ? 'check_circle' : 'schedule'}}</mat-icon>
+                              {{incidencia.incidencias.resuelto ? 'Resuelto' : 'Pendiente'}}
+                            </mat-chip>
+                          </div>
+
+                          <div class="incidencia-vehiculo">
+                            <mat-icon>directions_car</mat-icon>
+                            <div>
+                              <span class="placa">{{incidencia.placaVehiculo}}</span>
+                              <span class="vehiculo-detalle">{{incidencia.modeloVehiculo}} - {{incidencia.colorVehiculo}}</span>
+                            </div>
+                          </div>
+
+                          <div class="incidencia-propietario">
+                            <mat-icon>account_circle</mat-icon>
+                            <div>
+                              <span class="nombre">{{incidencia.nombrePropietario}}</span>
+                              <span class="telefono">{{incidencia.telefonoPropietario}}</span>
+                            </div>
+                          </div>
+
+                          <div class="incidencia-detalles">
+                            <div class="incidencia-tipo">
+                              <mat-icon>warning</mat-icon>
+                              <span class="tipo-label">{{incidencia.incidencias.tipoIncidencia}}</span>
+                            </div>
+                            <p class="incidencia-descripcion">{{incidencia.incidencias.descripcion}}</p>
+                            <div class="incidencia-fecha">
+                              <mat-icon>schedule</mat-icon>
+                              <span>{{formatearFechaLegible(incidencia.incidencias.fechaIncidencia)}}</span>
+                            </div>
+                            <div *ngIf="incidencia.incidencias.resuelto && incidencia.incidencias.fechaResolucion" 
+                                 class="incidencia-resolucion">
+                              <mat-icon>check_circle</mat-icon>
+                              <span>Resuelto: {{formatearFechaLegible(incidencia.incidencias.fechaResolucion)}}</span>
+                            </div>
+                            <div *ngIf="incidencia.incidencias.observacionesResolucion" 
+                                 class="incidencia-observaciones">
+                              <strong>Observaciones:</strong>
+                              <p>{{incidencia.incidencias.observacionesResolucion}}</p>
+                            </div>
+                          </div>
+
+                          <div *ngIf="incidencia.incidencias.evidencias && incidencia.incidencias.evidencias.length > 0" 
+                               class="incidencia-evidencias">
+                            <h5>
+                              <mat-icon>attachment</mat-icon>
+                              Evidencias ({{incidencia.incidencias.evidencias.length}})
+                            </h5>
+                            <div class="evidencias-list">
+                              <div class="evidencia-item" 
+                                   *ngFor="let evidencia of incidencia.incidencias.evidencias">
+                                <mat-icon>{{evidencia.tipoEvidencia === 'FOTO' ? 'image' : 'videocam'}}</mat-icon>
+                                <span>{{evidencia.nombreArchivo}}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                        </div>
+                      </div>
+
+                      <!-- Sin incidencias -->
+                      <div class="no-results" *ngIf="sucursal.incidenciasSucursalDTOList.length === 0">
+                        <mat-icon>info</mat-icon>
+                        <p>No hay incidencias registradas para esta sucursal</p>
+                      </div>
+
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- Loading -->
+                <div class="loading-container" *ngIf="isLoadingIncidencias">
+                  <mat-spinner diameter="50"></mat-spinner>
+                  <p>Cargando reporte de incidencias...</p>
+                </div>
+
+                <!-- Sin datos -->
+                <div class="no-results" *ngIf="!reporteIncidenciasData && !isLoadingIncidencias">
+                  <mat-icon>info</mat-icon>
+                  <p>No hay datos disponibles</p>
+                </div>
+
+              </div>
+            </div>
+          </mat-tab>
+
+          <!-- TAB 5: REPORTE DE FLOTILLA -->
+          <mat-tab label="Flotilla">
+            <ng-template matTabLabel>
+              <mat-icon class="tab-icon">airport_shuttle</mat-icon>
+              <span>Flotilla</span>
+            </ng-template>
+
+            <div class="tab-content">
+              
+              <!-- Botones de descarga -->
+              <div class="download-buttons">
+                <button mat-raised-button 
+                        (click)="descargarComoImagen('flotilla')"
+                        [disabled]="!reporteFlotillaData"
+                        class="btn-download btn-imagen">
+                  <mat-icon>image</mat-icon>
+                  Descargar Imagen
+                </button>
+                <button mat-raised-button 
+                        (click)="descargarComoPDF('flotilla')"
+                        [disabled]="!reporteFlotillaData"
+                        class="btn-download btn-pdf">
+                  <mat-icon>picture_as_pdf</mat-icon>
+                  Descargar PDF
+                </button>
+                <button mat-raised-button 
+                        (click)="descargarComoExcel('flotilla')"
+                        [disabled]="!reporteFlotillaData"
+                        class="btn-download btn-excel">
+                  <mat-icon>table_chart</mat-icon>
+                  Descargar Excel
+                </button>
+              </div>
+
+              <!-- Contenido del reporte -->
+              <div #reporteFlotilla class="reporte-container">
+                
+                <div class="reporte-header">
+                  <h2>Reporte de Flotilla Empresarial</h2>
+                  <p class="fecha-generacion">Generado: {{formatearFechaLegible(fechaActual)}}</p>
+                </div>
+
+                <div *ngIf="reporteFlotillaData" class="reporte-content">
+                  
+                  <!-- Empresas Flotilla -->
+                  <div class="empresas-flotilla-list">
+                    <div class="empresa-flotilla-section" 
+                         *ngFor="let empresa of reporteFlotillaData.empresasFlotilla">
+                      
+                      <div class="empresa-flotilla-header">
+                        <div class="empresa-flotilla-info">
+                          <mat-icon>corporate_fare</mat-icon>
+                          <div>
+                            <h3>{{empresa.nombreEmpresa}}</h3>
+                            <p class="razon-social">{{empresa.razonSocial}}</p>
+                          </div>
+                        </div>
+                        <mat-chip [class]="obtenerEstadoInfo(empresa.estado).class">
+                          {{obtenerEstadoInfo(empresa.estado).text}}
+                        </mat-chip>
+                      </div>
+
+                      <div class="empresa-flotilla-datos">
+                        <div class="dato-item">
+                          <mat-icon>badge</mat-icon>
+                          <span><strong>NIT:</strong> {{empresa.nit}}</span>
+                        </div>
+                        <div class="dato-item">
+                          <mat-icon>phone</mat-icon>
+                          <span><strong>Teléfono:</strong> {{empresa.telefono}}</span>
+                        </div>
+                        <div class="dato-item">
+                          <mat-icon>email</mat-icon>
+                          <span><strong>Correo:</strong> {{empresa.correoContacto}}</span>
+                        </div>
+                        <div class="dato-item">
+                          <mat-icon>location_on</mat-icon>
+                          <span><strong>Dirección:</strong> {{empresa.direccion}}</span>
+                        </div>
+                        <div class="dato-item">
+                          <mat-icon>event</mat-icon>
+                          <span><strong>Registro:</strong> {{formatearFechaParaMostrar(empresa.fechaRegistro)}}</span>
+                        </div>
+                      </div>
+
+                      <!-- Planes Corporativos de la Empresa -->
+                      <div class="planes-corporativos-section" *ngIf="empresa.planesCorporativos.length > 0">
+                        <h4 class="planes-titulo">
+                          <mat-icon>card_membership</mat-icon>
+                          Planes Corporativos ({{empresa.planesCorporativos.length}})
+                        </h4>
+
+                        <div class="planes-corporativos-grid">
+                          <div class="plan-corporativo-card" 
+                               *ngFor="let plan of empresa.planesCorporativos">
+                            
+                            <div class="plan-corp-header">
+                              <div class="plan-corp-nombre">
+                                <mat-icon>label</mat-icon>
+                                <span>{{plan.nombrePlanCorporativo}}</span>
+                              </div>
+                              <mat-chip [class]="obtenerEstadoInfo(plan.estado).class">
+                                {{obtenerEstadoInfo(plan.estado).text}}
+                              </mat-chip>
+                            </div>
+
+                            <div class="plan-corp-body">
+                              <div class="plan-corp-stat">
+                                <span class="label">Tipo Plan:</span>
+                                <span class="value">{{plan.tipoPlan}}</span>
+                              </div>
+                              <div class="plan-corp-stat">
+                                <span class="label">Placas Contratadas:</span>
+                                <span class="value">{{plan.numeroPlacasContratadas}}</span>
+                              </div>
+                              <div class="plan-corp-stat">
+                                <span class="label">Vehículos Activos:</span>
+                                <span class="value">{{contarVehiculosActivos(plan.suscripcionesVehiculos)}}</span>
+                              </div>
+                              <div class="plan-corp-stat">
+                                <span class="label">Descuento:</span>
+                                <span class="value">{{plan.descuentoCorporativoAdicional}}%</span>
+                              </div>
+                              <div class="plan-corp-stat highlight">
+                                <span class="label">Precio:</span>
+                                <span class="value precio">{{formatearMoneda(plan.precioPlanCorporativo)}}</span>
+                              </div>
+                              <div class="plan-corp-stat">
+                                <span class="label">Vigencia:</span>
+                                <span class="value">{{formatearFechaParaMostrar(plan.fechaInicio)}} - {{formatearFechaParaMostrar(plan.fechaFin)}}</span>
+                              </div>
+                              <div class="plan-corp-stat">
+                                <span class="label">Creado Por:</span>
+                                <span class="value">{{plan.creadoPor}}</span>
+                              </div>
+                            </div>
+
+                            <!-- Vehículos del Plan -->
+                            <div *ngIf="plan.suscripcionesVehiculos && plan.suscripcionesVehiculos.length > 0" 
+                                 class="vehiculos-plan-section">
+                              <h5>
+                                <mat-icon>directions_car</mat-icon>
+                                Vehículos ({{plan.suscripcionesVehiculos.length}})
+                              </h5>
+                              <div class="vehiculos-chips">
+                                <mat-chip *ngFor="let vehiculo of plan.suscripcionesVehiculos"
+                                          [class]="obtenerEstadoInfo(vehiculo.estado).class">
+                                  {{vehiculo.placaVehiculo}}
+                                </mat-chip>
+                              </div>
+                            </div>
+
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Sin planes -->
+                      <div class="no-results" *ngIf="empresa.planesCorporativos.length === 0">
+                        <mat-icon>info</mat-icon>
+                        <p>No hay planes corporativos para esta empresa</p>
+                      </div>
+
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- Loading -->
+                <div class="loading-container" *ngIf="isLoadingFlotilla">
+                  <mat-spinner diameter="50"></mat-spinner>
+                  <p>Cargando reporte de flotilla...</p>
+                </div>
+
+                <!-- Sin datos -->
+                <div class="no-results" *ngIf="!reporteFlotillaData && !isLoadingFlotilla">
+                  <mat-icon>info</mat-icon>
+                  <p>No hay datos disponibles</p>
+                </div>
+
+              </div>
+            </div>
+          </mat-tab>
+
+          <!-- TAB 6: REPORTE DE CORTES DE CAJA -->
+          <mat-tab label="Cortes de Caja">
+            <ng-template matTabLabel>
+              <mat-icon class="tab-icon">point_of_sale</mat-icon>
+              <span>Cortes de Caja</span>
+            </ng-template>
+
+            <div class="tab-content">
+              
+              <!-- Botones de descarga -->
+              <div class="download-buttons">
+                <button mat-raised-button 
+                        (click)="descargarComoImagen('cortes')"
+                        [disabled]="reporteCortesData.length === 0"
+                        class="btn-download btn-imagen">
+                  <mat-icon>image</mat-icon>
+                  Descargar Imagen
+                </button>
+                <button mat-raised-button 
+                        (click)="descargarComoPDF('cortes')"
+                        [disabled]="reporteCortesData.length === 0"
+                        class="btn-download btn-pdf">
+                  <mat-icon>picture_as_pdf</mat-icon>
+                  Descargar PDF
+                </button>
+                <button mat-raised-button 
+                        (click)="descargarComoExcel('cortes')"
+                        [disabled]="reporteCortesData.length === 0"
+                        class="btn-download btn-excel">
+                  <mat-icon>table_chart</mat-icon>
+                  Descargar Excel
+                </button>
+              </div>
+
+              <!-- Contenido del reporte -->
+              <div #reporteCortes class="reporte-container">
+                
+                <div class="reporte-header">
+                  <h2>Reporte de Cortes de Caja</h2>
+                  <p class="fecha-generacion">Generado: {{formatearFechaLegible(fechaActual)}}</p>
+                </div>
+
+                <div *ngIf="reporteCortesData.length > 0" class="reporte-content">
+                  
+                  <!-- Iterar por cada sucursal -->
+                  <div *ngFor="let sucursal of reporteCortesData" class="sucursal-reporte-section">
+                    
+                    <!-- Información de Sucursal -->
+                    <div class="info-section">
+                      <h3 class="section-title">
+                        <mat-icon>business</mat-icon>
+                        {{sucursal.nombreSucursal}}
+                      </h3>
+                      
+                      <div class="info-grid">
+                        <div class="info-item">
+                          <span class="label">Dirección:</span>
+                          <span class="value">{{sucursal.direccionCompleta}}</span>
+                        </div>
+                        <div class="info-item">
+                          <span class="label">Ciudad:</span>
+                          <span class="value">{{sucursal.ciudad}}</span>
+                        </div>
+                        <div class="info-item">
+                          <span class="label">Total Cortes:</span>
+                          <span class="value">{{sucursal.cortesDeCajas.length}}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Cortes de Caja -->
+                    <div class="info-section" *ngIf="sucursal.cortesDeCajas.length > 0">
+                      <h3 class="section-title">
+                        <mat-icon>account_balance</mat-icon>
+                        Cortes de Caja
+                      </h3>
+
+                      <div class="cortes-grid">
+                        <div class="corte-caja-card" 
+                             *ngFor="let corte of sucursal.cortesDeCajas">
+                          
+                          <div class="corte-caja-header">
+                            <div class="corte-id">
+                              <mat-icon>receipt_long</mat-icon>
+                              <span>Corte #{{corte.idCorteCaja}}</span>
+                            </div>
+                            <mat-chip [class]="obtenerEstadoInfo(corte.estado).class">
+                              {{obtenerEstadoInfo(corte.estado).text}}
+                            </mat-chip>
+                          </div>
+
+                          <div class="corte-caja-body">
+                            <div class="corte-stat">
+                              <span class="label">Periodo:</span>
+                              <span class="value">{{corte.periodo}}</span>
+                            </div>
+                            <div class="corte-stat">
+                              <span class="label">Fecha Inicio:</span>
+                              <span class="value">{{formatearFechaParaMostrar(corte.fechaInicio)}}</span>
+                            </div>
+                            <div class="corte-stat">
+                              <span class="label">Fecha Fin:</span>
+                              <span class="value">{{formatearFechaParaMostrar(corte.fechaFin)}}</span>
+                            </div>
+                            <div class="corte-stat">
+                              <span class="label">Horas Comercio:</span>
+                              <span class="value">{{corte.totalHorasComercio}} hrs</span>
+                            </div>
+                            <div class="corte-stat">
+                              <span class="label">Liquidación Comercios:</span>
+                              <span class="value">{{formatearMoneda(corte.totalLiquidacionComercios)}}</span>
+                            </div>
+                            <div class="corte-stat highlight">
+                              <span class="label">Total Neto:</span>
+                              <span class="value precio-grande">{{formatearMoneda(corte.totalNeto)}}</span>
+                            </div>
+                            <div class="corte-stat">
+                              <span class="label">Generado Por:</span>
+                              <span class="value">{{corte.generadoPorNombreUsuario}}</span>
+                            </div>
+                            <div class="corte-stat">
+                              <span class="label">Fecha Generación:</span>
+                              <span class="value">{{formatearFechaLegible(corte.fechaGeneracion)}}</span>
+                            </div>
+                          </div>
+
+                          <!-- Detalles de Comercios -->
+                          <div *ngIf="corte.detallesComercios && corte.detallesComercios.length > 0" 
+                               class="comercios-corte-section">
+                            <h5>
+                              <mat-icon>store</mat-icon>
+                              Comercios ({{corte.detallesComercios.length}})
+                            </h5>
+                            <div class="comercios-list-compact">
+                              <div class="comercio-item-compact" 
+                                   *ngFor="let comercio of corte.detallesComercios">
+                                <span class="comercio-nombre">{{comercio.comercioNombre}}</span>
+                                <span class="comercio-monto">{{formatearMoneda(comercio.montoTotal)}}</span>
+                                <mat-chip [class]="obtenerEstadoInfo(comercio.estado).class" class="small-chip">
+                                  {{obtenerEstadoInfo(comercio.estado).text}}
+                                </mat-chip>
+                              </div>
+                            </div>
+                          </div>
+
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Detalles de Ingresos -->
+                    <div *ngIf="sucursal.detallesDeIngresosPorTarifasYExcedentes && sucursal.detallesDeIngresosPorTarifasYExcedentes.length > 0" 
+                         class="info-section">
+                      <h3 class="section-title">
+                        <mat-icon>payments</mat-icon>
+                        Detalle de Ingresos ({{sucursal.detallesDeIngresosPorTarifasYExcedentes.length}})
+                      </h3>
+
+                      <div class="table-container">
+                        <table class="reporte-table">
+                          <thead>
+                            <tr>
+                              <th>ID</th>
+                              <th>Cliente</th>
+                              <th>Tipo</th>
+                              <th>Horas</th>
+                              <th>Total</th>
+                              <th>Método</th>
+                              <th>Estado</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr *ngFor="let ingreso of sucursal.detallesDeIngresosPorTarifasYExcedentes">
+                              <td>{{ingreso.idTransaccion}}</td>
+                              <td>{{ingreso.nombreCliente}}</td>
+                              <td>{{ingreso.tipoCobro}}</td>
+                              <td>{{ingreso.horasCobradas}}</td>
+                              <td class="monto">{{formatearMoneda(ingreso.total)}}</td>
+                              <td>{{ingreso.metodoPago}}</td>
+                              <td>
+                                <mat-chip [class]="obtenerEstadoInfo(ingreso.estado).class" class="small-chip">
+                                  {{obtenerEstadoInfo(ingreso.estado).text}}
+                                </mat-chip>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    <!-- Sin cortes -->
+                    <div class="no-results" *ngIf="sucursal.cortesDeCajas.length === 0">
+                      <mat-icon>info</mat-icon>
+                      <p>No hay cortes de caja registrados para esta sucursal</p>
+                    </div>
+
+                  </div>
+
+                </div>
+
+                <!-- Loading -->
+                <div class="loading-container" *ngIf="isLoadingCortes">
+                  <mat-spinner diameter="50"></mat-spinner>
+                  <p>Cargando reporte de cortes de caja...</p>
+                </div>
+
+                <!-- Sin datos -->
+                <div class="no-results" *ngIf="reporteCortesData.length === 0 && !isLoadingCortes">
+                  <mat-icon>info</mat-icon>
+                  <p>No hay datos disponibles</p>
+                </div>
+
+              </div>
+            </div>
+          </mat-tab>
+
+          <!-- TAB 7: REPORTE DE COMERCIOS AFILIADOS -->
+          <mat-tab label="Comercios">
+            <ng-template matTabLabel>
+              <mat-icon class="tab-icon">storefront</mat-icon>
+              <span>Comercios</span>
+            </ng-template>
+
+            <div class="tab-content">
+              
+              <!-- Botones de descarga -->
+              <div class="download-buttons">
+                <button mat-raised-button 
+                        (click)="descargarComoImagen('comercios')"
+                        [disabled]="reporteComerciosData.length === 0"
+                        class="btn-download btn-imagen">
+                  <mat-icon>image</mat-icon>
+                  Descargar Imagen
+                </button>
+                <button mat-raised-button 
+                        (click)="descargarComoPDF('comercios')"
+                        [disabled]="reporteComerciosData.length === 0"
+                        class="btn-download btn-pdf">
+                  <mat-icon>picture_as_pdf</mat-icon>
+                  Descargar PDF
+                </button>
+                <button mat-raised-button 
+                        (click)="descargarComoExcel('comercios')"
+                        [disabled]="reporteComerciosData.length === 0"
+                        class="btn-download btn-excel">
+                  <mat-icon>table_chart</mat-icon>
+                  Descargar Excel
+                </button>
+              </div>
+
+              <!-- Contenido del reporte -->
+              <div #reporteComercios class="reporte-container">
+                
+                <div class="reporte-header">
+                  <h2>Reporte de Comercios Afiliados</h2>
+                  <p class="fecha-generacion">Generado: {{formatearFechaLegible(fechaActual)}}</p>
+                </div>
+
+                <div *ngIf="reporteComerciosData.length > 0" class="reporte-content">
+                  
+                  <!-- Iterar por cada comercio -->
+                  <div *ngFor="let comercio of reporteComerciosData" class="comercio-afiliado-section">
+                    
+                    <!-- Información del Comercio -->
+                    <div class="info-section">
+                      <h3 class="section-title">
+                        <mat-icon>store</mat-icon>
+                        {{comercio.nombreComercial}}
+                      </h3>
+                      
+                      <div class="comercio-header-card">
+                        <div class="comercio-info-principal">
+                          <div class="comercio-avatar">
+                            <mat-icon>storefront</mat-icon>
+                          </div>
+                          <div class="comercio-datos-principales">
+                            <h4>{{comercio.nombreComercial}}</h4>
+                            <p class="razon-social">{{comercio.razonSocial}}</p>
+                            <span class="tipo-comercio-badge">{{comercio.tipoComercio}}</span>
+                          </div>
+                        </div>
+                        <mat-chip [class]="obtenerEstadoInfo(comercio.estado).class">
+                          {{obtenerEstadoInfo(comercio.estado).text}}
+                        </mat-chip>
+                      </div>
+
+                      <div class="info-grid">
+                        <div class="info-item">
+                          <span class="label">NIT:</span>
+                          <span class="value">{{comercio.nit}}</span>
+                        </div>
+                        <div class="info-item">
+                          <span class="label">Correo:</span>
+                          <span class="value">{{comercio.correoContacto}}</span>
+                        </div>
+                        <div class="info-item">
+                          <span class="label">Convenios:</span>
+                          <span class="value">{{comercio.detallesConvenioComercio.length}}</span>
+                        </div>
+                        <div class="info-item">
+                          <span class="label">Cortes:</span>
+                          <span class="value">{{comercio.detallesCorteCaja.length}}</span>
+                        </div>
+                        <div class="info-item">
+                          <span class="label">Clientes Beneficiados:</span>
+                          <span class="value">{{comercio.clientesBeneficiados.length}}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Convenios del Comercio -->
+                    <div class="info-section" *ngIf="comercio.detallesConvenioComercio.length > 0">
+                      <h3 class="section-title">
+                        <mat-icon>handshake</mat-icon>
+                        Convenios ({{comercio.detallesConvenioComercio.length}})
+                      </h3>
+
+                      <div class="convenios-grid">
+                        <div class="convenio-card" *ngFor="let convenio of comercio.detallesConvenioComercio">
+                          <div class="convenio-header">
+                            <div class="convenio-sucursal">
+                              <mat-icon>business</mat-icon>
+                              <span>{{convenio.nombreSucursal}}</span>
+                            </div>
+                            <mat-chip [class]="obtenerEstadoInfo(convenio.estado).class">
+                              {{obtenerEstadoInfo(convenio.estado).text}}
+                            </mat-chip>
+                          </div>
+                          <div class="convenio-body">
+                            <div class="convenio-stat">
+                              <span class="label">ID Convenio:</span>
+                              <span class="value">{{convenio.idConvenioComercio}}</span>
+                            </div>
+                            <div class="convenio-stat">
+                              <span class="label">Horas Gratis Máximo:</span>
+                              <span class="value">{{convenio.horasGratisMaximo}} hrs</span>
+                            </div>
+                            <div class="convenio-stat">
+                              <span class="label">Periodo Corte:</span>
+                              <span class="value">{{convenio.periodoCorte}}</span>
+                            </div>
+                            <div class="convenio-stat">
+                              <span class="label">Tarifa por Hora:</span>
+                              <span class="value precio">{{formatearMoneda(convenio.tarifaPorHora)}}</span>
+                            </div>
+                            <div class="convenio-stat">
+                              <span class="label">Vigencia:</span>
+                              <span class="value">{{formatearFechaParaMostrar(convenio.fechaInicioConvenio)}} - {{formatearFechaParaMostrar(convenio.fechaFinConvenio)}}</span>
+                            </div>
+                            <div class="convenio-stat">
+                              <span class="label">Fecha Creación:</span>
+                              <span class="value">{{formatearFechaLegible(convenio.fechaCreacion)}}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Cortes de Caja del Comercio -->
+                    <div class="info-section" *ngIf="comercio.detallesCorteCaja.length > 0">
+                      <h3 class="section-title">
+                        <mat-icon>receipt_long</mat-icon>
+                        Liquidaciones ({{comercio.detallesCorteCaja.length}})
+                      </h3>
+
+                      <div class="table-container">
+                        <table class="reporte-table">
+                          <thead>
+                            <tr>
+                              <th>ID</th>
+                              <th>Comercio</th>
+                              <th>Horas</th>
+                              <th>Tarifa/Hora</th>
+                              <th>Total</th>
+                              <th>Estado</th>
+                              <th>Facturación</th>
+                              <th>Pago</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr *ngFor="let liquidacion of comercio.detallesCorteCaja">
+                              <td>{{liquidacion.idLiquidacion}}</td>
+                              <td>{{liquidacion.comercioNombre}}</td>
+                              <td>{{liquidacion.totalHorasOtorgadas}} hrs</td>
+                              <td>{{formatearMoneda(liquidacion.tarifaPorHora)}}</td>
+                              <td class="monto">{{formatearMoneda(liquidacion.montoTotal)}}</td>
+                              <td>
+                                <mat-chip [class]="obtenerEstadoInfo(liquidacion.estado).class" class="small-chip">
+                                  {{obtenerEstadoInfo(liquidacion.estado).text}}
+                                </mat-chip>
+                              </td>
+                              <td>{{liquidacion.fechaFacturacion ? formatearFechaParaMostrar(liquidacion.fechaFacturacion) : 'Pendiente'}}</td>
+                              <td>{{liquidacion.fechaPago ? formatearFechaParaMostrar(liquidacion.fechaPago) : 'Pendiente'}}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <!-- Resumen de liquidaciones -->
+                      <div class="resumen-liquidaciones">
+                        <div class="resumen-item">
+                          <mat-icon>access_time</mat-icon>
+                          <div>
+                            <span class="label">Total Horas Otorgadas</span>
+                            <span class="value">{{calcularTotalHoras(comercio.detallesCorteCaja)}} hrs</span>
+                          </div>
+                        </div>
+                        <div class="resumen-item total">
+                          <mat-icon>payments</mat-icon>
+                          <div>
+                            <span class="label">Monto Total</span>
+                            <span class="value precio-grande">{{formatearMoneda(calcularTotalMonto(comercio.detallesCorteCaja))}}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Clientes Beneficiados -->
+                    <div class="info-section" *ngIf="comercio.clientesBeneficiados.length > 0">
+                      <h3 class="section-title">
+                        <mat-icon>people</mat-icon>
+                        Clientes Beneficiados ({{comercio.clientesBeneficiados.length}})
+                      </h3>
+
+                      <div class="clientes-beneficiados-grid">
+                        <div class="cliente-beneficiado-card" *ngFor="let cliente of comercio.clientesBeneficiados">
+                          <div class="cliente-beneficiado-header">
+                            <mat-icon>account_circle</mat-icon>
+                            <div>
+                              <h5>{{cliente.nombreCliente}}</h5>
+                              <p class="sucursal-cliente">{{cliente.sucursalNombre}}</p>
+                            </div>
+                          </div>
+                          <div class="cliente-beneficiado-body">
+                            <div class="cliente-stat">
+                              <mat-icon>card_giftcard</mat-icon>
+                              <span>{{cliente.horasGratisOtorgadas}} horas gratis</span>
+                            </div>
+                            <div class="cliente-stat">
+                              <mat-icon>event</mat-icon>
+                              <span>{{formatearFechaLegible(cliente.fechaBeneficio)}}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Sin convenios -->
+                    <div class="no-results" *ngIf="comercio.detallesConvenioComercio.length === 0">
+                      <mat-icon>info</mat-icon>
+                      <p>No hay convenios registrados para este comercio</p>
+                    </div>
+
+                  </div>
+
+                </div>
+
+                <!-- Loading -->
+                <div class="loading-container" *ngIf="isLoadingComercios">
+                  <mat-spinner diameter="50"></mat-spinner>
+                  <p>Cargando reporte de comercios afiliados...</p>
+                </div>
+
+                <!-- Sin datos -->
+                <div class="no-results" *ngIf="reporteComerciosData.length === 0 && !isLoadingComercios">
+                  <mat-icon>info</mat-icon>
+                  <p>No hay datos disponibles</p>
+                </div>
+
+              </div>
+            </div>
+          </mat-tab>
+
+        </mat-tab-group>
+
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+</div>
