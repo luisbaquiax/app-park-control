@@ -36,6 +36,9 @@ export const routes: Routes = [
       path: 'comercio-afiliado', loadComponent: () => import('./pages/empresa/affiliate-commerce/affiliate-commerce').then(m => m.AffiliateCommerce), title: "Comercio Afiliado"
     },
     {
+      path: 'management-ticket', loadComponent: () => import('./pages/sucursal/management-ticket/management-ticket').then(m => m.ManagementTicket), title: "Gestión Ticket"
+    },
+    {
       path: 'incidencia-ticket', loadComponent: () => import('./pages/sucursal/incident-ticket/incident-ticket').then(m => m.IncidentTicket), title: "Incidencia Ticket"
     },
     {
@@ -66,6 +69,8 @@ export const routes: Routes = [
       path: 'gestion-tarifa-global' , loadComponent: () => import('./pages/empresa/gestion-tarifa-global/gestion-tarifa-global').then(m => m.GestionTarifaGlobal), title: "Gestión Tarifa Global"
     },
     {
+      path: 'ver-tickets', loadComponent:() => import('./pages/cliente/ticktes/ticktes').then(m => m.Ticktes), title: "Ver Tickets"
+    },
       path: 'gestion-flotilla' , loadComponent: () => import('./pages/empresa/flotilla/flotilla').then(m => m.Flotilla), title: "Gestión Flotilla"
     }
 ];

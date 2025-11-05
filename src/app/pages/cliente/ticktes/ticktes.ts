@@ -49,6 +49,7 @@ export class Ticktes implements OnInit {
     });
   }
 
+
   cratePDFTicket(ticket: TicketResponse): void {
     const doc = new jsPDF();
     doc.text(`Ticket: ${ticket.folioNumerico}`, 10, 10);
