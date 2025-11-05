@@ -1,0 +1,316 @@
+<div class="control-sucursal-container">
+  <div class="floating-icons">
+    <div class="icon"><mat-icon>store</mat-icon></div>
+    <div class="icon"><mat-icon>business</mat-icon></div>
+    <div class="icon"><mat-icon>local_parking</mat-icon></div>
+    <div class="icon"><mat-icon>location_city</mat-icon></div>
+    <div class="icon"><mat-icon>domain</mat-icon></div>
+    <div class="icon"><mat-icon>place</mat-icon></div>
+    <div class="icon"><mat-icon>apartment</mat-icon></div>
+    <div class="icon"><mat-icon>map</mat-icon></div>
+  </div>
+  <mat-card class="usuario-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="header-icon">card_membership</mat-icon>
+        Gestión de tickets
+      </mat-card-title>
+      <mat-card-subtitle>Registro de entradas y salidas</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card class="usuario-card">
+      <mat-card-content>
+        <mat-tab-group #tabGroup animationDuration="300ms" class="sucursales-tabs">
+          <mat-tab label="Registrar entrada">
+            <div class="tab-content">
+              <form [formGroup]="formTicket" (ngSubmit)="sendFormTicket()" class="usuario-form">
+                <div class="form-section">
+                  <h3 class="section-title">
+                    <mat-icon>directions_car</mat-icon>
+                    Información sobre el vehículo a registrar
+                  </h3>
+                  <!-- Propietario -->
+                  <div class="form-row">
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Placa - Tipo</mat-label>
+                      <mat-select formControlName="idVehiculo">
+                        @for (vehiculo of vehiculos; track $index) {
+                        <mat-option [value]="vehiculo.id">
+                          {{ vehiculo.placa }} | {{ vehiculo.tipoVehiculo }}
+                        </mat-option>
+                        }
+                      </mat-select>
+                      <mat-icon matPrefix>directions_car</mat-icon>
+                      @if (formTicket.get('idVehiculo')?.hasError('required')) {
+                      <mat-error>Debe seleccionar la placa del vehiculo</mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+                </div>
+                <!-- Botones de Acción -->
+                <div class="form-actions">
+                  <button
+                    mat-stroked-button
+                    type="button"
+                    class="cancel-button"
+                    (click)="cancelTicket()"
+                  >
+                    <mat-icon>cancel</mat-icon>
+                    Cancelar
+                  </button>
+
+                  <button
+                    mat-raised-button
+                    color="primary"
+                    type="submit"
+                    [disabled]="!formTicket.valid || generatingTicket"
+                    class="submit-button"
+                  >
+                    @if (generatingTicket) {
+                    <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
+                    } @if (!generatingTicket) {
+                    <mat-icon>card_membership</mat-icon>
+                    } @if (generatingTicket) {
+                    <span>Creando...</span>
+                    } @if(!generatingTicket){
+                    <span>Generar Ticket</span>
+                    }
+                  </button>
+                </div>
+              </form>
+            </div>
+          </mat-tab>
+
+          <mat-tab-group mat-align-tabs="center" class="w-full"> </mat-tab-group>
+          <!-- FORM 1: Buscar por placa -->
+          <mat-tab label="Validar por Placa">
+            <div class="tab-content">
+              <form
+                [formGroup]="formPlaca"
+                (ngSubmit)="validarPorPlaca()"
+                class="usuario-form space-y-4"
+              >
+                <h3 class="section-title flex items-center text-lg font-semibold text-gray-700">
+                  <mat-icon class="mr-2">directions_car</mat-icon>
+                  Validar Ticket por Placa
+                </h3>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Placa del vehículo</mat-label>
+                    <input matInput placeholder="Ej. P123ABC" formControlName="placa" />
+                    <mat-icon matPrefix>confirmation_number</mat-icon>
+                    <mat-error *ngIf="formPlaca.get('placa')?.hasError('required')">
+                      Ingrese la placa del vehículo
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <!-- método de pago -->
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Método de pago</mat-label>
+                    <mat-select formControlName="metodoPago">
+                      @for (item of metodosPago; track $index) {
+                      <mat-option [value]="item">
+                        {{ item }}
+                      </mat-option>
+                      }
+                    </mat-select>
+                    <mat-icon matPrefix>check_circle</mat-icon>
+                    @if (formFolio.get('metodoPago')?.hasError('required')) {
+                    <mat-error>Seleccione el método de pago</mat-error>
+                    }
+                  </mat-form-field>
+                </div>
+
+                <div class="form-actions flex justify-end space-x-3 mt-4">
+                  <button mat-stroked-button type="reset" class="cancel-button">
+                    <mat-icon>cancel</mat-icon>
+                    Limpiar
+                  </button>
+                  <button
+                    mat-raised-button
+                    color="primary"
+                    type="submit"
+                    [disabled]="!formPlaca.valid || validating"
+                  >
+                    @if (validating) {
+                    <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
+                    <span>Validando...</span>
+                    } @else {
+                    <mat-icon>search</mat-icon>
+                    } @if(!validating){
+                    <span>Buscar Ticket</span>
+                    }
+                  </button>
+                </div>
+              </form>
+            </div>
+          </mat-tab>
+
+          <!-- FORM 2: Buscar por folio -->
+          <mat-tab label="Validar por Folio">
+            <div class="tab-content">
+              <form
+                [formGroup]="formFolio"
+                (ngSubmit)="validarPorFolio()"
+                class="usuario-form space-y-4"
+              >
+                <h3 class="section-title flex items-center text-lg font-semibold text-gray-700">
+                  <mat-icon class="mr-2">receipt_long</mat-icon>
+                  Validar Ticket por Folio Numérico
+                </h3>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Folio del ticket</mat-label>
+                    <input matInput placeholder="Ej. A12345" formControlName="folioNumerico" />
+                    <mat-icon matPrefix>receipt</mat-icon>
+                    <mat-error *ngIf="formFolio.get('folioNumerico')?.hasError('required')">
+                      El folio es obligatorio
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+
+                <!-- método de pago -->
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Método de pago</mat-label>
+                    <mat-select formControlName="metodoPago">
+                      @for (item of metodosPago; track $index) {
+                      <mat-option [value]="item">
+                        {{ item }}
+                      </mat-option>
+                      }
+                    </mat-select>
+                    <mat-icon matPrefix>check_circle</mat-icon>
+                    @if (formFolio.get('metodoPago')?.hasError('required')) {
+                    <mat-error>Seleccione el método de pago</mat-error>
+                    }
+                  </mat-form-field>
+                </div>
+
+                <div class="form-actions flex justify-end space-x-3 mt-4">
+                  <button mat-stroked-button type="reset">
+                    <mat-icon>cancel</mat-icon>
+                    Limpiar
+                  </button>
+                  <button
+                    mat-raised-button
+                    color="primary"
+                    type="submit"
+                    [disabled]="!formFolio.valid || validating"
+                  >
+                    @if (validating) {
+                    <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
+                    <span>Validando...</span>
+                    } @else {
+                    <mat-icon>search</mat-icon>
+                    } @if(!validating){
+                    <span>Buscar Ticket</span>
+
+                    }
+                  </button>
+                </div>
+              </form>
+            </div>
+          </mat-tab>
+
+          <!-- FORM 3: Buscar por QR -->
+          <mat-tab label="Validar por QR">
+            <div class="tab-content">
+              <form [formGroup]="formQr" (ngSubmit)="validarPorQr()" class="usuario-form space-y-4">
+                <h3 class="section-title flex items-center text-lg font-semibold text-gray-700">
+                  <mat-icon class="mr-2">qr_code_2</mat-icon>
+                  Validar Ticket por Código QR
+                </h3>
+
+                <div class="flex flex-col items-center space-y-3">
+                  <!-- VIDEO DEL ESCÁNER -->
+                  <div class="relative rounded-xl overflow-hidden shadow-md w-72 h-72 bg-black">
+                    <video id="video" class="w-full h-full object-cover"></video>
+
+                    @if(scanning){
+                    <div
+                      class="absolute inset-0 flex items-center justify-center bg-black/50 text-white"
+                    >
+                      Escaneando...
+                    </div>
+                    }
+                  </div>
+
+                  <div class="flex space-x-3 mt-4">
+                    <button
+                      mat-raised-button
+                      color="primary"
+                      type="button"
+                      (click)="startScan()"
+                      [disabled]="scanning"
+                    >
+                      <mat-icon>photo_camera</mat-icon>
+                      <span>Activar cámara</span>
+                    </button>
+
+                    <button
+                      mat-stroked-button
+                      type="button"
+                      color="warn"
+                      (click)="stopScan()"
+                      [disabled]="!scanning"
+                    >
+                      <mat-icon>stop</mat-icon>
+                      <span>Detener</span>
+                    </button>
+                  </div>
+                </div>
+                <!-- método de pago -->
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="full-width mt-4">
+                    <mat-label>Código QR (manual o escaneado)</mat-label>
+                    <input matInput formControlName="codigoQr" placeholder="" />
+                    <mat-icon matPrefix>qr_code</mat-icon>
+                    <mat-error *ngIf="formQr.get('codigoQr')?.hasError('required')">
+                      Debe ingresar el código QR del ticket
+                    </mat-error>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Método de pago</mat-label>
+                    <mat-select formControlName="metodoPago">
+                      @for (item of metodosPago; track $index) {
+                      <mat-option [value]="item">
+                        {{ item }}
+                      </mat-option>
+                      }
+                    </mat-select>
+                    <mat-icon matPrefix>check_circle</mat-icon>
+                    @if (formFolio.get('metodoPago')?.hasError('required')) {
+                    <mat-error>Seleccione el método de pago</mat-error>
+                    }
+                  </mat-form-field>
+                </div>
+
+                <div class="form-actions flex justify-end space-x-3 mt-4">
+                  <button
+                    mat-raised-button
+                    color="primary"
+                    type="submit"
+                    [disabled]="!formQr.valid || validating"
+                  >
+                    @if (validating) {
+                    <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
+                    <span>Validando...</span>
+                    } @else {
+                    <mat-icon>search</mat-icon>
+                    } @if (!validating) {
+                    <span>Buscar Ticket</span>
+                    }
+                  </button>
+                </div>
+              </form>
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+      </mat-card-content>
+    </mat-card>
+  </mat-card>
+</div>
