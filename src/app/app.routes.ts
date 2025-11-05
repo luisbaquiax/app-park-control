@@ -71,6 +71,7 @@ export const routes: Routes = [
     {
       path: 'ver-tickets', loadComponent:() => import('./pages/cliente/ticktes/ticktes').then(m => m.Ticktes), title: "Ver Tickets"
     },
+    {
       path: 'gestion-flotilla' , loadComponent: () => import('./pages/empresa/flotilla/flotilla').then(m => m.Flotilla), title: "Gestión Flotilla"
     }
 ];
