@@ -1,0 +1,576 @@
+<div class="crear-usuario-container">
+  <div class="floating-icons">
+    <div class="icon"><mat-icon>report_problem</mat-icon></div>
+    <div class="icon"><mat-icon>confirmation_number</mat-icon></div>
+    <div class="icon"><mat-icon>warning</mat-icon></div>
+    <div class="icon"><mat-icon>photo_camera</mat-icon></div>
+    <div class="icon"><mat-icon>description</mat-icon></div>
+    <div class="icon"><mat-icon>assignment</mat-icon></div>
+    <div class="icon"><mat-icon>error_outline</mat-icon></div>
+    <div class="icon"><mat-icon>folder_open</mat-icon></div>
+  </div>
+
+  <mat-card class="usuario-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="header-icon">report</mat-icon>
+        Gestión de Incidencias y Tickets
+      </mat-card-title>
+      <mat-card-subtitle>Registre incidencias y administre tickets de su sucursal</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="content-wrapper">
+        
+        <!-- Formulario de Nueva Incidencia -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <mat-icon>add_circle</mat-icon>
+            Nueva Incidencia
+          </h3>
+          
+          <form [formGroup]="incidenciaForm" (ngSubmit)="guardarIncidencia()" class="usuario-form">
+            
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>ID del Ticket</mat-label>
+                <input matInput 
+                       type="number" 
+                       formControlName="idTicket"
+                       placeholder="Ingrese el ID del ticket"
+                       min="1">
+                <mat-icon matPrefix>confirmation_number</mat-icon>
+                <mat-error *ngIf="incidenciaForm.get('idTicket')?.hasError('required')">
+                  El ID del ticket es requerido
+                </mat-error>
+                <mat-error *ngIf="incidenciaForm.get('idTicket')?.hasError('pattern')">
+                  Solo se permiten números
+                </mat-error>
+                <mat-error *ngIf="incidenciaForm.get('idTicket')?.hasError('min')">
+                  El ID debe ser mayor a 0
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Tipo de Incidencia</mat-label>
+                <mat-select formControlName="tipoIncidencia">
+                  <mat-option *ngFor="let tipo of tiposIncidencia" [value]="tipo.value">
+                    {{tipo.label}}
+                  </mat-option>
+                </mat-select>
+                <mat-icon matPrefix>category</mat-icon>
+                <mat-error *ngIf="incidenciaForm.get('tipoIncidencia')?.hasError('required')">
+                  Seleccione un tipo de incidencia
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Descripción de la Incidencia</mat-label>
+                <textarea matInput 
+                          formControlName="descripcion"
+                          rows="3"
+                          placeholder="Describa detalladamente la incidencia..."></textarea>
+                <mat-icon matPrefix>description</mat-icon>
+                <mat-hint align="end">{{incidenciaForm.get('descripcion')?.value?.length || 0}} caracteres</mat-hint>
+                <mat-error *ngIf="incidenciaForm.get('descripcion')?.hasError('required')">
+                  La descripción es requerida
+                </mat-error>
+                <mat-error *ngIf="incidenciaForm.get('descripcion')?.hasError('minlength')">
+                  Mínimo 10 caracteres
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Tipo de Evidencia</mat-label>
+                <mat-select formControlName="tipoEvidencia">
+                  <mat-option *ngFor="let tipo of tiposEvidencia" [value]="tipo.value">
+                    {{tipo.label}}
+                  </mat-option>
+                </mat-select>
+                <mat-icon matPrefix>file_present</mat-icon>
+                <mat-error *ngIf="incidenciaForm.get('tipoEvidencia')?.hasError('required')">
+                  Seleccione un tipo de evidencia
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Descripción de la Evidencia</mat-label>
+                <input matInput 
+                       formControlName="descripcionEvidencia"
+                       placeholder="Ej: Foto del daño lateral">
+                <mat-icon matPrefix>edit_note</mat-icon>
+                <mat-error *ngIf="incidenciaForm.get('descripcionEvidencia')?.hasError('required')">
+                  La descripción es requerida
+                </mat-error>
+                <mat-error *ngIf="incidenciaForm.get('descripcionEvidencia')?.hasError('minlength')">
+                  Mínimo 5 caracteres
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <!-- Selector de Archivo -->
+            <div class="file-upload-section">
+              <div class="file-upload-wrapper">
+                <input type="file" 
+                       id="archivo-input"
+                       (change)="onArchivoSeleccionado($event)"
+                       accept="image/*,video/*,application/pdf,.doc,.docx,.xls,.xlsx,.txt,.zip,.rar"
+                       style="display: none;">
+                
+                <button mat-raised-button 
+                        type="button"
+                        class="upload-button"
+                        (click)="abrirSelectorArchivo()">
+                <mat-icon>cloud_upload</mat-icon>
+                Seleccionar Archivo
+                </button>
+
+                <div class="file-info" *ngIf="nombreArchivo">
+                  <mat-icon class="file-icon">attach_file</mat-icon>
+                  <span class="file-name">{{nombreArchivo}}</span>
+                  <button mat-icon-button 
+                          type="button"
+                          class="remove-file"
+                          (click)="limpiarArchivo()"
+                          matTooltip="Eliminar archivo">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+
+                <p class="file-hint" *ngIf="!nombreArchivo">
+                  <mat-icon>info</mat-icon>
+                  Formatos permitidos: Imágenes, Videos, PDF, Word, Excel, TXT, ZIP (máx. 10MB)
+                </p>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button mat-stroked-button 
+                      type="button" 
+                      class="cancel-button"
+                      (click)="limpiarFormulario()">
+                <mat-icon>cancel</mat-icon>
+                Limpiar
+              </button>
+
+              <button mat-raised-button 
+                      color="primary" 
+                      type="submit" 
+                      [disabled]="!incidenciaForm.valid || !archivoSeleccionado || isSavingIncidencia" 
+                      class="submit-button">
+                <mat-spinner *ngIf="isSavingIncidencia" diameter="20" class="button-spinner"></mat-spinner>
+                <mat-icon *ngIf="!isSavingIncidencia">save</mat-icon>
+                <span *ngIf="!isSavingIncidencia">Crear Incidencia</span>
+                <span *ngIf="isSavingIncidencia">Creando...</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Lista de Tickets con Incidencias -->
+        <div class="results-section" *ngIf="tickets.length > 0">
+          <h3 class="section-title">
+            <mat-icon>list</mat-icon>
+            Tickets con Incidencias ({{tickets.length}})
+          </h3>
+
+          <div class="table-container">
+            <table mat-table [dataSource]="tickets" class="sucursales-table">
+              
+              <!-- Columna Folio -->
+              <ng-container matColumnDef="folio">
+                <th mat-header-cell *matHeaderCellDef>Folio</th>
+                <td mat-cell *matCellDef="let element">
+                  <div class="cell-content">
+                    <mat-icon class="cell-icon">confirmation_number</mat-icon>
+                    <span class="cell-text folio">{{element.folioNumerico}}</span>
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Columna Vehículo -->
+              <ng-container matColumnDef="vehiculo">
+                <th mat-header-cell *matHeaderCellDef>Vehículo</th>
+                <td mat-cell *matCellDef="let element">
+                  <div class="cell-content">
+                    <mat-icon class="cell-icon">directions_car</mat-icon>
+                    <div class="cell-text">
+                      <div><strong>{{element.placaVehiculo}}</strong></div>
+                      <div class="text-secondary">{{element.modeloVehiculo}} - {{element.colorVehiculo}}</div>
+                    </div>
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Columna Propietario -->
+              <ng-container matColumnDef="propietario">
+                <th mat-header-cell *matHeaderCellDef>Propietario</th>
+                <td mat-cell *matCellDef="let element">
+                  <div class="cell-content">
+                    <mat-icon class="cell-icon">person</mat-icon>
+                    <div class="cell-text">
+                      <div>{{element.nombrePropietario}}</div>
+                      <div class="text-secondary">{{element.telefonoPropietario}}</div>
+                    </div>
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Columna Tipo -->
+              <ng-container matColumnDef="tipo">
+                <th mat-header-cell *matHeaderCellDef>Tipo Incidencia</th>
+                <td mat-cell *matCellDef="let element">
+                  <mat-chip class="chip-tipo">{{obtenerNombreTipoIncidencia(element.incidencias.tipoIncidencia)}}</mat-chip>
+                </td>
+              </ng-container>
+
+              <!-- Columna Descripción -->
+              <ng-container matColumnDef="descripcion">
+                <th mat-header-cell *matHeaderCellDef>Descripción</th>
+                <td mat-cell *matCellDef="let element">
+                  <div class="cell-text descripcion-truncada">
+                    {{element.incidencias.descripcion}}
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Columna Fecha -->
+              <ng-container matColumnDef="fecha">
+                <th mat-header-cell *matHeaderCellDef>Fecha Incidencia</th>
+                <td mat-cell *matCellDef="let element">
+                  <div class="cell-content">
+                    <mat-icon class="cell-icon">event</mat-icon>
+                    <span class="cell-text">{{formatearFechaParaMostrar(element.incidencias.fechaIncidencia)}}</span>
+                  </div>
+                </td>
+              </ng-container>
+
+              <!-- Columna Resuelto -->
+              <ng-container matColumnDef="resuelto">
+                <th mat-header-cell *matHeaderCellDef>Estado</th>
+                <td mat-cell *matCellDef="let element">
+                  <mat-chip [class]="element.incidencias.resuelto ? 'chip-resuelto' : 'chip-pendiente'">
+                    {{element.incidencias.resuelto ? 'Resuelto' : 'Pendiente'}}
+                  </mat-chip>
+                </td>
+              </ng-container>
+
+              <!-- Columna Acciones -->
+              <ng-container matColumnDef="acciones">
+                <th mat-header-cell *matHeaderCellDef>Acciones</th>
+                <td mat-cell *matCellDef="let element">
+                    <button mat-icon-button 
+                            color="primary"
+                            (click)="verDetalles(element)"
+                            matTooltip="Ver detalles"
+                            class="btn-ver-detalles">
+                    <mat-icon>visibility</mat-icon>
+                    </button>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+          </div>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading-container" *ngIf="isLoadingTickets">
+          <mat-spinner diameter="50"></mat-spinner>
+          <p>Cargando tickets...</p>
+        </div>
+
+        <!-- Sin resultados -->
+        <div class="no-results" *ngIf="tickets.length === 0 && !isLoadingTickets">
+          <mat-icon>inbox</mat-icon>
+          <p>No hay tickets con incidencias registrados</p>
+          <p class="hint">Las incidencias aparecerán aquí una vez creadas</p>
+        </div>
+
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Modal de Detalles -->
+  <div class="modal-overlay" *ngIf="mostrarModalDetalles" (click)="cerrarModal($event)">
+    <div class="encargado-modal modal-detalles-grande" (click)="$event.stopPropagation()">
+      
+      <div class="modal-header">
+        <div class="modal-icon">
+          <mat-icon>assignment</mat-icon>
+        </div>
+        <h2>Detalles de la Incidencia</h2>
+      </div>
+
+      <div class="modal-content" *ngIf="incidenciaSeleccionada && ticketSeleccionado">
+        
+        <!-- Información del Ticket -->
+        <div class="info-section">
+          <h3 class="info-section-title">
+            <mat-icon>confirmation_number</mat-icon>
+            Información del Ticket
+          </h3>
+          
+          <div class="info-grid info-grid-3">
+            <div class="info-item">
+              <label>Folio:</label>
+              <div class="info-value">
+                <mat-icon>tag</mat-icon>
+                <span class="folio-grande">{{ticketSeleccionado.folioNumerico}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Tipo de Cliente:</label>
+              <div class="info-value">
+                <mat-icon>person_outline</mat-icon>
+                <span>{{ticketSeleccionado.tipoCliente}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Estado del Ticket:</label>
+              <div class="info-value">
+                <mat-chip [class]="'chip-' + ticketSeleccionado.estadoTicket.toLowerCase()">
+                  {{ticketSeleccionado.estadoTicket}}
+                </mat-chip>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información del Vehículo -->
+        <div class="info-section">
+          <h3 class="info-section-title">
+            <mat-icon>directions_car</mat-icon>
+            Información del Vehículo
+          </h3>
+          
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Placa:</label>
+              <div class="info-value">
+                <mat-icon>credit_card</mat-icon>
+                <span>{{ticketSeleccionado.placaVehiculo}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Modelo:</label>
+              <div class="info-value">
+                <mat-icon>directions_car</mat-icon>
+                <span>{{ticketSeleccionado.modeloVehiculo}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Color:</label>
+              <div class="info-value">
+                <mat-icon>palette</mat-icon>
+                <span>{{ticketSeleccionado.colorVehiculo}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información del Propietario -->
+        <div class="info-section">
+          <h3 class="info-section-title">
+            <mat-icon>account_circle</mat-icon>
+            Información del Propietario
+          </h3>
+          
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Nombre:</label>
+              <div class="info-value">
+                <mat-icon>person</mat-icon>
+                <span>{{ticketSeleccionado.nombrePropietario}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Teléfono:</label>
+              <div class="info-value">
+                <mat-icon>phone</mat-icon>
+                <span>{{ticketSeleccionado.telefonoPropietario}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detalles de la Incidencia -->
+        <div class="info-section">
+          <h3 class="info-section-title">
+            <mat-icon>report_problem</mat-icon>
+            Detalles de la Incidencia
+          </h3>
+          
+          <div class="info-grid info-grid-3">
+            <div class="info-item">
+              <label>Tipo de Incidencia:</label>
+              <div class="info-value">
+                <mat-icon>category</mat-icon>
+                <span>{{obtenerNombreTipoIncidencia(incidenciaSeleccionada.tipoIncidencia)}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Fecha de Incidencia:</label>
+              <div class="info-value">
+                <mat-icon>event</mat-icon>
+                <span>{{formatearFechaLegible(incidenciaSeleccionada.fechaIncidencia)}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Estado:</label>
+              <div class="info-value">
+                <mat-chip [class]="incidenciaSeleccionada.resuelto ? 'chip-resuelto' : 'chip-pendiente'">
+                  {{incidenciaSeleccionada.resuelto ? 'Resuelto' : 'Pendiente'}}
+                </mat-chip>
+              </div>
+            </div>
+
+            <div class="info-item full-width">
+              <label>Descripción:</label>
+              <div class="info-value descripcion-completa">
+                <mat-icon>description</mat-icon>
+                <span>{{incidenciaSeleccionada.descripcion}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información de Resolución -->
+        <div class="info-section" *ngIf="incidenciaSeleccionada.resuelto">
+          <h3 class="info-section-title">
+            <mat-icon>check_circle</mat-icon>
+            Información de Resolución
+          </h3>
+          
+          <div class="info-grid info-grid-3">
+            <div class="info-item">
+              <label>Fecha de Resolución:</label>
+              <div class="info-value">
+                <mat-icon>event</mat-icon>
+                <span>{{formatearFechaLegible(incidenciaSeleccionada.fechaResolucion || '')}}</span>
+              </div>
+            </div>
+
+            <div class="info-item">
+              <label>Resuelto Por:</label>
+              <div class="info-value">
+                <mat-icon>person</mat-icon>
+                <span>{{incidenciaSeleccionada.resueltoPor || 'N/A'}}</span>
+              </div>
+            </div>
+
+            <div class="info-item full-width">
+              <label>Observaciones:</label>
+              <div class="info-value descripcion-completa">
+                <mat-icon>notes</mat-icon>
+                <span>{{incidenciaSeleccionada.observacionesResolucion || 'Sin observaciones'}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Evidencias -->
+        <div class="info-section">
+            <h3 class="info-section-title">
+                <mat-icon>photo_library</mat-icon>
+                Evidencias ({{incidenciaSeleccionada.evidencias.length}})
+            </h3>
+            
+            <div class="evidencias-grid-modal">
+                <div class="evidencia-card-modal" *ngFor="let evidencia of incidenciaSeleccionada.evidencias">
+                
+                <div class="evidencia-header-modal">
+                    <mat-chip class="chip-evidencia">{{obtenerNombreTipoEvidencia(evidencia.tipoEvidencia)}}</mat-chip>
+                    <span class="evidencia-fecha-modal">
+                    <mat-icon>event</mat-icon>
+                    {{formatearFechaParaMostrar(evidencia.fechaCarga)}}
+                    </span>
+                </div>
+
+<div class="evidencia-preview-modal">
+  <!-- Preview para imágenes -->
+  <img *ngIf="esImagen(evidencia.nombreArchivo)" 
+       [src]="evidencia.urlEvidencia" 
+       [alt]="evidencia.descripcion"
+       class="evidencia-imagen-modal">
+  
+                <!-- Icono para videos -->
+                <div *ngIf="esVideo(evidencia.nombreArchivo)" class="evidencia-icon-container-modal">
+                    <mat-icon class="evidencia-icon-large-modal">videocam</mat-icon>
+                    <span>{{obtenerNombreTipoArchivo(evidencia.nombreArchivo)}}</span>
+                </div>
+                
+                <!-- Icono para PDFs -->
+                <div *ngIf="esPdf(evidencia.nombreArchivo)" class="evidencia-icon-container-modal">
+                    <mat-icon class="evidencia-icon-large-modal">picture_as_pdf</mat-icon>
+                    <span>{{obtenerNombreTipoArchivo(evidencia.nombreArchivo)}}</span>
+                </div>
+
+                <!-- Icono para Documentos -->
+                <div *ngIf="esDocumento(evidencia.nombreArchivo)" class="evidencia-icon-container-modal">
+                    <mat-icon class="evidencia-icon-large-modal">description</mat-icon>
+                    <span>{{obtenerNombreTipoArchivo(evidencia.nombreArchivo)}}</span>
+                </div>
+
+                <!-- Icono para Hojas de Cálculo -->
+                <div *ngIf="esHojaCalculo(evidencia.nombreArchivo)" class="evidencia-icon-container-modal">
+                    <mat-icon class="evidencia-icon-large-modal">table_chart</mat-icon>
+                    <span>{{obtenerNombreTipoArchivo(evidencia.nombreArchivo)}}</span>
+                </div>
+
+                <!-- Icono para Archivos Comprimidos -->
+                <div *ngIf="esComprimido(evidencia.nombreArchivo)" class="evidencia-icon-container-modal">
+                    <mat-icon class="evidencia-icon-large-modal">folder_zip</mat-icon>
+                    <span>{{obtenerNombreTipoArchivo(evidencia.nombreArchivo)}}</span>
+                </div>
+
+                <!-- Icono genérico para otros tipos -->
+                <div *ngIf="!esImagen(evidencia.nombreArchivo) && !esVideo(evidencia.nombreArchivo) && !esPdf(evidencia.nombreArchivo) && !esDocumento(evidencia.nombreArchivo) && !esHojaCalculo(evidencia.nombreArchivo) && !esComprimido(evidencia.nombreArchivo)" 
+                    class="evidencia-icon-container-modal">
+                    <mat-icon class="evidencia-icon-large-modal">insert_drive_file</mat-icon>
+                    <span>Otro Archivo</span>
+                </div>
+                </div>
+
+                <div class="evidencia-info-modal">
+                    <p class="evidencia-descripcion-modal">{{evidencia.descripcion}}</p>
+                    <a [href]="evidencia.urlEvidencia" 
+                    target="_blank" 
+                    mat-raised-button 
+                    color="primary"
+                    class="btn-ver-evidencia-modal">
+                    <mat-icon>open_in_new</mat-icon>
+                    Ver Original
+                    </a>
+                </div>
+
+                </div>
+            </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button mat-raised-button 
+                color="primary" 
+                (click)="cerrarModal()"
+                class="close-button">
+          <mat-icon>close</mat-icon>
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

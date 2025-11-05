@@ -59,24 +59,58 @@ export class NavigationBar {
     },
     // OPCIONES DEL USUARIO EMPRESA
     {
-      icon: 'business_center',
+      icon: 'store',
       label: 'Control Sucursal',
       route: '/control-sucursal',
       roles: ['EMPRESA'],
     },
     {
-      icon: 'business_center',
+      icon: 'assignment',
       label: 'Gestionar Planes',
       route: '/gestion-planes',
       roles: ['EMPRESA'],
     },
+    {
+      icon: 'groups',
+      label: 'Comercios Afiliados',
+      route: '/comercio-afiliado',
+      roles: ['EMPRESA'],
+    },
+    {
+      icon: 'report_problem',
+      label: 'indicencia a Resolver',
+      route: '/incidencia-resolver',
+      roles: ['EMPRESA'],
+    },
+    {
+      icon: 'receipt_long',
+      label: 'Cortes de Caja',
+      route: '/corte',
+      roles: ['EMPRESA'],
+    },
+    {
+      icon: 'directions_car',
+      label: 'Gestión Flotilla',
+      route: '/gestion-flotilla',
+      roles: ['EMPRESA'],
+    },
     // OPCIONES DEL USUARIO SUCURSAL
     {
-      icon: 'business_center',
+      icon: 'storefront',
       label: 'Gestionar Sucursal',
       route: '/gestion-sucursal',
       roles: ['SUCURSAL'],
     },
+    {
+      icon: 'card_membership',
+      label: 'Registrar entredas/salidas',
+      route: '/management-ticket',
+      roles: ['SUCURSAL'],
+    },
+    {
+      icon: 'confirmation_number',
+      label: 'Incidencia Ticket',
+      route: '/incidencia-ticket',
     //gestionar vehiculos y clientes
     {
       icon: 'airport_shuttle',
@@ -92,17 +126,48 @@ export class NavigationBar {
     },
     // OPCIONES DEL USUARIO CLIENTE
     {
-      icon: 'business_center',
+      icon: 'subscriptions',
       label: 'Suscripciones',
       route: '/suscripciones',
       roles: ['CLIENTE'],
     },
+    {
+      icon: 'change_circle',
+      label: 'Cambió Placa',
+      route: '/cambio-placa',
+      roles: ['CLIENTE'],
+    },
+    {
+      icon: 'hourglass_top',
+      label: 'Permiso Temporal',
+      route: '/permiso-temporal',
+      roles: ['CLIENTE'],
+    },
+    {
+      icon: 'card_membership',
+      label: 'Mis tickets',
+      route: '/ver-tickets',
+      roles: ['CLIENTE'],
+    },
     // OPCIONES DEL USUARIO DEL SISTEMA
     {
-      icon: 'business_center',
+      icon: 'domain',
       label: 'Gestionar Empresas',
       route: '/gestion-empresas',
       roles: ['SISTEMA'],
+    },
+    // OPCIONES DEL USUARIO BACKOFFICE
+    {
+      icon: 'assignment_turned_in',
+      label: 'Placa Resolución',
+      route: '/placa-resolucion',
+      roles: ['BACKOFFICE'],
+    },
+    {
+      icon: 'hourglass_disabled',
+      label: 'Permiso Temporal',
+      route: '/permiso-temporal-backoffice',
+      roles: ['BACKOFFICE'],
     },
   ];
 

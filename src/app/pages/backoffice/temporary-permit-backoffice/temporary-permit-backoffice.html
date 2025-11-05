@@ -1,0 +1,976 @@
+<div class="crear-usuario-container">
+  <div class="floating-icons">
+    <div class="icon"><mat-icon>admin_panel_settings</mat-icon></div>
+    <div class="icon"><mat-icon>car_rental</mat-icon></div>
+    <div class="icon"><mat-icon>access_time</mat-icon></div>
+    <div class="icon"><mat-icon>verified_user</mat-icon></div>
+    <div class="icon"><mat-icon>schedule</mat-icon></div>
+    <div class="icon"><mat-icon>check_circle</mat-icon></div>
+    <div class="icon"><mat-icon>local_parking</mat-icon></div>
+    <div class="icon"><mat-icon>event_available</mat-icon></div>
+  </div>
+
+  <mat-card class="usuario-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="header-icon">admin_panel_settings</mat-icon>
+        Gestión de Permisos Temporales
+      </mat-card-title>
+      <mat-card-subtitle>Administre las solicitudes de permisos temporales de estacionamiento</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="content-wrapper">
+        
+        <!-- Resumen de Estados -->
+        <div class="stats-container">
+          <div class="stat-card pendiente">
+            <mat-icon>schedule</mat-icon>
+            <div class="stat-info">
+              <span class="stat-value">{{contarPermisosPorEstado('PENDIENTE')}}</span>
+              <span class="stat-label">Pendientes</span>
+            </div>
+          </div>
+          <div class="stat-card activo">
+            <mat-icon>check_circle</mat-icon>
+            <div class="stat-info">
+              <span class="stat-value">{{contarPermisosPorEstado('ACTIVO')}}</span>
+              <span class="stat-label">Activos</span>
+            </div>
+          </div>
+          <div class="stat-card rechazado">
+            <mat-icon>cancel</mat-icon>
+            <div class="stat-info">
+              <span class="stat-value">{{contarPermisosPorEstado('RECHAZADO')}}</span>
+              <span class="stat-label">Rechazados</span>
+            </div>
+          </div>
+          <div class="stat-card total">
+            <mat-icon>assignment</mat-icon>
+            <div class="stat-info">
+              <span class="stat-value">{{permisosAplanados.length}}</span>
+              <span class="stat-label">Total</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Lista de Permisos -->
+        <div class="results-section" *ngIf="permisosAplanados.length > 0">
+          <h3 class="section-title">
+            <mat-icon>list</mat-icon>
+            Solicitudes de Permisos Temporales ({{permisosAplanados.length}})
+          </h3>
+
+          <div class="permisos-grid">
+            <div class="permiso-card" *ngFor="let permiso of permisosAplanados">
+              
+              <!-- Header de la tarjeta -->
+              <div class="permiso-header">
+                <div class="permiso-id">
+                  <mat-icon>assignment</mat-icon>
+                  <span>#{{permiso.idPermisoTemporal}}</span>
+                </div>
+                <mat-chip [class]="obtenerEstadoInfo(permiso.estado).class">
+                  <mat-icon>{{obtenerEstadoInfo(permiso.estado).icon}}</mat-icon>
+                  {{obtenerEstadoInfo(permiso.estado).text}}
+                </mat-chip>
+              </div>
+
+              <!-- Información del Cliente -->
+              <div class="cliente-info-card">
+                <div class="cliente-header">
+                  <mat-icon>account_circle</mat-icon>
+                  <span class="cliente-nombre">{{permiso.nombreCompleto}}</span>
+                </div>
+                <div class="cliente-details">
+                  <div class="detail-item">
+                    <mat-icon>badge</mat-icon>
+                    <span>ID: #{{permiso.idUsuario}}</span>
+                  </div>
+                  <div class="detail-item">
+                    <mat-icon>email</mat-icon>
+                    <span>{{permiso.email}}</span>
+                  </div>
+                  <div class="detail-item">
+                    <mat-icon>phone</mat-icon>
+                    <span>{{permiso.telefono}}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Información del permiso -->
+              <div class="permiso-body">
+                <div class="info-row">
+                  <div class="info-label">
+                    <mat-icon>credit_card</mat-icon>
+                    Placa Temporal:
+                  </div>
+                  <div class="info-value placa-temporal">{{permiso.placaTemporal}}</div>
+                </div>
+
+                <div class="info-row">
+                  <div class="info-label">
+                    <mat-icon>{{obtenerIconoTipoVehiculo(permiso.tipoVehiculoPermitido)}}</mat-icon>
+                    Tipo de Vehículo:
+                  </div>
+                  <div class="info-value">{{obtenerTextoTipoVehiculo(permiso.tipoVehiculoPermitido)}}</div>
+                </div>
+
+                <div class="info-row">
+                  <div class="info-label">
+                    <mat-icon>help_outline</mat-icon>
+                    Motivo:
+                  </div>
+                  <div class="info-value">{{permiso.motivo}}</div>
+                </div>
+
+                <!-- Mostrar info solo si está aprobado/activo -->
+                <ng-container *ngIf="estaAprobadoOActivo(permiso.estado)">
+                  <div class="info-row">
+                    <div class="info-label">
+                      <mat-icon>event</mat-icon>
+                      Vigencia:
+                    </div>
+                    <div class="info-value">
+                      {{formatearFechaParaMostrar(permiso.fechaInicio)}} - {{formatearFechaParaMostrar(permiso.fechaFin)}}
+                    </div>
+                  </div>
+
+                  <div class="info-row">
+                    <div class="info-label">
+                      <mat-icon>pin</mat-icon>
+                      Usos:
+                    </div>
+                    <div class="info-value">
+                      {{permiso.usosRealizados}} / {{permiso.usosMaximos || 'Ilimitado'}}
+                    </div>
+                  </div>
+                </ng-container>
+              </div>
+
+              <!-- Footer de la tarjeta con botones -->
+              <div class="permiso-footer">
+                <button mat-raised-button 
+                        (click)="verDetalles(permiso)"
+                        class="btn-ver-detalles-card btn-secondary">
+                  <mat-icon>visibility</mat-icon>
+                  Ver Detalles
+                </button>
+
+                <!-- Botones según el estado -->
+                <ng-container *ngIf="esPendiente(permiso.estado)">
+                  <button mat-raised-button 
+                          (click)="abrirModalAceptar(permiso)"
+                          class="btn-aceptar-card btn-success">
+                    <mat-icon>check_circle</mat-icon>
+                    Aceptar
+                  </button>
+                  <button mat-raised-button 
+                          (click)="abrirModalRechazar(permiso)"
+                          class="btn-rechazar-card btn-danger">
+                    <mat-icon>cancel</mat-icon>
+                    Rechazar
+                  </button>
+                </ng-container>
+
+                <ng-container *ngIf="esActivo(permiso.estado)">
+                  <button mat-raised-button 
+                          (click)="abrirModalRevocar(permiso)"
+                          class="btn-revocar-card btn-warning">
+                    <mat-icon>block</mat-icon>
+                    Revocar
+                  </button>
+                </ng-container>
+
+                <!-- Estados procesados -->
+                <div class="estado-procesado" *ngIf="!esPendiente(permiso.estado) && !esActivo(permiso.estado)">
+                  <mat-icon>{{obtenerEstadoInfo(permiso.estado).icon}}</mat-icon>
+                  <span>{{obtenerEstadoInfo(permiso.estado).text}}</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading-container" *ngIf="isLoadingPermisos">
+          <mat-spinner diameter="50"></mat-spinner>
+          <p>Cargando permisos temporales...</p>
+        </div>
+
+        <!-- Sin resultados -->
+        <div class="no-results" *ngIf="permisosAplanados.length === 0 && !isLoadingPermisos">
+          <mat-icon>inbox</mat-icon>
+          <p>No hay permisos temporales registrados</p>
+          <p class="hint">Las solicitudes de permisos temporales aparecerán aquí</p>
+        </div>
+
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Modal de Detalles Completos -->
+  <div class="modal-overlay" *ngIf="mostrarModalDetalles" (click)="cerrarModalDetalles($event)">
+    <div class="encargado-modal modal-detalles-grande" (click)="$event.stopPropagation()">
+      
+      <div class="modal-header">
+        <div class="modal-icon">
+          <mat-icon>assignment</mat-icon>
+        </div>
+        <h2>Detalles del Permiso Temporal</h2>
+      </div>
+
+      <div class="modal-content" *ngIf="permisoSeleccionado">
+        
+        <!-- Estado del Permiso -->
+        <div class="estado-banner" [class]="obtenerClaseEstadoBanner(permisoSeleccionado.estado)">
+          <mat-icon>{{obtenerEstadoInfo(permisoSeleccionado.estado).icon}}</mat-icon>
+          <div class="estado-info">
+            <span class="estado-titulo">Estado Actual:</span>
+            <span class="estado-valor">{{obtenerEstadoInfo(permisoSeleccionado.estado).text}}</span>
+          </div>
+        </div>
+
+        <!-- Grid de 2 Columnas -->
+        <div class="modal-grid-container">
+          
+          <!-- Columna Izquierda -->
+          <div class="modal-column">
+
+            <!-- Información del Cliente -->
+            <div class="info-section-compact">
+              <h3 class="info-section-title-compact">
+                <mat-icon>account_circle</mat-icon>
+                Información del Cliente
+              </h3>
+              
+              <div class="info-list">
+                <div class="info-item-compact">
+                  <label>ID Usuario:</label>
+                  <span>#{{permisoSeleccionado.idUsuario}}</span>
+                </div>
+                <div class="info-item-compact">
+                  <label>Nombre Completo:</label>
+                  <span>{{permisoSeleccionado.nombreCompleto}}</span>
+                </div>
+                <div class="info-item-compact">
+                  <label>Email:</label>
+                  <span>{{permisoSeleccionado.email}}</span>
+                </div>
+                <div class="info-item-compact">
+                  <label>Teléfono:</label>
+                  <span>{{permisoSeleccionado.telefono}}</span>
+                </div>
+                <div class="info-item-compact">
+                  <label>CUI:</label>
+                  <span>{{permisoSeleccionado.cui}}</span>
+                </div>
+                <div class="info-item-compact full-width-compact">
+                  <label>Dirección:</label>
+                  <span class="text-wrap">{{permisoSeleccionado.direccion}}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Información del Permiso -->
+            <div class="info-section-compact">
+              <h3 class="info-section-title-compact">
+                <mat-icon>badge</mat-icon>
+                Información del Permiso
+              </h3>
+              
+              <div class="info-list">
+                <div class="info-item-compact">
+                  <label>ID Permiso:</label>
+                  <span>#{{permisoSeleccionado.idPermisoTemporal}}</span>
+                </div>
+                <div class="info-item-compact">
+                  <label>Placa Temporal:</label>
+                  <span class="placa-destacada">{{permisoSeleccionado.placaTemporal}}</span>
+                </div>
+                <div class="info-item-compact">
+                  <label>Tipo de Vehículo:</label>
+                  <span>
+                    <mat-icon class="inline-icon">{{obtenerIconoTipoVehiculo(permisoSeleccionado.tipoVehiculoPermitido)}}</mat-icon>
+                    {{obtenerTextoTipoVehiculo(permisoSeleccionado.tipoVehiculoPermitido)}}
+                  </span>
+                </div>
+                <div class="info-item-compact full-width-compact">
+                  <label>Motivo:</label>
+                  <span class="text-wrap">{{permisoSeleccionado.motivo}}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Información de Vigencia (solo si está aprobado) -->
+            <div class="info-section-compact" *ngIf="estaAprobadoOActivo(permisoSeleccionado.estado)">
+              <h3 class="info-section-title-compact">
+                <mat-icon>event</mat-icon>
+                Vigencia del Permiso
+              </h3>
+              
+              <div class="info-list">
+                <div class="info-item-compact">
+                  <label>Fecha de Inicio:</label>
+                  <span>{{formatearFechaLegible(permisoSeleccionado.fechaInicio)}}</span>
+                </div>
+                <div class="info-item-compact">
+                  <label>Fecha de Fin:</label>
+                  <span>{{formatearFechaLegible(permisoSeleccionado.fechaFin)}}</span>
+                </div>
+                <div class="info-item-compact" *ngIf="permisoSeleccionado.estado === 'ACTIVO'">
+                  <label>Días Restantes:</label>
+                  <span class="dias-restantes-destacado">
+                    <mat-icon class="inline-icon">timer</mat-icon>
+                    {{calcularDiasRestantes(permisoSeleccionado.fechaFin) || 0}} días
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Información de Usos (solo si está aprobado) -->
+            <div class="info-section-compact" *ngIf="estaAprobadoOActivo(permisoSeleccionado.estado)">
+              <h3 class="info-section-title-compact">
+                <mat-icon>pin</mat-icon>
+                Usos del Permiso
+              </h3>
+              
+              <div class="usos-detalle-card">
+                <div class="usos-numeros">
+                  <div class="uso-item">
+                    <span class="uso-label">Realizados</span>
+                    <span class="uso-valor realizados">{{permisoSeleccionado.usosRealizados}}</span>
+                  </div>
+                  <mat-icon class="divider-icon">trending_flat</mat-icon>
+                  <div class="uso-item">
+                    <span class="uso-label">Máximos</span>
+                    <span class="uso-valor maximos">{{permisoSeleccionado.usosMaximos || '∞'}}</span>
+                  </div>
+                </div>
+
+                <div class="usos-progress-modal" *ngIf="permisoSeleccionado.usosMaximos">
+                  <div class="progress-bar-container-modal">
+                    <div class="progress-bar-modal" 
+                         [style.width.%]="calcularPorcentajeUsos(permisoSeleccionado.usosRealizados, permisoSeleccionado.usosMaximos)"
+                         [style.background-color]="obtenerColorBarraUsos(calcularPorcentajeUsos(permisoSeleccionado.usosRealizados, permisoSeleccionado.usosMaximos))">
+                    </div>
+                  </div>
+                  <div class="progress-info">
+                    <span class="progress-percentage">{{calcularPorcentajeUsos(permisoSeleccionado.usosRealizados, permisoSeleccionado.usosMaximos) | number:'1.0-0'}}%</span>
+                    <span class="progress-text">utilizado</span>
+                  </div>
+                </div>
+
+                <div class="usos-restantes" *ngIf="permisoSeleccionado.usosMaximos">
+                  <mat-icon>info</mat-icon>
+                  <span>Usos restantes: <strong>{{(permisoSeleccionado.usosMaximos || 0) - permisoSeleccionado.usosRealizados}}</strong></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Información de Aprobación -->
+            <div class="info-section-compact" *ngIf="estaAprobadoOActivo(permisoSeleccionado.estado) && permisoSeleccionado.fechaAprobacion">
+              <h3 class="info-section-title-compact">
+                <mat-icon>verified</mat-icon>
+                Información de Aprobación
+              </h3>
+              
+              <div class="info-list">
+                <div class="info-item-compact">
+                  <label>Fecha de Aprobación:</label>
+                  <span>{{formatearFechaLegible(permisoSeleccionado.fechaAprobacion)}}</span>
+                </div>
+                <div class="info-item-compact full-width-compact" *ngIf="permisoSeleccionado.observaciones">
+                  <label>Observaciones:</label>
+                  <span class="text-wrap observaciones-text">{{permisoSeleccionado.observaciones}}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Información de Rechazo -->
+            <div class="info-section-compact" *ngIf="permisoSeleccionado.estado === 'RECHAZADO'">
+              <h3 class="info-section-title-compact">
+                <mat-icon>cancel</mat-icon>
+                Información del Rechazo
+              </h3>
+              
+              <div class="rechazo-card">
+                <mat-icon>error_outline</mat-icon>
+                <div class="rechazo-content">
+                  <p class="rechazo-titulo">Solicitud Rechazada</p>
+                  <p class="rechazo-observaciones">{{permisoSeleccionado.observaciones || 'No se proporcionaron observaciones'}}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sucursales Autorizadas -->
+            <div class="info-section-compact" *ngIf="estaAprobadoOActivo(permisoSeleccionado.estado) && permisoSeleccionado.sucursalesDisponiblesPermiso.length > 0">
+              <h3 class="info-section-title-compact">
+                <mat-icon>location_on</mat-icon>
+                Sucursales Autorizadas ({{permisoSeleccionado.sucursalesDisponiblesPermiso.length}})
+              </h3>
+              
+              <div class="sucursales-autorizadas-list">
+                <div class="sucursal-autorizada-card" *ngFor="let sucursal of permisoSeleccionado.sucursalesDisponiblesPermiso">
+                  <mat-icon>place</mat-icon>
+                  <div class="sucursal-info">
+                    <span class="sucursal-nombre">{{sucursal.nombre}}</span>
+                    <span class="sucursal-direccion" *ngIf="sucursal.direccionCompleta">{{sucursal.direccionCompleta}}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Columna Derecha -->
+          <div class="modal-column">
+
+            <!-- Información de la Suscripción -->
+            <div class="info-section-compact">
+              <h3 class="info-section-title-compact">
+                <mat-icon>card_membership</mat-icon>
+                Suscripción del Cliente
+              </h3>
+              
+              <div class="suscripcion-card">
+                <div class="suscripcion-header">
+                  <mat-icon>stars</mat-icon>
+                  <span class="plan-nombre">{{permisoSeleccionado.suscripcionCliente.tipoPlanSuscripcionDTO.nombrePlan}}</span>
+                  <mat-chip [class]="'chip-' + permisoSeleccionado.suscripcionCliente.estadoSuscripcion.toLowerCase()">
+                    {{permisoSeleccionado.suscripcionCliente.estadoSuscripcion}}
+                  </mat-chip>
+                </div>
+
+                <div class="info-list">
+                  <div class="info-item-compact">
+                    <label>ID Suscripción:</label>
+                    <span>#{{permisoSeleccionado.suscripcionCliente.idSuscripcion}}</span>
+                  </div>
+                  <div class="info-item-compact">
+                    <label>Código del Plan:</label>
+                    <span>{{permisoSeleccionado.suscripcionCliente.tipoPlanSuscripcionDTO.codigoPlan}}</span>
+                  </div>
+                  <div class="info-item-compact">
+                    <label>Período:</label>
+                    <span>{{permisoSeleccionado.suscripcionCliente.periodoContratado}}</span>
+                  </div>
+                  <div class="info-item-compact full-width-compact">
+                    <label>Descripción:</label>
+                    <span class="text-wrap">{{permisoSeleccionado.suscripcionCliente.tipoPlanSuscripcionDTO.descripcion}}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Detalles del Plan -->
+            <div class="info-section-compact">
+              <h3 class="info-section-title-compact">
+                <mat-icon>schedule</mat-icon>
+                Detalles del Plan
+              </h3>
+              
+              <div class="info-list">
+                <div class="info-item-compact">
+                  <label>Horas por Día:</label>
+                  <span>{{permisoSeleccionado.suscripcionCliente.tipoPlanSuscripcionDTO.horasDia}} horas</span>
+                </div>
+                <div class="info-item-compact">
+                  <label>Horas Mensuales:</label>
+                  <span>{{permisoSeleccionado.suscripcionCliente.horasMensualesIncluidas}} horas</span>
+                </div>
+                <div class="info-item-compact">
+                  <label>Horas Consumidas:</label>
+                  <span class="consumo-horas">{{permisoSeleccionado.suscripcionCliente.horasConsumidas}} / {{permisoSeleccionado.suscripcionCliente.horasMensualesIncluidas}}</span>
+                </div>
+                <div class="info-item-compact">
+                  <label>Días Aplicables:</label>
+                  <span>{{permisoSeleccionado.suscripcionCliente.tipoPlanSuscripcionDTO.diasAplicables}}</span>
+                </div>
+                <div class="info-item-compact full-width-compact">
+                  <label>Cobertura Horaria:</label>
+                  <span>{{permisoSeleccionado.suscripcionCliente.tipoPlanSuscripcionDTO.coberturaHoraria}}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Información Financiera -->
+            <div class="info-section-compact">
+              <h3 class="info-section-title-compact">
+                <mat-icon>payments</mat-icon>
+                Información Financiera
+              </h3>
+              
+              <div class="pricing-card">
+                <div class="info-list">
+                  <div class="info-item-compact">
+                    <label>Precio Base:</label>
+                    <span>{{formatearMoneda(permisoSeleccionado.suscripcionCliente.tipoPlanSuscripcionDTO.precioPlan)}}</span>
+                  </div>
+                  <div class="info-item-compact">
+                    <label>Tarifa Base Ref.:</label>
+                    <span>{{formatearMoneda(permisoSeleccionado.suscripcionCliente.tarifaBaseReferencia)}}</span>
+                  </div>
+                  <div class="info-item-compact">
+                    <label>Descuento:</label>
+                    <span class="descuento-text">{{permisoSeleccionado.suscripcionCliente.descuentoAplicado}}%</span>
+                  </div>
+                  <div class="info-item-compact precio-final-item">
+                    <label>Precio Final:</label>
+                    <span class="precio-final-valor">{{formatearMoneda(calcularPrecioFinal(permisoSeleccionado.suscripcionCliente))}}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Fechas de la Suscripción -->
+            <div class="info-section-compact">
+              <h3 class="info-section-title-compact">
+                <mat-icon>event</mat-icon>
+                Fechas de la Suscripción
+              </h3>
+              
+              <div class="info-list">
+                <div class="info-item-compact">
+                  <label>Fecha de Compra:</label>
+                  <span>{{formatearFechaParaMostrar(permisoSeleccionado.suscripcionCliente.fechaCompra)}}</span>
+                </div>
+                <div class="info-item-compact">
+                  <label>Fecha de Inicio:</label>
+                  <span>{{formatearFechaParaMostrar(permisoSeleccionado.suscripcionCliente.fechaInicio)}}</span>
+                </div>
+                <div class="info-item-compact">
+                  <label>Fecha de Fin:</label>
+                  <span>{{formatearFechaParaMostrar(permisoSeleccionado.suscripcionCliente.fechaFin)}}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sucursales de la Suscripción -->
+            <div class="info-section-compact" *ngIf="permisoSeleccionado.suscripcionCliente.sucursalesDisponibles.length > 0">
+              <h3 class="info-section-title-compact">
+                <mat-icon>location_city</mat-icon>
+                Sucursales de la Suscripción ({{permisoSeleccionado.suscripcionCliente.sucursalesDisponibles.length}})
+              </h3>
+              
+              <div class="sucursales-list">
+                <div class="sucursal-compact-card" *ngFor="let sucursal of permisoSeleccionado.suscripcionCliente.sucursalesDisponibles">
+                  <div class="sucursal-compact-header">
+                    <mat-icon>place</mat-icon>
+                    <span class="sucursal-nombre">{{sucursal.nombre}}</span>
+                    <mat-chip [class]="'chip-' + sucursal.estado.toLowerCase()">{{sucursal.estado}}</mat-chip>
+                  </div>
+                  <div class="sucursal-compact-details">
+                    <div class="detail-row-compact">
+                      <mat-icon>location_on</mat-icon>
+                      <span>{{sucursal.direccionCompleta}}, {{sucursal.ciudad}}, {{sucursal.departamento}}</span>
+                    </div>
+                    <div class="detail-row-compact">
+                      <mat-icon>schedule</mat-icon>
+                      <span>{{sucursal.horaApertura}} - {{sucursal.horaCierre}}</span>
+                    </div>
+                    <div class="detail-row-compact">
+                      <mat-icon>local_parking</mat-icon>
+                      <span>Capacidad: {{sucursal.capacidad2Ruedas}} motos / {{sucursal.capacidad4Ruedas}} autos</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="modal-actions">
+        <button mat-raised-button 
+                color="primary" 
+                (click)="cerrarModalDetalles()"
+                class="close-button">
+          <mat-icon>close</mat-icon>
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Aceptar Permiso -->
+  <div class="modal-overlay" *ngIf="mostrarModalAceptar" (click)="cerrarModalAceptar($event)">
+    <div class="encargado-modal modal-accion" (click)="$event.stopPropagation()">
+      
+      <div class="modal-header">
+        <div class="modal-icon">
+          <mat-icon>check_circle</mat-icon>
+        </div>
+        <h2>Aceptar Solicitud de Permiso Temporal</h2>
+      </div>
+
+      <div class="modal-content" *ngIf="permisoSeleccionado">
+        
+        <!-- Resumen de la solicitud -->
+        <div class="resumen-solicitud-card">
+          <h3 class="resumen-title">
+            <mat-icon>info</mat-icon>
+            Resumen de la Solicitud
+          </h3>
+
+          <div class="resumen-grid">
+            <div class="resumen-item">
+              <label>Cliente:</label>
+              <span class="resumen-value">{{permisoSeleccionado.nombreCompleto}}</span>
+            </div>
+            <div class="resumen-item">
+              <label>Placa Temporal:</label>
+              <span class="resumen-value placa-resumen">{{permisoSeleccionado.placaTemporal}}</span>
+            </div>
+            <div class="resumen-item">
+              <label>Tipo de Vehículo:</label>
+              <span class="resumen-value">{{obtenerTextoTipoVehiculo(permisoSeleccionado.tipoVehiculoPermitido)}}</span>
+            </div>
+            <div class="resumen-item">
+              <label>Motivo:</label>
+              <span class="resumen-value">{{permisoSeleccionado.motivo}}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Formulario de aceptación -->
+        <form [formGroup]="aceptarForm" (ngSubmit)="aceptarPermiso()" class="accion-form">
+          
+          <div class="form-section-accion">
+            <h3 class="form-section-title">
+              <mat-icon>settings</mat-icon>
+              Configuración del Permiso
+            </h3>
+
+            <div class="form-row">
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Fecha de Inicio</mat-label>
+                <input matInput 
+                       [matDatepicker]="pickerInicio"
+                       formControlName="fechaInicio"
+                       [min]="obtenerFechaMinima()"
+                       placeholder="Seleccione una fecha">
+                <mat-datepicker-toggle matIconSuffix [for]="pickerInicio"></mat-datepicker-toggle>
+                <mat-datepicker #pickerInicio></mat-datepicker>
+                <mat-icon matPrefix>event</mat-icon>
+                <mat-error *ngIf="aceptarForm.get('fechaInicio')?.hasError('required')">
+                  La fecha de inicio es requerida
+                </mat-error>
+                <mat-error *ngIf="aceptarForm.get('fechaInicio')?.hasError('fechaPasada')">
+                  La fecha no puede ser anterior a hoy
+                </mat-error>
+                <mat-hint>Fecha en que inicia la vigencia</mat-hint>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="half-width">
+                <mat-label>Fecha de Fin</mat-label>
+                <input matInput 
+                       [matDatepicker]="pickerFin"
+                       formControlName="fechaFin"
+                       [min]="obtenerFechaMinima()"
+                       placeholder="Seleccione una fecha">
+                <mat-datepicker-toggle matIconSuffix [for]="pickerFin"></mat-datepicker-toggle>
+                <mat-datepicker #pickerFin></mat-datepicker>
+                <mat-icon matPrefix>event</mat-icon>
+                <mat-error *ngIf="aceptarForm.get('fechaFin')?.hasError('required')">
+                  La fecha de fin es requerida
+                </mat-error>
+                <mat-error *ngIf="aceptarForm.get('fechaFin')?.hasError('fechaPasada')">
+                  La fecha no puede ser anterior a hoy
+                </mat-error>
+                <mat-error *ngIf="aceptarForm.get('fechaFin')?.hasError('fechaFinMenor')">
+                  La fecha de fin debe ser posterior a la de inicio
+                </mat-error>
+                <mat-hint>Fecha en que termina la vigencia</mat-hint>
+              </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Usos Máximos Permitidos</mat-label>
+              <input matInput 
+                     type="number" 
+                     formControlName="usosMaximos"
+                     min="1"
+                     placeholder="Ejemplo: 10">
+              <mat-icon matPrefix>pin</mat-icon>
+              <mat-error *ngIf="aceptarForm.get('usosMaximos')?.hasError('required')">
+                Los usos máximos son requeridos
+              </mat-error>
+              <mat-error *ngIf="aceptarForm.get('usosMaximos')?.hasError('min')">
+                Debe ser al menos 1 uso
+              </mat-error>
+              <mat-hint>Número máximo de veces que puede usar el permiso</mat-hint>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Observaciones</mat-label>
+              <textarea matInput 
+                        formControlName="observaciones"
+                        rows="4"
+                        placeholder="Escriba las observaciones de la aprobación..."></textarea>
+              <mat-icon matPrefix>notes</mat-icon>
+              <mat-hint align="end">{{aceptarForm.get('observaciones')?.value?.length || 0}} caracteres</mat-hint>
+              <mat-error *ngIf="aceptarForm.get('observaciones')?.hasError('required')">
+                Las observaciones son requeridas
+              </mat-error>
+              <mat-error *ngIf="aceptarForm.get('observaciones')?.hasError('minlength')">
+                Mínimo 10 caracteres
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <!-- Selección de Sucursales -->
+          <div class="form-section-accion">
+            <h3 class="form-section-title">
+              <mat-icon>location_on</mat-icon>
+              Sucursales Autorizadas
+            </h3>
+
+            <p class="sucursales-hint">
+              <mat-icon>info</mat-icon>
+              Seleccione las sucursales donde el cliente podrá utilizar este permiso temporal
+            </p>
+
+            <div class="sucursales-seleccion-list">
+              <div class="sucursal-seleccion-item" 
+                   *ngFor="let sucursal of permisoSeleccionado.suscripcionCliente.sucursalesDisponibles"
+                   [class.selected]="esSucursalSeleccionada(sucursal.idSucursal)"
+                   (click)="toggleSucursal(sucursal.idSucursal)">
+                <mat-checkbox [checked]="esSucursalSeleccionada(sucursal.idSucursal)"
+                              (change)="toggleSucursal(sucursal.idSucursal)"
+                              (click)="$event.stopPropagation()">
+                </mat-checkbox>
+                <div class="sucursal-seleccion-info">
+                  <div class="sucursal-seleccion-header">
+                    <mat-icon>place</mat-icon>
+                    <span class="sucursal-seleccion-nombre">{{sucursal.nombre}}</span>
+                  </div>
+                  <span class="sucursal-seleccion-direccion">{{sucursal.direccionCompleta}}, {{sucursal.ciudad}}</span>
+                  <div class="sucursal-seleccion-detalles">
+                    <span><mat-icon>schedule</mat-icon> {{sucursal.horaApertura}} - {{sucursal.horaCierre}}</span>
+                    <span><mat-icon>local_parking</mat-icon> {{sucursal.capacidad2Ruedas}} motos / {{sucursal.capacidad4Ruedas}} autos</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="sucursales-contador" *ngIf="sucursalesSeleccionadas.length > 0">
+              <mat-icon>check_circle</mat-icon>
+              <span>{{sucursalesSeleccionadas.length}} sucursal(es) seleccionada(s)</span>
+            </div>
+
+            <div class="sucursales-error" *ngIf="sucursalesSeleccionadas.length === 0">
+              <mat-icon>error_outline</mat-icon>
+              <span>Debe seleccionar al menos una sucursal para continuar</span>
+            </div>
+          </div>
+
+        </form>
+
+      </div>
+
+      <div class="modal-actions">
+        <button mat-stroked-button 
+                (click)="cerrarModalAceptar()"
+                class="cancel-button-modal">
+          <mat-icon>cancel</mat-icon>
+          Cancelar
+        </button>
+        <button mat-raised-button 
+                [disabled]="!aceptarForm.valid || sucursalesSeleccionadas.length === 0 || isSavingAceptar"
+                (click)="aceptarPermiso()"
+                class="action-button action-button-success">
+          <mat-spinner *ngIf="isSavingAceptar" diameter="20" class="button-spinner"></mat-spinner>
+          <mat-icon *ngIf="!isSavingAceptar">check_circle</mat-icon>
+          <span *ngIf="!isSavingAceptar">Aceptar Permiso</span>
+          <span *ngIf="isSavingAceptar">Procesando...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Rechazar Permiso -->
+  <div class="modal-overlay" *ngIf="mostrarModalRechazar" (click)="cerrarModalRechazar($event)">
+    <div class="encargado-modal modal-accion" (click)="$event.stopPropagation()">
+      
+      <div class="modal-header modal-header-danger">
+        <div class="modal-icon">
+          <mat-icon>cancel</mat-icon>
+        </div>
+        <h2>Rechazar Solicitud de Permiso Temporal</h2>
+      </div>
+
+      <div class="modal-content" *ngIf="permisoSeleccionado">
+        
+        <!-- Resumen de la solicitud -->
+        <div class="resumen-solicitud-card resumen-danger">
+          <h3 class="resumen-title">
+            <mat-icon>warning</mat-icon>
+            Solicitud a Rechazar
+          </h3>
+
+          <div class="resumen-grid">
+            <div class="resumen-item">
+              <label>Cliente:</label>
+              <span class="resumen-value">{{permisoSeleccionado.nombreCompleto}}</span>
+            </div>
+            <div class="resumen-item">
+              <label>Placa Temporal:</label>
+              <span class="resumen-value placa-resumen">{{permisoSeleccionado.placaTemporal}}</span>
+            </div>
+            <div class="resumen-item">
+              <label>Tipo de Vehículo:</label>
+              <span class="resumen-value">{{obtenerTextoTipoVehiculo(permisoSeleccionado.tipoVehiculoPermitido)}}</span>
+            </div>
+            <div class="resumen-item">
+              <label>Motivo:</label>
+              <span class="resumen-value">{{permisoSeleccionado.motivo}}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Formulario de rechazo -->
+        <form [formGroup]="rechazarForm" (ngSubmit)="rechazarPermiso()" class="accion-form">
+          
+          <div class="form-section-accion">
+            <h3 class="form-section-title">
+              <mat-icon>notes</mat-icon>
+              Motivo del Rechazo
+            </h3>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Observaciones del Rechazo</mat-label>
+              <textarea matInput 
+                        formControlName="observaciones"
+                        rows="6"
+                        placeholder="Explique detalladamente el motivo del rechazo..."></textarea>
+              <mat-icon matPrefix>description</mat-icon>
+              <mat-hint align="end">{{rechazarForm.get('observaciones')?.value?.length || 0}} caracteres</mat-hint>
+              <mat-error *ngIf="rechazarForm.get('observaciones')?.hasError('required')">
+                Las observaciones son requeridas
+              </mat-error>
+              <mat-error *ngIf="rechazarForm.get('observaciones')?.hasError('minlength')">
+                Mínimo 10 caracteres
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+        </form>
+
+      </div>
+
+      <div class="modal-actions">
+        <button mat-stroked-button 
+                (click)="cerrarModalRechazar()"
+                class="cancel-button-modal">
+          <mat-icon>close</mat-icon>
+          Cancelar
+        </button>
+        <button mat-raised-button 
+                [disabled]="!rechazarForm.valid || isSavingRechazar"
+                (click)="rechazarPermiso()"
+                class="action-button action-button-danger">
+          <mat-spinner *ngIf="isSavingRechazar" diameter="20" class="button-spinner"></mat-spinner>
+          <mat-icon *ngIf="!isSavingRechazar">cancel</mat-icon>
+          <span *ngIf="!isSavingRechazar">Rechazar Solicitud</span>
+          <span *ngIf="isSavingRechazar">Procesando...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Revocar Permiso -->
+  <div class="modal-overlay" *ngIf="mostrarModalRevocar" (click)="cerrarModalRevocar($event)">
+    <div class="encargado-modal modal-accion" (click)="$event.stopPropagation()">
+      
+      <div class="modal-header modal-header-warning">
+        <div class="modal-icon">
+          <mat-icon>block</mat-icon>
+        </div>
+        <h2>Revocar Permiso Temporal Activo</h2>
+      </div>
+
+      <div class="modal-content" *ngIf="permisoSeleccionado">
+        
+        <!-- Resumen del permiso -->
+        <div class="resumen-solicitud-card resumen-warning">
+          <h3 class="resumen-title">
+            <mat-icon>assignment</mat-icon>
+            Permiso a Revocar
+          </h3>
+
+          <div class="resumen-grid">
+            <div class="resumen-item">
+              <label>Cliente:</label>
+              <span class="resumen-value">{{permisoSeleccionado.nombreCompleto}}</span>
+            </div>
+            <div class="resumen-item">
+              <label>Placa Temporal:</label>
+              <span class="resumen-value placa-resumen">{{permisoSeleccionado.placaTemporal}}</span>
+            </div>
+            <div class="resumen-item">
+              <label>Vigencia:</label>
+              <span class="resumen-value">{{formatearFechaParaMostrar(permisoSeleccionado.fechaInicio)}} - {{formatearFechaParaMostrar(permisoSeleccionado.fechaFin)}}</span>
+            </div>
+            <div class="resumen-item">
+              <label>Usos Realizados:</label>
+              <span class="resumen-value">{{permisoSeleccionado.usosRealizados}} / {{permisoSeleccionado.usosMaximos}}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Formulario de revocación -->
+        <form [formGroup]="revocarForm" (ngSubmit)="revocarPermiso()" class="accion-form">
+          
+          <div class="form-section-accion">
+            <h3 class="form-section-title">
+              <mat-icon>notes</mat-icon>
+              Motivo de la Revocación
+            </h3>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Observaciones de la Revocación</mat-label>
+              <textarea matInput 
+                        formControlName="observaciones"
+                        rows="6"
+                        placeholder="Explique detalladamente el motivo de la revocación..."></textarea>
+              <mat-icon matPrefix>description</mat-icon>
+              <mat-hint align="end">{{revocarForm.get('observaciones')?.value?.length || 0}} caracteres</mat-hint>
+              <mat-error *ngIf="revocarForm.get('observaciones')?.hasError('required')">
+                Las observaciones son requeridas
+              </mat-error>
+              <mat-error *ngIf="revocarForm.get('observaciones')?.hasError('minlength')">
+                Mínimo 10 caracteres
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+        </form>
+
+      </div>
+
+      <div class="modal-actions">
+        <button mat-stroked-button 
+                (click)="cerrarModalRevocar()"
+                class="cancel-button-modal">
+          <mat-icon>close</mat-icon>
+          Cancelar
+        </button>
+        <button mat-raised-button 
+                [disabled]="!revocarForm.valid || isSavingRevocar"
+                (click)="revocarPermiso()"
+                class="action-button action-button-warning">
+          <mat-spinner *ngIf="isSavingRevocar" diameter="20" class="button-spinner"></mat-spinner>
+          <mat-icon *ngIf="!isSavingRevocar">block</mat-icon>
+          <span *ngIf="!isSavingRevocar">Revocar Permiso</span>
+          <span *ngIf="isSavingRevocar">Procesando...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

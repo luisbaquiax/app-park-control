@@ -6,10 +6,10 @@ import { MatChip } from '@angular/material/chips';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabGroup, MatTab } from '@angular/material/tabs';
 import { UserEmpresaService } from '../../../../services/admin-sistema/user-empresa.service';
-import { VehiculoService } from '../../../../services/sucursal/vehiculo-service.service';
-import { UsuarioPersonaRolResponse } from '../../../../models/cliente/usuarioPersonaRolResponse';
 import { VehiculoResponse } from '../../../../models/vehiculo/vehiculoResponse';
 import { VehiculosPropietario } from '../../../../models/vehiculo/vehiculosPropietarios';
+import { VehiculoService } from '../../../../services/sucursal/vehiculo-service.service';
+import { UsuarioPersonaRolResponse } from '../../../../models/cliente/usuarioPersonaRolResponse';
 
 @Component({
   selector: 'app-vehiculos-propietario',
@@ -38,7 +38,7 @@ export class VehiculosPropietarioComponent implements OnInit {
       next: (vehiculos: VehiculosPropietario[]) => {
         this.vehiculos = vehiculos;
       },
-      error: (error) => {
+      error: (error: any) => {
         console.log(error);
       },
     });

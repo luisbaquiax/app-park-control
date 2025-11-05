@@ -10,7 +10,8 @@ import {
   SuscripcionCliente,
   VehiculoResponse,
   Suscripcion,
-  ResponseSuscripcion
+  ResponseSuscripcion,
+  SolicitarPermisoTemporalRequest
 } from '../../../models/cliente/sucursal.model';
 import { COMMON_IMPORTS } from '../../../shared/common-imports';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -40,6 +41,7 @@ export class Subscription implements OnInit {
   // Modales
   mostrarModalCompra = false;
   mostrarModalRenovacion = false;
+  mostrarModalPermisoTemporal = false;
   
   // Suscripción y empresa seleccionadas
   suscripcionSeleccionada: Suscripcion | null = null;
@@ -49,6 +51,7 @@ export class Subscription implements OnInit {
   // Formularios
   compraForm: FormGroup;
   renovacionForm: FormGroup;
+  permisoTemporalForm: FormGroup;
   
   // Opciones de formulario
   periodos = [
@@ -64,6 +67,11 @@ export class Subscription implements OnInit {
     { value: 'OTRO', label: 'Otro' }
   ];
 
+  tiposVehiculoPermiso = [
+    { value: 'DOS_RUEDAS', label: '2 Ruedas (Moto)' },
+    { value: 'CUATRO_RUEDAS', label: '4 Ruedas (Auto)' }
+  ];
+
   constructor(private fb: FormBuilder, private suscripcionService: SuscripcionService, private snackBar: MatSnackBar) {
     this.idCliente = Number(sessionStorage.getItem('idUsuario')) || 0;
     this.compraForm = this.fb.group({
@@ -74,6 +82,11 @@ export class Subscription implements OnInit {
     this.renovacionForm = this.fb.group({
       nuevoPeriodoContratado: [null, Validators.required],
       metodoPago: [null, Validators.required]
+    });
+    this.permisoTemporalForm = this.fb.group({
+      placaTemporal: ['', [Validators.required, Validators.pattern(/^[A-Z0-9]{1,10}$/)]],
+      tipoVehiculoPermitido: [null, Validators.required],
+      motivo: ['', [Validators.required, Validators.minLength(10)]]
     });
   }
 
@@ -225,6 +238,55 @@ export class Subscription implements OnInit {
       },
       error: (error) => {
         const mensajeError = error.error?.message || 'Error al renovar suscripción';
+        this.mostrarMensaje(mensajeError, 'error');
+        this.isLoading = false;
+      }
+    });
+  }
+
+  abrirModalPermisoTemporal(suscripcion: SuscripcionCliente): void {
+    this.suscripcionActivaSeleccionada = suscripcion;
+    this.mostrarModalPermisoTemporal = true;
+    this.permisoTemporalForm.reset();
+    
+    if (this.vehiculos.length === 0) {
+      this.cargarVehiculos();
+    }
+  }
+
+  cerrarModalPermisoTemporal(event?: Event): void {
+    if (event) {
+      event.stopPropagation();
+    }
+    this.mostrarModalPermisoTemporal = false;
+    this.suscripcionActivaSeleccionada = null;
+    this.permisoTemporalForm.reset();
+  }
+
+  solicitarPermisoTemporal(): void {
+    if (this.permisoTemporalForm.invalid || !this.suscripcionActivaSeleccionada) {
+      this.permisoTemporalForm.markAllAsTouched();
+      return;
+    }
+    
+    const formValue = this.permisoTemporalForm.value;
+    
+    const request: SolicitarPermisoTemporalRequest = {
+      idSuscripcion: this.suscripcionActivaSeleccionada.idSuscripcion,
+      placaTemporal: formValue.placaTemporal.toUpperCase(),
+      tipoVehiculoPermitido: formValue.tipoVehiculoPermitido,
+      motivo: formValue.motivo
+    };
+    
+    this.isLoading = true;
+    this.suscripcionService.solicitarPermisoTemporal(request).subscribe({
+      next: (response) => {
+        this.isLoading = false;
+        this.cerrarModalPermisoTemporal();
+        this.mostrarMensaje(response.message, 'success');
+      },
+      error: (error) => {
+        const mensajeError = error.error?.message || 'Error al solicitar permiso temporal';
         this.mostrarMensaje(mensajeError, 'error');
         this.isLoading = false;
       }

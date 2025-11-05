@@ -1,0 +1,778 @@
+<div class="crear-usuario-container">
+  <div class="floating-icons">
+    <div class="icon"><mat-icon>sync_alt</mat-icon></div>
+    <div class="icon"><mat-icon>directions_car</mat-icon></div>
+    <div class="icon"><mat-icon>description</mat-icon></div>
+    <div class="icon"><mat-icon>published_with_changes</mat-icon></div>
+    <div class="icon"><mat-icon>fact_check</mat-icon></div>
+    <div class="icon"><mat-icon>assignment_turned_in</mat-icon></div>
+    <div class="icon"><mat-icon>swap_horiz</mat-icon></div>
+    <div class="icon"><mat-icon>verified</mat-icon></div>
+  </div>
+
+  <mat-card class="usuario-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="header-icon">published_with_changes</mat-icon>
+        Gestión de Cambio de Placa
+      </mat-card-title>
+      <mat-card-subtitle>Solicite cambios de placa y gestione sus solicitudes</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      
+      <!-- Tabs -->
+      <mat-tab-group class="tabs-container" animationDuration="300ms">
+        
+        <!-- TAB 1: Crear Solicitud -->
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon class="tab-icon">add_circle</mat-icon>
+            Nueva Solicitud
+          </ng-template>
+
+          <div class="tab-content">
+            <div class="form-section">
+              <h3 class="section-title">
+                <mat-icon>edit_document</mat-icon>
+                Formulario de Solicitud de Cambio de Placa
+              </h3>
+
+              <form [formGroup]="cambioPlacaForm" (ngSubmit)="guardarSolicitud()" class="usuario-form">
+                
+                <!-- Selección de Suscripción -->
+                <div class="subsection">
+                  <h4 class="subsection-title">
+                    <mat-icon>card_membership</mat-icon>
+                    Seleccionar Suscripción
+                  </h4>
+
+                  <div class="form-row">
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Suscripción Activa</mat-label>
+                      <mat-select formControlName="idSuscripcion" (selectionChange)="onSuscripcionSeleccionada($event)">
+                        <mat-option *ngFor="let suscripcion of suscripcionesActivas" [value]="suscripcion.idSuscripcion">
+                          {{obtenerDescripcionSuscripcion(suscripcion)}}
+                        </mat-option>
+                      </mat-select>
+                      <mat-icon matPrefix>stars</mat-icon>
+                      <mat-error *ngIf="cambioPlacaForm.get('idSuscripcion')?.hasError('required')">
+                        Debe seleccionar una suscripción
+                      </mat-error>
+                      <mat-hint *ngIf="isLoadingSuscripciones">Cargando suscripciones...</mat-hint>
+                    </mat-form-field>
+                  </div>
+                </div>
+
+                <!-- Información del Vehículo Actual -->
+                <div class="subsection">
+                  <h4 class="subsection-title">
+                    <mat-icon>directions_car</mat-icon>
+                    Vehículo Actual de la Suscripción
+                  </h4>
+
+                  <div class="form-row">
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Vehículo Actual</mat-label>
+                      <mat-select formControlName="idVehiculoActual" (selectionChange)="onVehiculoSeleccionado($event)">
+                        <mat-option *ngFor="let vehiculo of vehiculosDisponibles" [value]="vehiculo.idVehiculo">
+                          {{vehiculo.placa}} - {{vehiculo.marca}} {{vehiculo.modelo}} ({{vehiculo.color}})
+                        </mat-option>
+                      </mat-select>
+                      <mat-icon matPrefix>directions_car</mat-icon>
+                      <mat-error *ngIf="cambioPlacaForm.get('idVehiculoActual')?.hasError('required')">
+                        Debe seleccionar el vehículo actual
+                      </mat-error>
+                      <mat-hint>Este vehículo será reemplazado en la suscripción</mat-hint>
+                    </mat-form-field>
+                  </div>
+                </div>
+
+                <!-- Información del Vehículo Nuevo -->
+                <div class="subsection">
+                  <h4 class="subsection-title">
+                    <mat-icon>new_label</mat-icon>
+                    Nueva Placa del Vehículo
+                  </h4>
+
+                  <div class="form-row">
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Seleccione la Nueva Placa</mat-label>
+                      <mat-select formControlName="placaNueva" (selectionChange)="onPlacaNuevaSeleccionada($event)">
+                        <mat-option *ngFor="let vehiculo of vehiculosDisponibles" [value]="vehiculo.placa">
+                          {{vehiculo.placa}} - {{vehiculo.marca}} {{vehiculo.modelo}}
+                        </mat-option>
+                      </mat-select>
+                      <mat-icon matPrefix>credit_card</mat-icon>
+                      <mat-error *ngIf="cambioPlacaForm.get('placaNueva')?.hasError('required')">
+                        Debe seleccionar la nueva placa
+                      </mat-error>
+                      <mat-hint>Seleccione la placa del vehículo que reemplazará al actual</mat-hint>
+                    </mat-form-field>
+                  </div>
+                </div>
+
+                <!-- Motivo del Cambio -->
+                <div class="subsection">
+                  <h4 class="subsection-title">
+                    <mat-icon>help_outline</mat-icon>
+                    Motivo del Cambio
+                  </h4>
+
+                  <div class="form-row">
+                    <mat-form-field appearance="outline" class="half-width">
+                      <mat-label>Motivo Principal</mat-label>
+                      <mat-select formControlName="motivo">
+                        <mat-option *ngFor="let motivo of motivosCambio" [value]="motivo.value">
+                          {{motivo.label}}
+                        </mat-option>
+                      </mat-select>
+                      <mat-icon matPrefix>category</mat-icon>
+                      <mat-error *ngIf="cambioPlacaForm.get('motivo')?.hasError('required')">
+                        Seleccione un motivo
+                      </mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="half-width">
+                      <mat-label>Descripción del Motivo</mat-label>
+                      <input matInput 
+                             formControlName="descripcionMotivo"
+                             placeholder="Describa el motivo del cambio">
+                      <mat-icon matPrefix>notes</mat-icon>
+                      <mat-hint align="end">{{cambioPlacaForm.get('descripcionMotivo')?.value?.length || 0}} caracteres</mat-hint>
+                      <mat-error *ngIf="cambioPlacaForm.get('descripcionMotivo')?.hasError('required')">
+                        La descripción es requerida
+                      </mat-error>
+                      <mat-error *ngIf="cambioPlacaForm.get('descripcionMotivo')?.hasError('minlength')">
+                        Mínimo 10 caracteres
+                      </mat-error>
+                    </mat-form-field>
+                  </div>
+                </div>
+
+                <!-- Documentación -->
+                <div class="subsection">
+                  <h4 class="subsection-title">
+                    <mat-icon>description</mat-icon>
+                    Documentación de Respaldo
+                  </h4>
+
+                  <div class="form-row">
+                    <mat-form-field appearance="outline" class="half-width">
+                      <mat-label>Tipo de Documento</mat-label>
+                      <mat-select formControlName="tipoDocumento">
+                        <mat-option *ngFor="let tipo of tiposDocumento" [value]="tipo.value">
+                          {{tipo.label}}
+                        </mat-option>
+                      </mat-select>
+                      <mat-icon matPrefix>insert_drive_file</mat-icon>
+                      <mat-error *ngIf="cambioPlacaForm.get('tipoDocumento')?.hasError('required')">
+                        Seleccione el tipo de documento
+                      </mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="half-width">
+                      <mat-label>Descripción del Documento</mat-label>
+                      <input matInput 
+                             formControlName="descripcionEvidencia"
+                             placeholder="Ej: Denuncia por robo ante PNC">
+                      <mat-icon matPrefix>edit_note</mat-icon>
+                      <mat-error *ngIf="cambioPlacaForm.get('descripcionEvidencia')?.hasError('required')">
+                        La descripción es requerida
+                      </mat-error>
+                      <mat-error *ngIf="cambioPlacaForm.get('descripcionEvidencia')?.hasError('minlength')">
+                        Mínimo 5 caracteres
+                      </mat-error>
+                    </mat-form-field>
+                  </div>
+
+                  <!-- Selector de Archivo -->
+                  <div class="file-upload-section">
+                    <div class="file-upload-wrapper">
+                      <input type="file" 
+                             id="archivo-input"
+                             (change)="onArchivoSeleccionado($event)"
+                             accept="image/*,application/pdf,.doc,.docx"
+                             style="display: none;">
+                      
+                      <button mat-raised-button 
+                              type="button"
+                              class="upload-button"
+                              (click)="abrirSelectorArchivo()">
+                        <mat-icon>cloud_upload</mat-icon>
+                        Seleccionar Documento
+                      </button>
+
+                      <div class="file-info" *ngIf="nombreArchivo">
+                        <mat-icon class="file-icon">attach_file</mat-icon>
+                        <span class="file-name">{{nombreArchivo}}</span>
+                        <button mat-icon-button 
+                                type="button"
+                                class="remove-file"
+                                (click)="limpiarArchivo()"
+                                matTooltip="Eliminar archivo">
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      </div>
+
+                      <p class="file-hint" *ngIf="!nombreArchivo">
+                        <mat-icon>info</mat-icon>
+                        Formatos permitidos: Imágenes, PDF, Word (máx. 10MB)
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="form-actions">
+                  <button mat-stroked-button 
+                          type="button" 
+                          class="cancel-button"
+                          (click)="limpiarFormulario()">
+                    <mat-icon>cancel</mat-icon>
+                    Limpiar
+                  </button>
+
+                  <button mat-raised-button 
+                          color="primary" 
+                          type="submit" 
+                          [disabled]="!cambioPlacaForm.valid || !archivoSeleccionado || isSavingSolicitud" 
+                          class="submit-button">
+                    <mat-spinner *ngIf="isSavingSolicitud" diameter="20" class="button-spinner"></mat-spinner>
+                    <mat-icon *ngIf="!isSavingSolicitud">send</mat-icon>
+                    <span *ngIf="!isSavingSolicitud">Enviar Solicitud</span>
+                    <span *ngIf="isSavingSolicitud">Enviando...</span>
+                  </button>
+                </div>
+
+              </form>
+            </div>
+          </div>
+        </mat-tab>
+
+        <!-- TAB 2: Mis Solicitudes -->
+        <mat-tab>
+
+          <!-- Resumen de Estados -->
+          <div class="stats-container">
+            <div class="stat-card pendiente">
+              <mat-icon>schedule</mat-icon>
+              <div class="stat-info">
+                <span class="stat-value">{{contarSolicitudesPorEstado('PENDIENTE')}}</span>
+                <span class="stat-label">Pendientes</span>
+              </div>
+            </div>
+            <div class="stat-card aprobada">
+              <mat-icon>check_circle</mat-icon>
+              <div class="stat-info">
+                <span class="stat-value">{{contarSolicitudesPorEstado('APROBADA')}}</span>
+                <span class="stat-label">Aprobadas</span>
+              </div>
+            </div>
+            <div class="stat-card rechazada">
+              <mat-icon>cancel</mat-icon>
+              <div class="stat-info">
+                <span class="stat-value">{{contarSolicitudesPorEstado('RECHAZADA')}}</span>
+                <span class="stat-label">Rechazadas</span>
+              </div>
+            </div>
+            <div class="stat-card total">
+              <mat-icon>assignment</mat-icon>
+              <div class="stat-info">
+                <span class="stat-value">{{solicitudes.length}}</span>
+                <span class="stat-label">Total</span>
+              </div>
+            </div>
+          </div>
+
+          <ng-template mat-tab-label>
+            <mat-icon class="tab-icon">list_alt</mat-icon>
+            Mis Solicitudes
+          </ng-template>
+
+          <div class="tab-content">
+            
+            <!-- Lista de Solicitudes -->
+            <div class="results-section" *ngIf="solicitudes.length > 0">
+              <h3 class="section-title">
+                <mat-icon>assignment</mat-icon>
+                Historial de Solicitudes ({{solicitudes.length}})
+              </h3>
+
+              <div class="solicitudes-grid">
+                <div class="solicitud-card" *ngFor="let solicitud of solicitudes">
+                  
+                  <!-- Header de la tarjeta -->
+                  <div class="solicitud-header">
+                    <div class="solicitud-id">
+                      <mat-icon>confirmation_number</mat-icon>
+                      <span>Solicitud #{{solicitud.idSolicitudCambio}}</span>
+                    </div>
+                    <mat-chip [class]="obtenerColorEstado(solicitud.estado)">
+                      {{obtenerTextoEstado(solicitud.estado)}}
+                    </mat-chip>
+                  </div>
+
+                  <!-- Información del cambio -->
+                  <div class="solicitud-body">
+                    <div class="info-row">
+                      <div class="info-label">
+                        <mat-icon>event</mat-icon>
+                        Fecha de Solicitud:
+                      </div>
+                      <div class="info-value">{{formatearFechaParaMostrar(solicitud.fechaSolicitud)}}</div>
+                    </div>
+
+                    <div class="info-row">
+                      <div class="info-label">
+                        <mat-icon>swap_horiz</mat-icon>
+                        Cambio de Placa:
+                      </div>
+                      <div class="info-value placa-cambio">
+                        <span class="placa-vieja">{{solicitud.vehiculoActual.placa}}</span>
+                        <mat-icon class="arrow-icon">arrow_forward</mat-icon>
+                        <span class="placa-nueva">{{solicitud.placaNueva}}</span>
+                      </div>
+                    </div>
+
+                    <div class="info-row">
+                      <div class="info-label">
+                        <mat-icon>help_outline</mat-icon>
+                        Motivo:
+                      </div>
+                      <div class="info-value">{{obtenerNombreMotivo(solicitud.motivo)}}</div>
+                    </div>
+
+                    <div class="info-row" *ngIf="solicitud.fechaRevision">
+                      <div class="info-label">
+                        <mat-icon>fact_check</mat-icon>
+                        Fecha de Revisión:
+                      </div>
+                      <div class="info-value">{{formatearFechaParaMostrar(solicitud.fechaRevision)}}</div>
+                    </div>
+                  </div>
+
+                  <!-- Footer de la tarjeta -->
+                  <div class="solicitud-footer">
+                    <button mat-raised-button 
+                            color="primary"
+                            (click)="verDetalles(solicitud)"
+                            class="btn-ver-detalles-card">
+                      <mat-icon>visibility</mat-icon>
+                      Ver Detalles Completos
+                    </button>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <!-- Loading -->
+            <div class="loading-container" *ngIf="isLoadingSolicitudes">
+              <mat-spinner diameter="50"></mat-spinner>
+              <p>Cargando solicitudes...</p>
+            </div>
+
+            <!-- Sin resultados -->
+            <div class="no-results" *ngIf="solicitudes.length === 0 && !isLoadingSolicitudes">
+              <mat-icon>inbox</mat-icon>
+              <p>No hay solicitudes de cambio de placa</p>
+              <p class="hint">Las solicitudes que realice aparecerán aquí</p>
+            </div>
+
+          </div>
+        </mat-tab>
+
+      </mat-tab-group>
+
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Modal de Detalles Completos -->
+  <div class="modal-overlay" *ngIf="mostrarModalDetalles" (click)="cerrarModalDetalles($event)">
+    <div class="encargado-modal modal-detalles-grande" (click)="$event.stopPropagation()">
+      
+      <div class="modal-header">
+        <div class="modal-icon">
+          <mat-icon>assignment</mat-icon>
+        </div>
+        <h2>Detalles Completos de la Solicitud</h2>
+      </div>
+
+      <div class="modal-content" *ngIf="solicitudSeleccionada">
+        
+        <!-- Estado de la Solicitud -->
+        <div class="estado-banner" [class]="'estado-banner-' + solicitudSeleccionada.estado.toLowerCase()">
+          <mat-icon>info</mat-icon>
+          <div class="estado-info">
+            <span class="estado-titulo">Estado Actual:</span>
+            <span class="estado-valor">{{obtenerTextoEstado(solicitudSeleccionada.estado)}}</span>
+          </div>
+        </div>
+
+        <!-- Grid de 2 Columnas -->
+        <div class="modal-grid-container">
+          
+          <!-- Columna Izquierda -->
+          <div class="modal-column">
+
+            <!-- Información General -->
+            <div class="info-section-compact">
+              <h3 class="info-section-title-compact">
+                <mat-icon>description</mat-icon>
+                Información General
+              </h3>
+              
+              <div class="info-list">
+                <div class="info-item-compact">
+                  <label>ID Solicitud:</label>
+                  <span>#{{solicitudSeleccionada.idSolicitudCambio}}</span>
+                </div>
+                <div class="info-item-compact">
+                  <label>Fecha de Solicitud:</label>
+                  <span>{{formatearFechaParaMostrar(solicitudSeleccionada.fechaSolicitud)}}</span>
+                </div>
+                <div class="info-item-compact">
+                  <label>Motivo:</label>
+                  <span>{{obtenerNombreMotivo(solicitudSeleccionada.motivo)}}</span>
+                </div>
+                <div class="info-item-compact full-width-compact">
+                  <label>Descripción del Motivo:</label>
+                  <span class="text-wrap">{{solicitudSeleccionada.descripcionMotivo}}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Vehículo Actual -->
+            <div class="info-section-compact">
+              <h3 class="info-section-title-compact">
+                <mat-icon>directions_car</mat-icon>
+                Vehículo Actual
+              </h3>
+              
+              <div class="vehiculo-card old-vehicle">
+                <div class="vehiculo-placa">
+                  <mat-icon>credit_card</mat-icon>
+                  <span>{{solicitudSeleccionada.vehiculoActual.placa}}</span>
+                </div>
+                <div class="vehiculo-details">
+                  <div class="detail-row">
+                    <mat-icon>directions_car</mat-icon>
+                    <span>{{solicitudSeleccionada.vehiculoActual.marca}} {{solicitudSeleccionada.vehiculoActual.modelo}}</span>
+                  </div>
+                  <div class="detail-row">
+                    <mat-icon>palette</mat-icon>
+                    <span>{{solicitudSeleccionada.vehiculoActual.color}}</span>
+                  </div>
+                  <div class="detail-row">
+                    <mat-icon>{{obtenerIconoTipoVehiculo(solicitudSeleccionada.vehiculoActual.tipoVehiculo)}}</mat-icon>
+                    <span>{{obtenerTextoTipoVehiculo(solicitudSeleccionada.vehiculoActual.tipoVehiculo)}}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Vehículo Nuevo -->
+            <div class="info-section-compact">
+              <h3 class="info-section-title-compact">
+                <mat-icon>new_label</mat-icon>
+                Vehículo Nuevo
+              </h3>
+              
+              <div class="vehiculo-card new-vehicle">
+                <div class="vehiculo-placa">
+                  <mat-icon>credit_card</mat-icon>
+                  <span>{{solicitudSeleccionada.vehiculoNuevo.placa}}</span>
+                </div>
+                <div class="vehiculo-details">
+                  <div class="detail-row">
+                    <mat-icon>directions_car</mat-icon>
+                    <span>{{solicitudSeleccionada.vehiculoNuevo.marca}} {{solicitudSeleccionada.vehiculoNuevo.modelo}}</span>
+                  </div>
+                  <div class="detail-row">
+                    <mat-icon>palette</mat-icon>
+                    <span>{{solicitudSeleccionada.vehiculoNuevo.color}}</span>
+                  </div>
+                  <div class="detail-row">
+                    <mat-icon>{{obtenerIconoTipoVehiculo(solicitudSeleccionada.vehiculoNuevo.tipoVehiculo)}}</mat-icon>
+                    <span>{{obtenerTextoTipoVehiculo(solicitudSeleccionada.vehiculoNuevo.tipoVehiculo)}}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Documento de Evidencia -->
+            <div class="info-section-compact">
+              <h3 class="info-section-title-compact">
+                <mat-icon>insert_drive_file</mat-icon>
+                Documento de Respaldo
+              </h3>
+              
+              <div class="documento-compact-card">
+                <div class="documento-header-compact">
+                  <mat-chip class="chip-documento">{{obtenerNombreTipoDocumento(solicitudSeleccionada.evidenciaCambioPlaca.tipoDocumento)}}</mat-chip>
+                  <span class="documento-fecha">{{formatearFechaParaMostrar(solicitudSeleccionada.evidenciaCambioPlaca.fechaCarga)}}</span>
+                </div>
+                
+                <div class="documento-preview-compact">
+                  <img *ngIf="esImagen(solicitudSeleccionada.evidenciaCambioPlaca.nombreArchivo)" 
+                       [src]="solicitudSeleccionada.evidenciaCambioPlaca.urlDocumento" 
+                       [alt]="solicitudSeleccionada.evidenciaCambioPlaca.descripcion"
+                       class="documento-imagen-compact">
+                  
+                  <div *ngIf="esPdf(solicitudSeleccionada.evidenciaCambioPlaca.nombreArchivo)" class="documento-icon-compact icon-pdf">
+                    <mat-icon>picture_as_pdf</mat-icon>
+                    <span>PDF</span>
+                  </div>
+
+                  <div *ngIf="esDocumento(solicitudSeleccionada.evidenciaCambioPlaca.nombreArchivo)" class="documento-icon-compact icon-doc">
+                    <mat-icon>description</mat-icon>
+                    <span>Word</span>
+                  </div>
+                </div>
+
+                <div class="documento-info-compact">
+                  <p class="documento-descripcion-compact">{{solicitudSeleccionada.evidenciaCambioPlaca.descripcion}}</p>
+                  <p class="documento-nombre-compact">
+                    <mat-icon>attach_file</mat-icon>
+                    {{solicitudSeleccionada.evidenciaCambioPlaca.nombreArchivo}}
+                  </p>
+                  <a [href]="solicitudSeleccionada.evidenciaCambioPlaca.urlDocumento" 
+                     (click)="abrirODescargarArchivo(solicitudSeleccionada.evidenciaCambioPlaca.urlDocumento, solicitudSeleccionada.evidenciaCambioPlaca.nombreArchivo, $event)"
+                     mat-raised-button 
+                     color="primary"
+                     class="btn-documento-compact">
+                    <mat-icon>{{obtenerIconoBoton(solicitudSeleccionada.evidenciaCambioPlaca.nombreArchivo)}}</mat-icon>
+                    {{obtenerTextoBoton(solicitudSeleccionada.evidenciaCambioPlaca.nombreArchivo)}}
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Información de Revisión -->
+            <div class="info-section-compact" *ngIf="solicitudSeleccionada.fechaRevision">
+              <h3 class="info-section-title-compact">
+                <mat-icon>rate_review</mat-icon>
+                Revisión de la Solicitud
+              </h3>
+              
+              <div class="info-list">
+                <div class="info-item-compact">
+                  <label>Fecha de Revisión:</label>
+                  <span>{{formatearFechaLegible(solicitudSeleccionada.fechaRevision)}}</span>
+                </div>
+                <div class="info-item-compact" *ngIf="solicitudSeleccionada.fechaEfectiva">
+                  <label>Fecha Efectiva:</label>
+                  <span>{{formatearFechaLegible(solicitudSeleccionada.fechaEfectiva)}}</span>
+                </div>
+                <div class="info-item-compact full-width-compact" *ngIf="solicitudSeleccionada.observacionesRevision">
+                  <label>Observaciones:</label>
+                  <span class="text-wrap observaciones-text">{{solicitudSeleccionada.observacionesRevision}}</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Columna Derecha -->
+          <div class="modal-column">
+
+            <!-- Información de la Suscripción -->
+            <div class="info-section-compact">
+              <h3 class="info-section-title-compact">
+                <mat-icon>card_membership</mat-icon>
+                Suscripción Activa
+              </h3>
+              
+              <div class="suscripcion-card">
+                <div class="suscripcion-header">
+                  <mat-icon>stars</mat-icon>
+                  <span class="plan-nombre">{{solicitudSeleccionada.suscripcionCliente.tipoPlanSuscripcionDTO.nombrePlan}}</span>
+                  <mat-chip [class]="'chip-' + solicitudSeleccionada.suscripcionCliente.estadoSuscripcion.toLowerCase()">
+                    {{solicitudSeleccionada.suscripcionCliente.estadoSuscripcion}}
+                  </mat-chip>
+                </div>
+
+                <div class="info-list">
+                  <div class="info-item-compact">
+                    <label>ID Suscripción:</label>
+                    <span>#{{solicitudSeleccionada.suscripcionCliente.idSuscripcion}}</span>
+                  </div>
+                  <div class="info-item-compact">
+                    <label>Código del Plan:</label>
+                    <span>{{solicitudSeleccionada.suscripcionCliente.tipoPlanSuscripcionDTO.codigoPlan}}</span>
+                  </div>
+                  <div class="info-item-compact">
+                    <label>Período Contratado:</label>
+                    <span>{{solicitudSeleccionada.suscripcionCliente.periodoContratado}}</span>
+                  </div>
+                  <div class="info-item-compact full-width-compact">
+                    <label>Descripción:</label>
+                    <span class="text-wrap">{{solicitudSeleccionada.suscripcionCliente.tipoPlanSuscripcionDTO.descripcion}}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Detalles del Plan -->
+            <div class="info-section-compact">
+              <h3 class="info-section-title-compact">
+                <mat-icon>schedule</mat-icon>
+                Detalles del Plan
+              </h3>
+              
+              <div class="info-list">
+                <div class="info-item-compact">
+                  <label>Horas por Día:</label>
+                  <span>{{solicitudSeleccionada.suscripcionCliente.tipoPlanSuscripcionDTO.horasDia}} horas</span>
+                </div>
+                <div class="info-item-compact">
+                  <label>Horas Mensuales:</label>
+                  <span>{{solicitudSeleccionada.suscripcionCliente.horasMensualesIncluidas}} horas</span>
+                </div>
+                <div class="info-item-compact">
+                  <label>Horas Consumidas:</label>
+                  <span class="consumo-horas">{{solicitudSeleccionada.suscripcionCliente.horasConsumidas}} / {{solicitudSeleccionada.suscripcionCliente.horasMensualesIncluidas}}</span>
+                </div>
+                <div class="info-item-compact">
+                  <label>Días Aplicables:</label>
+                  <span>{{solicitudSeleccionada.suscripcionCliente.tipoPlanSuscripcionDTO.diasAplicables}}</span>
+                </div>
+                <div class="info-item-compact full-width-compact">
+                  <label>Cobertura Horaria:</label>
+                  <span>{{solicitudSeleccionada.suscripcionCliente.tipoPlanSuscripcionDTO.coberturaHoraria}}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Información Financiera -->
+            <div class="info-section-compact">
+              <h3 class="info-section-title-compact">
+                <mat-icon>payments</mat-icon>
+                Información Financiera
+              </h3>
+              
+              <div class="pricing-card">
+                <div class="info-list">
+                  <div class="info-item-compact">
+                    <label>Precio Base del Plan:</label>
+                    <span>{{formatearMoneda(solicitudSeleccionada.suscripcionCliente.tipoPlanSuscripcionDTO.precioPlan)}}</span>
+                  </div>
+                  <div class="info-item-compact">
+                    <label>Tarifa Base Ref.:</label>
+                    <span>{{formatearMoneda(solicitudSeleccionada.suscripcionCliente.tarifaBaseReferencia)}}</span>
+                  </div>
+                  <div class="info-item-compact">
+                    <label>Descuento Aplicado:</label>
+                    <span class="descuento-text">{{solicitudSeleccionada.suscripcionCliente.descuentoAplicado}}%</span>
+                  </div>
+                  <div class="info-item-compact precio-final-item">
+                    <label>Precio Final:</label>
+                    <span class="precio-final-valor">{{formatearMoneda(calcularPrecioFinal(solicitudSeleccionada.suscripcionCliente))}}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Configuración de Descuento -->
+            <div class="info-section-compact" *ngIf="solicitudSeleccionada.suscripcionCliente.tipoPlanSuscripcionDTO.configuracionDescuento">
+              <h3 class="info-section-title-compact">
+                <mat-icon>local_offer</mat-icon>
+                Configuración de Descuento
+              </h3>
+              
+              <div class="info-list">
+                <div class="info-item-compact">
+                  <label>Descuento Mensual:</label>
+                  <span>{{solicitudSeleccionada.suscripcionCliente.tipoPlanSuscripcionDTO.configuracionDescuento.descuentoMensual}}%</span>
+                </div>
+                <div class="info-item-compact">
+                  <label>Descuento Anual Adicional:</label>
+                  <span>{{solicitudSeleccionada.suscripcionCliente.tipoPlanSuscripcionDTO.configuracionDescuento.descuentoAnualAdicional}}%</span>
+                </div>
+                <div class="info-item-compact">
+                  <label>Vigencia Inicio:</label>
+                  <span>{{formatearFechaParaMostrar(solicitudSeleccionada.suscripcionCliente.tipoPlanSuscripcionDTO.configuracionDescuento.fechaVigenciaInicio)}}</span>
+                </div>
+                <div class="info-item-compact">
+                  <label>Vigencia Fin:</label>
+                  <span>{{formatearFechaParaMostrar(solicitudSeleccionada.suscripcionCliente.tipoPlanSuscripcionDTO.configuracionDescuento.fechaVigenciaFin)}}</span>
+                </div>
+                <div class="info-item-compact">
+                  <label>Estado Configuración:</label>
+                  <span>{{solicitudSeleccionada.suscripcionCliente.tipoPlanSuscripcionDTO.configuracionDescuento.estadoConfiguracion}}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Fechas de la Suscripción -->
+            <div class="info-section-compact">
+              <h3 class="info-section-title-compact">
+                <mat-icon>event</mat-icon>
+                Fechas de la Suscripción
+              </h3>
+              
+              <div class="info-list">
+                <div class="info-item-compact">
+                  <label>Fecha de Compra:</label>
+                  <span>{{formatearFechaParaMostrar(solicitudSeleccionada.suscripcionCliente.fechaCompra)}}</span>
+                </div>
+                <div class="info-item-compact">
+                  <label>Fecha de Inicio:</label>
+                  <span>{{formatearFechaParaMostrar(solicitudSeleccionada.suscripcionCliente.fechaInicio)}}</span>
+                </div>
+                <div class="info-item-compact">
+                  <label>Fecha de Fin:</label>
+                  <span>{{formatearFechaParaMostrar(solicitudSeleccionada.suscripcionCliente.fechaFin)}}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sucursales Disponibles -->
+            <div class="info-section-compact" *ngIf="solicitudSeleccionada.suscripcionCliente.sucursalesDisponibles.length > 0">
+              <h3 class="info-section-title-compact">
+                <mat-icon>location_on</mat-icon>
+                Sucursales Disponibles ({{solicitudSeleccionada.suscripcionCliente.sucursalesDisponibles.length}})
+              </h3>
+              
+              <div class="sucursales-list">
+                <div class="sucursal-compact-card" *ngFor="let sucursal of solicitudSeleccionada.suscripcionCliente.sucursalesDisponibles">
+                  <div class="sucursal-compact-header">
+                    <mat-icon>place</mat-icon>
+                    <span class="sucursal-nombre">{{sucursal.nombre}}</span>
+                    <mat-chip [class]="'chip-' + sucursal.estado.toLowerCase()">{{sucursal.estado}}</mat-chip>
+                  </div>
+                  <div class="sucursal-compact-details">
+                    <div class="detail-row-compact">
+                      <mat-icon>location_on</mat-icon>
+                      <span>{{sucursal.direccionCompleta}}, {{sucursal.ciudad}}, {{sucursal.departamento}}</span>
+                    </div>
+                    <div class="detail-row-compact">
+                      <mat-icon>schedule</mat-icon>
+                      <span>{{sucursal.horaApertura}} - {{sucursal.horaCierre}}</span>
+                    </div>
+                    <div class="detail-row-compact">
+                      <mat-icon>local_parking</mat-icon>
+                      <span>Capacidad: {{sucursal.capacidad2Ruedas}} motos / {{sucursal.capacidad4Ruedas}} autos</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button mat-raised-button 
+                color="primary" 
+                (click)="cerrarModalDetalles()"
+                class="close-button">
+          <mat-icon>close</mat-icon>
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

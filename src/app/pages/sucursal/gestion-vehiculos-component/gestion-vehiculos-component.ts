@@ -6,27 +6,38 @@ import { MatChip } from '@angular/material/chips';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabGroup, MatTab } from '@angular/material/tabs';
 import { MatDialog } from '@angular/material/dialog';
+import { MatMenu } from '@angular/material/menu';
+import { MatSelect } from '@angular/material/select';
+import { MatMenuTrigger } from '@angular/material/menu';
 //models and services
 import { EmpresaResponse } from '../../../models/admin/EmpresaResponse';
-import { UsuarioPersonaRolResponse } from '../../../models/cliente/usuarioPersonaRolResponse';
 import { UserEmpresaService } from '../../../services/admin-sistema/user-empresa.service';
-import { VehiculoService } from '../../../services/sucursal/vehiculo-service.service';
 import { VehiculoResponse } from '../../../models/vehiculo/vehiculoResponse';
 import { VehiculoRequest } from '../../../models/vehiculo/vehiculoRequest';
-import { MessageSuccess } from '../../../models/extras/messages_success';
-import { ESTADOS_VEHICULOS } from '../../../models/extras/estadoVehiculo';
 import { DialogStatus } from './dialog-status/dialog-status';
+import { ESTADOS_VEHICULOS } from '../../../models/extras/estadoVehiculo';
+import { VehiculoService } from '../../../services/sucursal/vehiculo-service.service';
+import { MessageSuccess } from '../../../models/extras/messages_success';
+import { UsuarioPersonaRolResponse } from '../../../models/cliente/usuarioPersonaRolResponse';
+import { TYPE_ERRORS_API } from '../../../models/extras/type_erros';
 
 @Component({
   selector: 'app-gestion-vehiculos-component',
   standalone: true,
-  imports: [...COMMON_IMPORTS, MatTableModule, MatTabGroup, MatTab],
+  imports: [
+    ...COMMON_IMPORTS,
+    MatTableModule,
+    MatTabGroup,
+    MatTab,
+    MatMenu,
+    MatSelect,
+    MatMenuTrigger,
+  ],
   templateUrl: './gestion-vehiculos-component.html',
   styleUrl: './gestion-vehiculos-component.scss',
 })
 export class GestionVehiculosComponent implements OnInit {
   vehiculoForm: FormGroup;
-  hidePassword = true;
   isLoading = false;
   isLoadingCars = false;
 
@@ -156,8 +167,8 @@ export class GestionVehiculosComponent implements OnInit {
       error: (error) => {
         console.log(error);
         this.isLoading = false;
-        if (error.status == 500) {
-          this.showMessage(`No se pudo actualizar el vehiculo, intente nuevamente.`, 'error');
+        if (TYPE_ERRORS_API.includes(error.status)) {
+          this.showMessage(error.error.message, 'error');
         } else {
           this.showMessage(error.error.message, 'error');
         }

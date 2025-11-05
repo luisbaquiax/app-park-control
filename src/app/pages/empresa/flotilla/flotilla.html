@@ -1,0 +1,799 @@
+<div class="crear-usuario-container">
+  <div class="floating-icons">
+    <div class="icon"><mat-icon>directions_car</mat-icon></div>
+    <div class="icon"><mat-icon>local_shipping</mat-icon></div>
+    <div class="icon"><mat-icon>business</mat-icon></div>
+    <div class="icon"><mat-icon>two_wheeler</mat-icon></div>
+    <div class="icon"><mat-icon>commute</mat-icon></div>
+    <div class="icon"><mat-icon>departure_board</mat-icon></div>
+    <div class="icon"><mat-icon>card_membership</mat-icon></div>
+    <div class="icon"><mat-icon>corporate_fare</mat-icon></div>
+  </div>
+
+  <mat-card class="usuario-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="header-icon">business_center</mat-icon>
+        Gestión de Flotillas Corporativas
+      </mat-card-title>
+      <mat-card-subtitle>Administre empresas flotilla, planes corporativos y vehículos suscritos</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="content-wrapper">
+        
+        <!-- Tabs -->
+        <mat-tab-group [(selectedIndex)]="tabSeleccionado" class="custom-tabs">
+          
+          <!-- TAB 1: CREAR EMPRESA Y PLAN -->
+          <mat-tab label="Crear Empresa y Plan">
+            <ng-template matTabLabel>
+              <mat-icon class="tab-icon">add_business</mat-icon>
+              <span>Crear Empresa y Plan</span>
+            </ng-template>
+
+            <div class="tab-content">
+              
+              <!-- FORMULARIO CREAR EMPRESA FLOTILLA -->
+              <div class="form-section">
+                <h3 class="section-title">
+                  <mat-icon>business</mat-icon>
+                  Nueva Empresa Flotilla
+                </h3>
+
+                <form [formGroup]="formEmpresa" class="flotilla-form">
+                  <div class="form-grid">
+                    
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Nombre de la Empresa</mat-label>
+                      <input matInput 
+                             formControlName="nombreEmpresa" 
+                             placeholder="Ej: Transportes del Norte S.A.">
+                      <mat-icon matPrefix>business</mat-icon>
+                      <mat-error *ngIf="formEmpresa.get('nombreEmpresa')?.hasError('required')">
+                        El nombre es requerido
+                      </mat-error>
+                      <mat-error *ngIf="formEmpresa.get('nombreEmpresa')?.hasError('minlength')">
+                        Mínimo 3 caracteres
+                      </mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Razón Social</mat-label>
+                      <input matInput 
+                             formControlName="razonSocial" 
+                             placeholder="Ej: Transportes del Norte Sociedad Anónima">
+                      <mat-icon matPrefix>description</mat-icon>
+                      <mat-error *ngIf="formEmpresa.get('razonSocial')?.hasError('required')">
+                        La razón social es requerida
+                      </mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                      <mat-label>NIT</mat-label>
+                      <input matInput 
+                             formControlName="nit" 
+                             placeholder="Ej: 12345678-9">
+                      <mat-icon matPrefix>badge</mat-icon>
+                      <mat-error *ngIf="formEmpresa.get('nit')?.hasError('required')">
+                        El NIT es requerido
+                      </mat-error>
+                      <mat-error *ngIf="formEmpresa.get('nit')?.hasError('pattern')">
+                        Formato inválido
+                      </mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                      <mat-label>Teléfono</mat-label>
+                      <input matInput 
+                             formControlName="telefono" 
+                             placeholder="Ej: +502 1234-5678">
+                      <mat-icon matPrefix>phone</mat-icon>
+                      <mat-error *ngIf="formEmpresa.get('telefono')?.hasError('required')">
+                        El teléfono es requerido
+                      </mat-error>
+                      <mat-error *ngIf="formEmpresa.get('telefono')?.hasError('pattern')">
+                        Formato inválido
+                      </mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Correo de Contacto</mat-label>
+                      <input matInput 
+                             type="email"
+                             formControlName="correoContacto" 
+                             placeholder="Ej: contacto@empresa.com">
+                      <mat-icon matPrefix>email</mat-icon>
+                      <mat-error *ngIf="formEmpresa.get('correoContacto')?.hasError('required')">
+                        El correo es requerido
+                      </mat-error>
+                      <mat-error *ngIf="formEmpresa.get('correoContacto')?.hasError('email')">
+                        Correo inválido
+                      </mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Dirección</mat-label>
+                      <textarea matInput 
+                                formControlName="direccion" 
+                                rows="3"
+                                placeholder="Ej: Zona 10, Ciudad de Guatemala">
+                      </textarea>
+                      <mat-icon matPrefix>location_on</mat-icon>
+                      <mat-error *ngIf="formEmpresa.get('direccion')?.hasError('required')">
+                        La dirección es requerida
+                      </mat-error>
+                      <mat-error *ngIf="formEmpresa.get('direccion')?.hasError('minlength')">
+                        Mínimo 10 caracteres
+                      </mat-error>
+                    </mat-form-field>
+
+                  </div>
+
+                  <div class="form-actions">
+                    <button mat-raised-button 
+                            type="button"
+                            (click)="formEmpresa.reset()"
+                            [disabled]="isCreatingEmpresa"
+                            class="btn-cancelar">
+                      <mat-icon>clear</mat-icon>
+                      Limpiar
+                    </button>
+                    <button mat-raised-button 
+                            type="button"
+                            (click)="crearEmpresaFlotilla()"
+                            [disabled]="isCreatingEmpresa"
+                            class="btn-crear">
+                      <mat-spinner *ngIf="isCreatingEmpresa" diameter="20" class="button-spinner"></mat-spinner>
+                      <mat-icon *ngIf="!isCreatingEmpresa">add_business</mat-icon>
+                      <span *ngIf="!isCreatingEmpresa">Crear Empresa</span>
+                      <span *ngIf="isCreatingEmpresa">Creando...</span>
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+              <!-- DIVISOR -->
+              <div class="section-divider"></div>
+
+              <!-- FORMULARIO CREAR PLAN CORPORATIVO -->
+              <div class="form-section">
+                <h3 class="section-title">
+                  <mat-icon>card_membership</mat-icon>
+                  Nuevo Plan Corporativo
+                </h3>
+
+                <form [formGroup]="formPlanCorporativo" class="flotilla-form">
+                  <div class="form-grid">
+                    
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Empresa Flotilla</mat-label>
+                      <mat-select formControlName="idEmpresaFlotilla">
+                        <mat-option *ngFor="let empresa of obtenerEmpresasActivas()" 
+                                    [value]="empresa.idEmpresaFlotilla">
+                          {{empresa.nombreEmpresa}}
+                        </mat-option>
+                      </mat-select>
+                      <mat-icon matPrefix>business</mat-icon>
+                      <mat-error *ngIf="formPlanCorporativo.get('idEmpresaFlotilla')?.hasError('required')">
+                        Debe seleccionar una empresa
+                      </mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Tipo de Plan</mat-label>
+                      <mat-select formControlName="idTipoPlan">
+                        <mat-option *ngFor="let plan of planesVigentes" 
+                                    [value]="plan.id">
+                          {{plan.nombrePlan}} - {{formatearMoneda(plan.precioPlan)}}
+                        </mat-option>
+                      </mat-select>
+                      <mat-icon matPrefix>category</mat-icon>
+                      <mat-error *ngIf="formPlanCorporativo.get('idTipoPlan')?.hasError('required')">
+                        Debe seleccionar un tipo de plan
+                      </mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>Nombre del Plan Corporativo</mat-label>
+                      <input matInput 
+                             formControlName="nombrePlanCorporativo" 
+                             placeholder="Ej: Plan Ejecutivo 2024">
+                      <mat-icon matPrefix>label</mat-icon>
+                      <mat-error *ngIf="formPlanCorporativo.get('nombrePlanCorporativo')?.hasError('required')">
+                        El nombre es requerido
+                      </mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                      <mat-label>Número de Placas Contratadas</mat-label>
+                      <input matInput 
+                             type="number"
+                             formControlName="numeroPlacasContratadas" 
+                             placeholder="Ej: 10">
+                      <mat-icon matPrefix>confirmation_number</mat-icon>
+                      <mat-error *ngIf="formPlanCorporativo.get('numeroPlacasContratadas')?.hasError('required')">
+                        Requerido
+                      </mat-error>
+                      <mat-error *ngIf="formPlanCorporativo.get('numeroPlacasContratadas')?.hasError('min')">
+                        Mínimo 1
+                      </mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                      <mat-label>Descuento Adicional (%)</mat-label>
+                      <input matInput 
+                             type="number"
+                             formControlName="descuentoCorporativoAdicional" 
+                             placeholder="Ej: 10">
+                      <mat-icon matPrefix>percent</mat-icon>
+                      <mat-error *ngIf="formPlanCorporativo.get('descuentoCorporativoAdicional')?.hasError('required')">
+                        Requerido
+                      </mat-error>
+                      <mat-error *ngIf="formPlanCorporativo.get('descuentoCorporativoAdicional')?.hasError('min') || formPlanCorporativo.get('descuentoCorporativoAdicional')?.hasError('max')">
+                        Entre 0 y 100
+                      </mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                      <mat-label>Precio del Plan</mat-label>
+                      <input matInput 
+                             type="number"
+                             formControlName="precioPlanCorporativo" 
+                             placeholder="Ej: 5000.00">
+                      <mat-icon matPrefix>attach_money</mat-icon>
+                      <mat-error *ngIf="formPlanCorporativo.get('precioPlanCorporativo')?.hasError('required')">
+                        El precio es requerido
+                      </mat-error>
+                      <mat-error *ngIf="formPlanCorporativo.get('precioPlanCorporativo')?.hasError('min')">
+                        Debe ser mayor a 0
+                      </mat-error>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                        <mat-label>Fecha de Inicio</mat-label>
+                        <input matInput 
+                                [matDatepicker]="pickerInicio"
+                                formControlName="fechaInicio">
+                        <mat-icon matPrefix>event</mat-icon>
+                        <mat-datepicker-toggle matIconSuffix [for]="pickerInicio"></mat-datepicker-toggle>
+                        <mat-datepicker #pickerInicio></mat-datepicker>
+                        <mat-error *ngIf="formPlanCorporativo.get('fechaInicio')?.hasError('required')">
+                            La fecha de inicio es requerida
+                        </mat-error>
+                        <mat-error *ngIf="formPlanCorporativo.get('fechaInicio')?.hasError('fechaPasada')">
+                            La fecha debe ser igual o posterior a hoy
+                        </mat-error>
+                        </mat-form-field>
+
+                        <mat-form-field appearance="outline">
+                        <mat-label>Fecha de Fin</mat-label>
+                        <input matInput 
+                                [matDatepicker]="pickerFin"
+                                formControlName="fechaFin">
+                        <mat-icon matPrefix>event</mat-icon>
+                        <mat-datepicker-toggle matIconSuffix [for]="pickerFin"></mat-datepicker-toggle>
+                        <mat-datepicker #pickerFin></mat-datepicker>
+                        <mat-error *ngIf="formPlanCorporativo.get('fechaFin')?.hasError('required')">
+                            La fecha de fin es requerida
+                        </mat-error>
+                        <mat-error *ngIf="formPlanCorporativo.get('fechaFin')?.hasError('fechaPasada')">
+                            La fecha debe ser igual o posterior a hoy
+                        </mat-error>
+                        <mat-error *ngIf="formPlanCorporativo.get('fechaFin')?.hasError('fechaFinMenor')">
+                            La fecha de fin debe ser posterior a la fecha de inicio
+                        </mat-error>
+                        </mat-form-field>
+
+                  </div>
+
+                  <div class="form-actions">
+                    <button mat-raised-button 
+                            type="button"
+                            (click)="formPlanCorporativo.reset()"
+                            [disabled]="isCreatingPlan"
+                            class="btn-cancelar">
+                      <mat-icon>clear</mat-icon>
+                      Limpiar
+                    </button>
+                    <button mat-raised-button 
+                            type="button"
+                            (click)="crearPlanCorporativo()"
+                            [disabled]="isCreatingPlan"
+                            class="btn-crear">
+                      <mat-spinner *ngIf="isCreatingPlan" diameter="20" class="button-spinner"></mat-spinner>
+                      <mat-icon *ngIf="!isCreatingPlan">add_circle</mat-icon>
+                      <span *ngIf="!isCreatingPlan">Crear Plan</span>
+                      <span *ngIf="isCreatingPlan">Creando...</span>
+                    </button>
+                  </div>
+                </form>
+              </div>
+
+            </div>
+          </mat-tab>
+
+          <!-- TAB 2: GESTIÓN DE FLOTILLAS -->
+          <mat-tab label="Gestión de Flotillas">
+            <ng-template matTabLabel>
+              <mat-icon class="tab-icon">corporate_fare</mat-icon>
+              <span>Gestión de Flotillas</span>
+            </ng-template>
+
+            <div class="tab-content">
+              
+              <!-- Resumen de Estadísticas -->
+              <div class="stats-container">
+                <div class="stat-card activo">
+                  <mat-icon>check_circle</mat-icon>
+                  <div class="stat-info">
+                    <span class="stat-value">{{contarPlanesPorEstado('ACTIVO')}}</span>
+                    <span class="stat-label">Planes Activos</span>
+                  </div>
+                </div>
+                <div class="stat-card inactivo">
+                  <mat-icon>cancel</mat-icon>
+                  <div class="stat-info">
+                    <span class="stat-value">{{contarPlanesPorEstado('CANCELADO')}}</span>
+                    <span class="stat-label">Planes Cancelados</span>
+                  </div>
+                </div>
+                <div class="stat-card vehiculos">
+                  <mat-icon>directions_car</mat-icon>
+                  <div class="stat-info">
+                    <span class="stat-value">{{contarVehiculosSuscritos()}}</span>
+                    <span class="stat-label">Vehículos Suscritos</span>
+                  </div>
+                </div>
+                <div class="stat-card empresas">
+                  <mat-icon>business</mat-icon>
+                  <div class="stat-info">
+                    <span class="stat-value">{{empresasFlotilla.length}}</span>
+                    <span class="stat-label">Empresas Flotilla</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Lista de Empresas Flotilla -->
+              <div class="results-section" *ngIf="empresasFlotilla.length > 0">
+                <h3 class="section-title">
+                  <mat-icon>list</mat-icon>
+                  Empresas Flotilla ({{empresasFlotilla.length}})
+                </h3>
+
+                <div class="empresas-list">
+                  <div class="empresa-card" *ngFor="let empresa of empresasFlotilla">
+                    
+                    <!-- Header Empresa -->
+                    <div class="empresa-header">
+                      <div class="empresa-info-principal">
+                        <mat-icon class="empresa-icon">business</mat-icon>
+                        <div class="empresa-detalles">
+                          <h4 class="empresa-nombre">{{empresa.nombreEmpresa}}</h4>
+                          <p class="empresa-razon">{{empresa.razonSocial}}</p>
+                        </div>
+                      </div>
+                      <mat-chip [class]="obtenerEstadoInfo(empresa.estado).class">
+                        <mat-icon>{{obtenerEstadoInfo(empresa.estado).icon}}</mat-icon>
+                        {{obtenerEstadoInfo(empresa.estado).text}}
+                      </mat-chip>
+                    </div>
+
+                    <!-- Información de la Empresa -->
+                    <div class="empresa-body">
+                      <div class="empresa-info-grid">
+                        <div class="info-item">
+                          <mat-icon>badge</mat-icon>
+                          <div>
+                            <span class="info-label">NIT</span>
+                            <span class="info-value">{{empresa.nit}}</span>
+                          </div>
+                        </div>
+                        <div class="info-item">
+                          <mat-icon>phone</mat-icon>
+                          <div>
+                            <span class="info-label">Teléfono</span>
+                            <span class="info-value">{{empresa.telefono}}</span>
+                          </div>
+                        </div>
+                        <div class="info-item">
+                          <mat-icon>email</mat-icon>
+                          <div>
+                            <span class="info-label">Correo</span>
+                            <span class="info-value">{{empresa.correoContacto}}</span>
+                          </div>
+                        </div>
+                        <div class="info-item">
+                          <mat-icon>event</mat-icon>
+                          <div>
+                            <span class="info-label">Fecha Registro</span>
+                            <span class="info-value">{{formatearFechaParaMostrar(empresa.fechaRegistro)}}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="empresa-direccion">
+                        <mat-icon>location_on</mat-icon>
+                        <span>{{empresa.direccion}}</span>
+                      </div>
+                    </div>
+
+                    <!-- Planes Corporativos -->
+                    <div class="planes-section" *ngIf="empresa.planesCorporativos.length > 0">
+                      <h5 class="planes-titulo">
+                        <mat-icon>card_membership</mat-icon>
+                        Planes Corporativos ({{empresa.planesCorporativos.length}})
+                      </h5>
+
+                      <div class="planes-grid">
+                        <div class="plan-card" *ngFor="let plan of empresa.planesCorporativos">
+                          
+                          <!-- Header Plan -->
+                          <div class="plan-header">
+                            <div class="plan-nombre-id">
+                              <mat-icon>label</mat-icon>
+                              <div>
+                                <span class="plan-nombre">{{plan.nombrePlanCorporativo}}</span>
+                                <span class="plan-id">#{{plan.idPlanCorporativo}}</span>
+                              </div>
+                            </div>
+                            <mat-chip [class]="obtenerEstadoInfo(plan.estado).class">
+                              <mat-icon>{{obtenerEstadoInfo(plan.estado).icon}}</mat-icon>
+                              {{obtenerEstadoInfo(plan.estado).text}}
+                            </mat-chip>
+                          </div>
+
+                          <!-- Información del Plan -->
+                          <div class="plan-body">
+                            <div class="plan-info-row">
+                              <span class="label">
+                                <mat-icon>category</mat-icon>
+                                Tipo de Plan:
+                              </span>
+                              <span class="value">{{plan.tipoPlan}}</span>
+                            </div>
+
+                            <div class="plan-info-row">
+                              <span class="label">
+                                <mat-icon>confirmation_number</mat-icon>
+                                Placas Contratadas:
+                              </span>
+                              <span class="value">{{plan.numeroPlacasContratadas}}</span>
+                            </div>
+
+                            <div class="plan-info-row">
+                              <span class="label">
+                                <mat-icon>percent</mat-icon>
+                                Descuento Adicional:
+                              </span>
+                              <span class="value">{{plan.descuentoCorporativoAdicional}}%</span>
+                            </div>
+
+                            <div class="plan-info-row highlight">
+                              <span class="label">
+                                <mat-icon>attach_money</mat-icon>
+                                Precio:
+                              </span>
+                              <span class="value precio">{{formatearMoneda(plan.precioPlanCorporativo)}}</span>
+                            </div>
+
+                            <div class="plan-info-row">
+                              <span class="label">
+                                <mat-icon>event_available</mat-icon>
+                                Vigencia:
+                              </span>
+                              <span class="value">
+                                {{formatearFechaParaMostrar(plan.fechaInicio)}} - {{formatearFechaParaMostrar(plan.fechaFin)}}
+                              </span>
+                            </div>
+
+                            <div class="plan-info-row">
+                                <span class="label">
+                                    <mat-icon>directions_car</mat-icon>
+                                    Vehículos Suscritos:
+                                </span>
+                                <span class="value">
+                                    {{contarVehiculosActivos(plan)}} / {{plan.numeroPlacasContratadas}}
+                                </span>
+                            </div>
+
+                            <div class="plan-info-row">
+                              <span class="label">
+                                <mat-icon>account_circle</mat-icon>
+                                Creado Por:
+                              </span>
+                              <span class="value">{{plan.creadoPor}}</span>
+                            </div>
+                          </div>
+
+                          <!-- Acciones del Plan -->
+                          <div class="plan-footer">
+                            <button mat-raised-button 
+                                    (click)="abrirModalVerMas(plan, empresa)"
+                                    class="btn-ver-mas">
+                              <mat-icon>visibility</mat-icon>
+                              Ver Vehículos
+                            </button>
+
+                            <button mat-raised-button 
+                                    *ngIf="plan.estado === 'CANCELADO'"
+                                    (click)="activarPlanCorporativo(plan.idPlanCorporativo)"
+                                    class="btn-activar">
+                              <mat-icon>check_circle</mat-icon>
+                              Activar
+                            </button>
+
+                            <button mat-raised-button 
+                                    *ngIf="plan.estado === 'ACTIVO'"
+                                    (click)="desactivarPlanCorporativo(plan.idPlanCorporativo)"
+                                    class="btn-desactivar">
+                              <mat-icon>cancel</mat-icon>
+                              Desactivar
+                            </button>
+                          </div>
+
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Sin Planes -->
+                    <div class="sin-planes" *ngIf="empresa.planesCorporativos.length === 0">
+                      <mat-icon>info</mat-icon>
+                      <p>Esta empresa no tiene planes corporativos registrados</p>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+
+              <!-- Loading -->
+              <div class="loading-container" *ngIf="isLoadingEmpresas">
+                <mat-spinner diameter="50"></mat-spinner>
+                <p>Cargando empresas flotilla...</p>
+              </div>
+
+              <!-- Sin resultados -->
+              <div class="no-results" *ngIf="empresasFlotilla.length === 0 && !isLoadingEmpresas">
+                <mat-icon>inbox</mat-icon>
+                <p>No hay empresas flotilla registradas</p>
+                <p class="hint">Las empresas flotilla creadas aparecerán aquí</p>
+              </div>
+
+            </div>
+          </mat-tab>
+
+        </mat-tab-group>
+
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Modal Ver Más - Vehículos del Plan -->
+  <div class="modal-overlay" *ngIf="mostrarModalVerMas" (click)="cerrarModalVerMas($event)">
+    <div class="encargado-modal modal-detalles-grande" (click)="$event.stopPropagation()">
+      
+      <div class="modal-header">
+        <div class="modal-icon">
+          <mat-icon>directions_car</mat-icon>
+        </div>
+        <h2>Vehículos del Plan Corporativo</h2>
+      </div>
+
+      <div class="modal-content" *ngIf="planSeleccionado && empresaSeleccionada">
+        
+        <!-- Información del Plan -->
+        <div class="info-section-compact">
+          <h3 class="info-section-title-compact">
+            <mat-icon>info</mat-icon>
+            Información del Plan
+          </h3>
+          
+          <div class="info-list">
+            <div class="info-item-compact">
+              <label>Empresa:</label>
+              <span>{{empresaSeleccionada.nombreEmpresa}}</span>
+            </div>
+            <div class="info-item-compact">
+              <label>Plan:</label>
+              <span>{{planSeleccionado.nombrePlanCorporativo}}</span>
+            </div>
+            <div class="info-item-compact">
+              <label>Tipo de Plan:</label>
+              <span>{{planSeleccionado.tipoPlan}}</span>
+            </div>
+            <div class="info-item-compact">
+              <label>Placas Contratadas:</label>
+              <span>{{planSeleccionado.numeroPlacasContratadas}}</span>
+            </div>
+            <div class="info-item-compact">
+              <label>Precio:</label>
+              <span>{{formatearMoneda(planSeleccionado.precioPlanCorporativo)}}</span>
+            </div>
+            <div class="info-item-compact">
+              <label>Estado:</label>
+              <span>
+                <mat-chip [class]="obtenerEstadoInfo(planSeleccionado.estado).class">
+                  {{obtenerEstadoInfo(planSeleccionado.estado).text}}
+                </mat-chip>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vehículos Suscritos -->
+        <div class="info-section-compact">
+          <h3 class="info-section-title-compact">
+            <mat-icon>directions_car</mat-icon>
+            Vehículos Suscritos ({{planSeleccionado.suscripcionesVehiculos.length}})
+          </h3>
+
+          <div class="vehiculos-list" *ngIf="planSeleccionado.suscripcionesVehiculos.length > 0">
+            <div class="vehiculo-card" *ngFor="let suscripcion of planSeleccionado.suscripcionesVehiculos">
+              <div class="vehiculo-header">
+                <div class="vehiculo-placa">
+                  <mat-icon>confirmation_number</mat-icon>
+                  <span class="placa-numero">{{suscripcion.placaVehiculo}}</span>
+                </div>
+                <mat-chip [class]="obtenerEstadoInfo(suscripcion.estado).class">
+                  <mat-icon>{{obtenerEstadoInfo(suscripcion.estado).icon}}</mat-icon>
+                  {{obtenerEstadoInfo(suscripcion.estado).text}}
+                </mat-chip>
+              </div>
+
+              <div class="vehiculo-body">
+                <div class="vehiculo-info-row">
+                  <span class="label">
+                    <mat-icon>event</mat-icon>
+                    Fecha Asignación:
+                  </span>
+                  <span class="value">{{formatearFechaLegible(suscripcion.fechaAsignacion)}}</span>
+                </div>
+                <div class="vehiculo-info-row">
+                  <span class="label">
+                    <mat-icon>badge</mat-icon>
+                    ID Suscripción:
+                  </span>
+                  <span class="value">#{{suscripcion.idSuscripcionFlotilla}}</span>
+                </div>
+              </div>
+
+              <div class="vehiculo-footer" *ngIf="suscripcion.estado === 'ACTIVA'">
+                <button mat-raised-button 
+                        (click)="cancelarSuscripcionVehiculo(suscripcion.idSuscripcionFlotilla)"
+                        [disabled]="isCancelando"
+                        class="btn-cancelar-suscripcion">
+                  <mat-spinner *ngIf="isCancelando" diameter="20" class="button-spinner"></mat-spinner>
+                  <mat-icon *ngIf="!isCancelando">cancel</mat-icon>
+                  <span *ngIf="!isCancelando">Cancelar Suscripción</span>
+                  <span *ngIf="isCancelando">Cancelando...</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sin vehículos suscritos -->
+          <div class="no-vehiculos" *ngIf="planSeleccionado.suscripcionesVehiculos.length === 0">
+            <mat-icon>info</mat-icon>
+            <p>No hay vehículos suscritos a este plan</p>
+          </div>
+        </div>
+
+        <!-- Botón para suscribir nuevo vehículo -->
+        <div class="suscribir-section" *ngIf="planSeleccionado.estado === 'ACTIVO'">
+          <button mat-raised-button 
+                  (click)="abrirModalSuscribir()"
+                  class="btn-suscribir-nuevo">
+            <mat-icon>add_circle</mat-icon>
+            Suscribir Nuevo Vehículo
+          </button>
+        </div>
+
+      </div>
+
+      <div class="modal-actions">
+        <button mat-raised-button 
+                color="primary" 
+                (click)="cerrarModalVerMas()"
+                class="close-button">
+          <mat-icon>close</mat-icon>
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Suscribir Vehículo -->
+  <div class="modal-overlay" *ngIf="mostrarModalSuscribir" (click)="cerrarModalSuscribir($event)">
+    <div class="encargado-modal modal-suscribir" (click)="$event.stopPropagation()">
+      
+      <div class="modal-header">
+        <div class="modal-icon">
+          <mat-icon>add_circle</mat-icon>
+        </div>
+        <h2>Suscribir Vehículo al Plan</h2>
+      </div>
+
+      <div class="modal-content">
+        
+        <!-- Información del Plan -->
+        <div class="plan-info-banner" *ngIf="planSeleccionado">
+          <mat-icon>card_membership</mat-icon>
+          <div>
+            <span class="banner-label">Plan Seleccionado:</span>
+            <span class="banner-value">{{planSeleccionado.nombrePlanCorporativo}}</span>
+          </div>
+        </div>
+
+        <!-- Lista de Vehículos Disponibles -->
+        <div class="vehiculos-disponibles-section">
+          <h3 class="subsection-title">
+            <mat-icon>directions_car</mat-icon>
+            Vehículos Disponibles
+          </h3>
+
+          <div class="vehiculos-disponibles-grid" *ngIf="obtenerVehiculosNoSuscritos().length > 0">
+            <div class="vehiculo-disponible-card" 
+                 *ngFor="let vehiculo of obtenerVehiculosNoSuscritos()">
+              
+              <div class="vehiculo-disponible-header">
+                <mat-icon class="vehiculo-tipo-icon">
+                  {{obtenerIconoTipoVehiculo(vehiculo.tipoVehiculo)}}
+                </mat-icon>
+                <div class="vehiculo-disponible-info">
+                  <span class="vehiculo-marca">{{vehiculo.marca}} {{vehiculo.modelo}}</span>
+                  <span class="vehiculo-placa-display">{{vehiculo.placa}}</span>
+                </div>
+              </div>
+
+              <div class="vehiculo-disponible-body">
+                <div class="vehiculo-detalle">
+                  <mat-icon>palette</mat-icon>
+                  <span>{{vehiculo.color}}</span>
+                </div>
+                <div class="vehiculo-detalle">
+                  <mat-icon>category</mat-icon>
+                  <span>{{vehiculo.tipoVehiculo === 'DOS_RUEDAS' ? 'Dos Ruedas' : 'Cuatro Ruedas'}}</span>
+                </div>
+              </div>
+
+              <div class="vehiculo-disponible-footer">
+                <button mat-raised-button 
+                        (click)="suscribirVehiculo(vehiculo.idVehiculo)"
+                        [disabled]="isSuscribiendo"
+                        class="btn-suscribir-vehiculo">
+                  <mat-icon>add</mat-icon>
+                  Suscribir
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Loading vehículos -->
+          <div class="loading-vehiculos" *ngIf="isLoadingVehiculos">
+            <mat-spinner diameter="40"></mat-spinner>
+            <p>Cargando vehículos...</p>
+          </div>
+
+          <!-- Sin vehículos disponibles -->
+          <div class="no-vehiculos-disponibles" *ngIf="obtenerVehiculosNoSuscritos().length === 0 && !isLoadingVehiculos">
+            <mat-icon>info</mat-icon>
+            <p>No hay vehículos disponibles para suscribir</p>
+            <p class="hint">Todos los vehículos ya están suscritos o no hay vehículos registrados</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-actions">
+        <button mat-raised-button 
+                (click)="cerrarModalSuscribir()"
+                [disabled]="isSuscribiendo"
+                class="close-button">
+          <mat-icon>close</mat-icon>
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

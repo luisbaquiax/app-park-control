@@ -63,7 +63,12 @@
                     <!-- Placa -->
                     <mat-form-field appearance="outline" class="full-width">
                       <mat-label>Placa</mat-label>
-                      <input matInput formControlName="placa" placeholder="Ej: P123BCD" readonly="{{ isEditing }}" />
+                      <input
+                        matInput
+                        formControlName="placa"
+                        placeholder="Ej: P123BCD"
+                        readonly="{{ isEditing }}"
+                      />
                       <mat-icon matPrefix>directions_car</mat-icon>
                       @if (vehiculoForm.get('placa')?.hasError('required')) {
                       <mat-error> La placa es requerida </mat-error>
@@ -169,12 +174,9 @@
                     [disabled]="!vehiculoForm.valid || isLoading"
                     class="submit-button"
                   >
-                    <mat-spinner
-                      *ngIf="isLoading"
-                      diameter="20"
-                      class="button-spinner"
-                    ></mat-spinner>
-                    @if (!isLoading) {
+                    @if (isLoading) {
+                    <mat-spinner diameter="20" class="button-spinner"></mat-spinner>
+                    } @if (!isLoading) {
                     <mat-icon>add_business</mat-icon>
 
                     } @if (isLoading) {

@@ -1,0 +1,101 @@
+<div class="control-sucursal-container">
+  <div class="floating-icons">
+    <div class="icon"><mat-icon>store</mat-icon></div>
+    <div class="icon"><mat-icon>business</mat-icon></div>
+    <div class="icon"><mat-icon>local_parking</mat-icon></div>
+    <div class="icon"><mat-icon>location_city</mat-icon></div>
+    <div class="icon"><mat-icon>domain</mat-icon></div>
+    <div class="icon"><mat-icon>place</mat-icon></div>
+    <div class="icon"><mat-icon>apartment</mat-icon></div>
+    <div class="icon"><mat-icon>map</mat-icon></div>
+  </div>
+  <mat-card class="usuario-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="header-icon">card_membership</mat-icon>
+        Mis tickets
+      </mat-card-title>
+      <mat-card-subtitle>Ver mis tickets</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card class="usuario-card">
+      <mat-card-content>
+        <mat-tab-group #tabGroup animationDuration="300ms" class="sucursales-tabs">
+          <mat-tab label="Tickets">
+            <div class="tab-content">
+              @if(tickets.length === 0) {
+              <div class="no-results">
+                <mat-icon>inbox</mat-icon>
+                <p>No tienes tickets registrados</p>
+              </div>
+              }
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+                @for (ticket of tickets; track $index) {
+                <mat-card
+                  class="shadow-xl rounded-2xl p-4 bg-white dark:bg-gray-800 hover:shadow-2xl transition"
+                >
+                  <mat-card-header class="flex items-center justify-between">
+                    <mat-card-title class="text-lg font-semibold text-gray-900 dark:text-white">
+                      {{ ticket.nombreSucursal }}
+                    </mat-card-title>
+                    <span
+                      class="text-xs px-3 py-1 rounded-full"
+                      [ngClass]="{
+                        'bg-green-200 text-green-800': ticket.estado === 'ACTIVO',
+                        'bg-red-200 text-red-800': ticket.estado === 'CERRADO'
+                      }"
+                    >
+                      {{ ticket.estado }}
+                    </span>
+                  </mat-card-header>
+
+                  <mat-card-content class="mt-4 space-y-2">
+                    <div class="flex justify-center">
+                      <img
+                        [src]="ticket.codigoQr"
+                        alt="QR del ticket"
+                        class="w-32 h-32 border rounded-xl shadow-md"
+                      />
+                    </div>
+
+                    <div class="text-sm">
+                      <p><strong>Folio:</strong> {{ ticket.folioNumerico }}</p>
+                      <p><strong>Placa:</strong> {{ ticket.placa }}</p>
+                      <p><strong>Tipo vehículo:</strong> {{ ticket.tipoVehiculo }}</p>
+                      <p>
+                        <strong>Entrada:</strong> {{ ticket.fechaHoraEntrada | date : 'short' }}
+                      </p>
+                      @if(ticket.fechaHoraSalida){
+                      <p><strong>Salida:</strong> {{ ticket.fechaHoraSalida | date : 'short' }}</p>
+                      }
+
+                      <p><strong>Duración:</strong> {{ ticket.duracionMinutos }} min</p>
+                    </div>
+                  </mat-card-content>
+
+                  <mat-card-actions class="mt-4 flex justify-end space-x-3">
+                    <a
+                      mat-stroked-button
+                      color="primary"
+                      (click)="cratePDFTicket(ticket)"
+                      class="!border-red-500 !text-red-500 hover:!bg-red-50"
+                    >
+                      PDF
+                    </a>
+                    <a
+                      mat-stroked-button
+                      color="primary"
+                      class="!border-blue-500 !text-blue-500 hover:!bg-blue-50"
+                    >
+                      WhatsApp
+                    </a>
+                  </mat-card-actions>
+                </mat-card>
+                }
+              </div>
+            </div>
+          </mat-tab>
+        </mat-tab-group>
+      </mat-card-content>
+    </mat-card>
+  </mat-card>
+</div>
