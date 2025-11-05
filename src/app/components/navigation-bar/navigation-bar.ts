@@ -21,7 +21,7 @@ interface MenuItem {
   standalone: true,
   imports: [...COMMON_IMPORTS, MatMenu, MatMenuTrigger],
   templateUrl: './navigation-bar.html',
-  styleUrl: './navigation-bar.scss'
+  styleUrl: './navigation-bar.scss',
 })
 export class NavigationBar {
   menuItems: MenuItem[] = [];
@@ -90,6 +90,12 @@ export class NavigationBar {
       roles: ['SUCURSAL'],
     },
     {
+      icon: 'card_membership',
+      label: 'Registrar entredas/salidas',
+      route: '/management-ticket',
+      roles: ['SUCURSAL'],
+    },
+    {
       icon: 'confirmation_number',
       label: 'Incidencia Ticket',
       route: '/incidencia-ticket',
@@ -105,13 +111,19 @@ export class NavigationBar {
     {
       icon: 'change_circle',
       label: 'Cambió Placa',
-      route: '/cambio-placa',  
+      route: '/cambio-placa',
       roles: ['CLIENTE'],
     },
     {
       icon: 'hourglass_top',
       label: 'Permiso Temporal',
-      route: '/permiso-temporal',  
+      route: '/permiso-temporal',
+      roles: ['CLIENTE'],
+    },
+    {
+      icon: 'card_membership',
+      label: 'Mis tickets',
+      route: '/ver-tickets',
       roles: ['CLIENTE'],
     },
     // OPCIONES DEL USUARIO DEL SISTEMA
@@ -155,7 +167,8 @@ export class NavigationBar {
     if (idUsuario && idUsuario.trim() !== '' && !isNaN(Number(idUsuario))) {
       this.idUsuarioActual = Number(idUsuario);
       this.nombreRolActual = nombreRol && nombreRol.trim() !== '' ? nombreRol : null;
-      this.nombreUsuarioActual = nombreUsuario && nombreUsuario.trim() !== '' ? nombreUsuario : null;
+      this.nombreUsuarioActual =
+        nombreUsuario && nombreUsuario.trim() !== '' ? nombreUsuario : null;
       this.filtrarMenu();
     } else {
       this.limpiarSesion();
@@ -205,7 +218,7 @@ export class NavigationBar {
           this.mostrarMensaje(response.message, 'success');
         },
         error: (error) => {
-          this.mostrarMensaje('Error al cambiar Autentificación','error');
+          this.mostrarMensaje('Error al cambiar Autentificación', 'error');
         },
       });
     } else {
