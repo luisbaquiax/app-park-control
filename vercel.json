@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "https://3.82.57.35:8081/$1"
+      "destination": "http://3.82.57.35:8081/$1"
     },
     {
       "source": "/(.*)",
