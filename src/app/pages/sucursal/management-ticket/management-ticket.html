@@ -265,18 +265,16 @@
                 </div>
                 <!-- método de pago -->
                 <div class="form-row">
-                   <mat-form-field appearance="outline" class="full-width mt-4">
-                  <mat-label>Código QR (manual o escaneado)</mat-label>
-                  <input
-                    matInput
-                    formControlName="codigoQr"
-                    placeholder=""
-                  />
-                  <mat-icon matPrefix>qr_code</mat-icon>
-                  <mat-error *ngIf="formQr.get('codigoQr')?.hasError('required')">
-                    Debe ingresar el código QR del ticket
-                  </mat-error>
-                </mat-form-field>
+                  
+                  <mat-form-field appearance="outline" class="full-width mt-4">
+                    <mat-label>Código QR (manual o escaneado)</mat-label>
+                    <input matInput formControlName="codigoQr" placeholder="" />
+                    <mat-icon matPrefix>qr_code</mat-icon>
+                    <mat-error *ngIf="formQr.get('codigoQr')?.hasError('required')">
+                      Debe ingresar el código QR del ticket
+                    </mat-error>
+                  </mat-form-field>
+                  
                   <mat-form-field appearance="outline" class="full-width">
                     <mat-label>Método de pago</mat-label>
                     <mat-select formControlName="metodoPago">

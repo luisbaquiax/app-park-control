@@ -49,15 +49,16 @@ export class Ticktes implements OnInit {
     });
   }
 
-    cratePDFTicket(ticket: TicketResponse): void {
-      const doc = new jsPDF();
-      doc.text(`Ticket: ${ticket.folioNumerico}`, 10, 10);
-      doc.text(`Vehículo: ${ticket.placa}`, 10, 20);
-      doc.text(`Fecha y hora de entrada: ${ticket.fechaHoraEntrada}`, 10, 30);
-      doc.text(`Fecha de creación: ${ticket.fechaCreacion}`, 10, 40);
-      doc.addImage(ticket.codigoQr, 'PNG', 10, 50, 60, 60);
-      doc.save(`ticket-${ticket.folioNumerico}.pdf`);
-    }
+
+  cratePDFTicket(ticket: TicketResponse): void {
+    const doc = new jsPDF();
+    doc.text(`Ticket: ${ticket.folioNumerico}`, 10, 10);
+    doc.text(`Vehículo: ${ticket.placa}`, 10, 20);
+    doc.text(`Fecha y hora de entrada: ${ticket.fechaHoraEntrada}`, 10, 30);
+    doc.text(`Fecha de creación: ${ticket.fechaCreacion}`, 10, 40);
+    doc.addImage(ticket.codigoQr, 'PNG', 10, 50, 60, 60);
+    doc.save(`ticket-${ticket.folioNumerico}.pdf`);
+  }
 
   showMessage(message: string, type: string): void {
     this.snackBar.open(message, 'Cerrar', {
