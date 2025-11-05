@@ -1,0 +1,1931 @@
+// Variables y colores
+$primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+$success-color: #2ecc71;
+$error-color: #e74c3c;
+$warning-color: #f39c12;
+$info-color: #3498db;
+$purple-color: #9b59b6;
+$active-color: #27ae60;
+
+// Contenedor principal
+.crear-usuario-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #d4dce6 0%, #a0aec0 100%);
+  padding: 2rem 1rem;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.08) 35px, rgba(255,255,255,.08) 70px);
+    pointer-events: none;
+  }
+}
+
+// Iconos flotantes
+.floating-icons {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+
+  .icon {
+    position: absolute;
+    opacity: 0.08;
+    animation: float 20s infinite ease-in-out;
+
+    mat-icon {
+      font-size: 60px;
+      width: 60px;
+      height: 60px;
+      color: white;
+    }
+
+    &:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+    &:nth-child(2) { top: 20%; right: 15%; animation-delay: -2s; }
+    &:nth-child(3) { bottom: 15%; left: 20%; animation-delay: -4s; }
+    &:nth-child(4) { bottom: 25%; right: 10%; animation-delay: -6s; }
+    &:nth-child(5) { top: 50%; left: 5%; animation-delay: -8s; }
+    &:nth-child(6) { top: 60%; right: 5%; animation-delay: -10s; }
+    &:nth-child(7) { top: 35%; left: 50%; animation-delay: -12s; }
+    &:nth-child(8) { bottom: 40%; right: 40%; animation-delay: -14s; }
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25% { transform: translateY(-20px) rotate(5deg); }
+  50% { transform: translateY(0) rotate(0deg); }
+  75% { transform: translateY(20px) rotate(-5deg); }
+}
+
+// Card principal
+.usuario-card {
+  max-width: 1400px;
+  margin: 0 auto;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+
+  mat-card-header {
+    background: $primary-gradient;
+    color: white;
+    padding: 2rem;
+    border-radius: 20px 20px 0 0;
+
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin: 0;
+
+      .header-icon {
+        font-size: 2rem;
+        width: 2rem;
+        height: 2rem;
+      }
+    }
+
+    mat-card-subtitle {
+      color: rgba(255, 255, 255, 0.9);
+      margin-top: 0.5rem;
+      font-size: 1rem;
+    }
+  }
+
+  mat-card-content {
+    padding: 0;
+    background: white;
+  }
+}
+
+.content-wrapper {
+  padding: 0;
+}
+
+// Tabs personalizados
+.custom-tabs {
+  ::ng-deep {
+    .mat-mdc-tab-header {
+      background: #f8f9fa;
+      border-bottom: 2px solid #e9ecef;
+    }
+
+    .mat-mdc-tab-labels {
+      padding: 0 2rem;
+    }
+
+    .mat-mdc-tab {
+      height: 64px;
+      padding: 0 1.5rem;
+      min-width: 150px;
+      
+      .mdc-tab__text-label {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: #7f8c8d;
+        transition: all 0.3s ease;
+      }
+
+      .tab-icon {
+        font-size: 1.375rem;
+        width: 1.375rem;
+        height: 1.375rem;
+      }
+
+      &.mdc-tab--active {
+        .mdc-tab__text-label {
+          color: #667eea;
+        }
+      }
+
+      &:hover:not(.mdc-tab--active) {
+        .mdc-tab__text-label {
+          color: #667eea;
+          opacity: 0.7;
+        }
+      }
+    }
+
+    .mat-mdc-tab-body-wrapper {
+      padding: 0;
+    }
+  }
+}
+
+.tab-content {
+  padding: 2rem;
+  min-height: 400px;
+}
+
+// Botones de descarga
+.download-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+  border-radius: 12px;
+  border: 2px dashed #667eea;
+
+  .btn-download {
+    height: 48px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    padding: 0 1.5rem;
+
+    mat-icon {
+      font-size: 1.25rem;
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    &:hover:not(:disabled) {
+      transform: translateY(-3px);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    &.btn-imagen {
+      background: linear-gradient(135deg, #3498db 0%, #2980b9 100%) !important;
+      color: white !important;
+
+      &:hover:not(:disabled) {
+        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+      }
+    }
+
+    &.btn-pdf {
+      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%) !important;
+      color: white !important;
+
+      &:hover:not(:disabled) {
+        box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+      }
+    }
+
+    &.btn-excel {
+      background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%) !important;
+      color: white !important;
+
+      &:hover:not(:disabled) {
+        box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4);
+      }
+    }
+  }
+}
+
+// Contenedor de reporte
+.reporte-container {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  min-height: 500px;
+}
+
+.reporte-header {
+  text-align: center;
+  padding-bottom: 1.5rem;
+  border-bottom: 3px solid #667eea;
+  margin-bottom: 2rem;
+
+  h2 {
+    color: #667eea;
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+  }
+
+  .fecha-generacion {
+    color: #7f8c8d;
+    font-size: 0.9375rem;
+    margin: 0;
+  }
+}
+
+.reporte-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+// Secciones de información
+.info-section {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 1.5rem;
+  border-left: 4px solid #667eea;
+
+  .section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #667eea;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 1.5rem 0;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #e9ecef;
+
+    mat-icon {
+      font-size: 1.5rem;
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+  }
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+
+  .info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.875rem;
+    background: white;
+    border-radius: 8px;
+    border-left: 3px solid #667eea;
+
+    .label {
+      color: #7f8c8d;
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .value {
+      color: #2c3e50;
+      font-weight: 600;
+      text-align: right;
+      max-width: 60%;
+      word-break: break-word;
+    }
+  }
+}
+
+// Cards de ocupación
+.ocupacion-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.ocupacion-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 2px solid;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  &.dos-ruedas {
+    border-color: #3498db;
+
+    .ocupacion-header {
+      color: #3498db;
+    }
+
+    .porcentaje-fill {
+      background: linear-gradient(90deg, #3498db 0%, #2980b9 100%);
+    }
+  }
+
+  &.cuatro-ruedas {
+    border-color: #9b59b6;
+
+    .ocupacion-header {
+      color: #9b59b6;
+    }
+
+    .porcentaje-fill {
+      background: linear-gradient(90deg, #9b59b6 0%, #8e44ad 100%);
+    }
+  }
+
+  .ocupacion-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+
+    mat-icon {
+      font-size: 2.5rem;
+      width: 2.5rem;
+      height: 2.5rem;
+    }
+
+    h4 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+  }
+
+  .ocupacion-body {
+    .ocupacion-stats {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+
+      .ocupados {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #2c3e50;
+      }
+
+      .separator {
+        font-size: 2rem;
+        color: #7f8c8d;
+      }
+
+      .capacidad {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #95a5a6;
+      }
+    }
+
+    .ocupacion-porcentaje {
+      .porcentaje-bar {
+        width: 100%;
+        height: 24px;
+        background: #ecf0f1;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+
+        .porcentaje-fill {
+          height: 100%;
+          border-radius: 12px;
+          transition: width 0.5s ease;
+        }
+      }
+
+      .porcentaje-text {
+        display: block;
+        text-align: center;
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #2c3e50;
+      }
+    }
+  }
+}
+
+.fecha-actualizacion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: rgba(52, 152, 219, 0.1);
+  border-radius: 8px;
+  color: #2c81ba;
+  font-weight: 500;
+
+  mat-icon {
+    font-size: 1.25rem;
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+}
+
+// Tablas
+.table-container {
+  overflow-x: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.reporte-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+
+  thead {
+    background: $primary-gradient;
+    color: white;
+
+    tr th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 700;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid #e9ecef;
+      transition: background 0.2s ease;
+
+      &:hover {
+        background: rgba(102, 126, 234, 0.05);
+      }
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      td {
+        padding: 1rem;
+        color: #2c3e50;
+        font-size: 0.875rem;
+
+        &.monto {
+          font-weight: 700;
+          color: $success-color;
+        }
+      }
+    }
+  }
+}
+
+// Plan info card
+.plan-info-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 2px solid #e9ecef;
+
+  .plan-header-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid #e9ecef;
+
+    .plan-nombre {
+      h4 {
+        margin: 0 0 0.5rem 0;
+        color: #2c3e50;
+        font-size: 1.5rem;
+        font-weight: 700;
+      }
+
+      .plan-codigo {
+        color: #7f8c8d;
+        font-size: 0.875rem;
+        font-weight: 600;
+      }
+    }
+  }
+
+  .plan-detalles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+
+    .plan-detalle {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border-left: 3px solid #667eea;
+
+      mat-icon {
+        color: #667eea;
+        font-size: 1.5rem;
+        width: 1.5rem;
+        height: 1.5rem;
+        flex-shrink: 0;
+      }
+
+      div {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+
+        .label {
+          color: #7f8c8d;
+          font-size: 0.75rem;
+          font-weight: 600;
+          text-transform: uppercase;
+        }
+
+        .value {
+          color: #2c3e50;
+          font-weight: 600;
+          font-size: 0.9375rem;
+
+          &.precio {
+            color: $success-color;
+            font-weight: 700;
+            font-size: 1.125rem;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Suscriptores grid
+.suscriptores-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.suscriptor-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 2px solid #e9ecef;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+    border-color: #667eea;
+  }
+
+  .suscriptor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: linear-gradient(135deg, rgba(46, 204, 113, 0.05) 0%, rgba(39, 174, 96, 0.05) 100%);
+    border-bottom: 1px solid #e9ecef;
+
+    .suscriptor-info {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+
+      mat-icon {
+        color: $success-color;
+        font-size: 2rem;
+        width: 2rem;
+        height: 2rem;
+      }
+
+      div {
+        h5 {
+          margin: 0 0 0.25rem 0;
+          color: #2c3e50;
+          font-weight: 700;
+          font-size: 1rem;
+        }
+
+        .placa {
+          color: #667eea;
+          font-weight: 600;
+          font-size: 0.875rem;
+        }
+      }
+    }
+  }
+
+  .suscriptor-body {
+    padding: 1rem;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.875rem;
+
+    .suscriptor-stat {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      padding: 0.75rem;
+      background: #f8f9fa;
+      border-radius: 6px;
+
+      .label {
+        color: #7f8c8d;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+
+      .value {
+        color: #2c3e50;
+        font-weight: 600;
+        font-size: 0.9375rem;
+
+        &.precio {
+          color: $success-color;
+          font-weight: 700;
+        }
+      }
+    }
+  }
+}
+
+// Incidencias
+.sucursales-incidencias {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.sucursal-incidencia-section {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 2px solid #e9ecef;
+}
+
+.sucursal-incidencia-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, rgba(231, 76, 60, 0.05) 0%, rgba(192, 57, 43, 0.05) 100%);
+  border-bottom: 2px solid #e9ecef;
+
+  mat-icon {
+    color: $error-color;
+    font-size: 3rem;
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .sucursal-info-header {
+    flex: 1;
+    margin-left: 1rem;
+
+    h3 {
+      margin: 0 0 0.5rem 0;
+      color: #2c3e50;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    p {
+      margin: 0.25rem 0;
+      color: #7f8c8d;
+      font-size: 0.9375rem;
+
+      &.telefono {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        mat-icon {
+          font-size: 1.125rem;
+          width: 1.125rem;
+          height: 1.125rem;
+        }
+      }
+    }
+  }
+
+  .badge-incidencias {
+    background: $error-color;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.875rem;
+  }
+}
+
+.incidencias-list {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.incidencia-card {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 1.25rem;
+  border-left: 4px solid $error-color;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.15);
+    transform: translateX(5px);
+  }
+
+  .incidencia-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+
+    .incidencia-folio {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #2c3e50;
+      font-weight: 700;
+
+      mat-icon {
+        color: #667eea;
+        font-size: 1.25rem;
+        width: 1.25rem;
+        height: 1.25rem;
+      }
+    }
+  }
+
+  .incidencia-vehiculo,
+  .incidencia-propietario {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: white;
+    border-radius: 8px;
+
+    mat-icon {
+      color: $info-color;
+      font-size: 1.5rem;
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+
+    div {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+
+      .placa,
+      .nombre {
+        color: #2c3e50;
+        font-weight: 700;
+        font-size: 1rem;
+      }
+
+      .vehiculo-detalle,
+      .telefono {
+        color: #7f8c8d;
+        font-size: 0.875rem;
+      }
+    }
+  }
+
+  .incidencia-detalles {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+
+    .incidencia-tipo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+
+      mat-icon {
+        color: $warning-color;
+        font-size: 1.25rem;
+        width: 1.25rem;
+        height: 1.25rem;
+      }
+
+      .tipo-label {
+        color: $warning-color;
+        font-weight: 700;
+        font-size: 1rem;
+      }
+    }
+
+    .incidencia-descripcion {
+      color: #2c3e50;
+      margin: 0.75rem 0;
+      padding: 0.75rem;
+      background: #f8f9fa;
+      border-radius: 6px;
+      line-height: 1.6;
+    }
+
+    .incidencia-fecha,
+    .incidencia-resolucion {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #7f8c8d;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+
+      mat-icon {
+        font-size: 1rem;
+        width: 1rem;
+        height: 1rem;
+      }
+    }
+
+    .incidencia-resolucion {
+      color: $success-color;
+      font-weight: 600;
+    }
+
+    .incidencia-observaciones {
+      margin-top: 0.75rem;
+      padding: 0.75rem;
+      background: rgba(46, 204, 113, 0.1);
+      border-radius: 6px;
+      border-left: 3px solid $success-color;
+
+      strong {
+        color: $success-color;
+      }
+
+      p {
+        margin: 0.5rem 0 0 0;
+        color: #2c3e50;
+        line-height: 1.5;
+      }
+    }
+  }
+
+  .incidencia-evidencias {
+    margin-top: 1rem;
+
+    h5 {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #667eea;
+      font-size: 0.9375rem;
+      font-weight: 700;
+      margin: 0 0 0.75rem 0;
+
+      mat-icon {
+        font-size: 1.125rem;
+        width: 1.125rem;
+        height: 1.125rem;
+      }
+    }
+
+    .evidencias-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+
+      .evidencia-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        background: white;
+        border-radius: 6px;
+        border: 1px solid #e9ecef;
+        font-size: 0.8125rem;
+        color: #7f8c8d;
+
+        mat-icon {
+          color: #667eea;
+          font-size: 1rem;
+          width: 1rem;
+          height: 1rem;
+        }
+      }
+    }
+  }
+}
+
+// Flotilla
+.empresas-flotilla-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.empresa-flotilla-section {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 2px solid #e9ecef;
+}
+
+.empresa-flotilla-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, rgba(155, 89, 182, 0.05) 0%, rgba(142, 68, 173, 0.05) 100%);
+  border-bottom: 2px solid #e9ecef;
+
+  .empresa-flotilla-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    mat-icon {
+      color: $purple-color;
+      font-size: 3rem;
+      width: 3rem;
+      height: 3rem;
+    }
+
+    div {
+      h3 {
+        margin: 0 0 0.5rem 0;
+        color: #2c3e50;
+        font-size: 1.5rem;
+        font-weight: 700;
+      }
+
+      .razon-social {
+        color: #7f8c8d;
+        font-size: 0.9375rem;
+        margin: 0;
+      }
+    }
+  }
+}
+
+.empresa-flotilla-datos {
+  padding: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  background: #f8f9fa;
+
+  .dato-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem;
+    background: white;
+    border-radius: 8px;
+    border-left: 3px solid $purple-color;
+
+    mat-icon {
+      color: $purple-color;
+      font-size: 1.25rem;
+      width: 1.25rem;
+      height: 1.25rem;
+      flex-shrink: 0;
+    }
+
+    span {
+      color: #7f8c8d;
+      font-size: 0.875rem;
+
+      strong {
+        color: #2c3e50;
+      }
+    }
+  }
+}
+
+.planes-corporativos-section {
+  padding: 1.5rem;
+
+  .planes-titulo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: #667eea;
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin: 0 0 1.5rem 0;
+
+    mat-icon {
+      font-size: 1.5rem;
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+  }
+}
+
+.planes-corporativos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.plan-corporativo-card {
+  background: #f8f9fa;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 2px solid #e9ecef;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.2);
+    border-color: #667eea;
+  }
+
+  .plan-corp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: white;
+    border-bottom: 2px solid #e9ecef;
+
+    .plan-corp-nombre {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #2c3e50;
+      font-weight: 700;
+      font-size: 1rem;
+
+      mat-icon {
+        color: #667eea;
+        font-size: 1.25rem;
+        width: 1.25rem;
+        height: 1.25rem;
+      }
+    }
+  }
+
+  .plan-corp-body {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    .plan-corp-stat {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.625rem;
+      background: white;
+      border-radius: 6px;
+
+      .label {
+        color: #7f8c8d;
+        font-size: 0.8125rem;
+        font-weight: 600;
+      }
+
+      .value {
+        color: #2c3e50;
+        font-weight: 600;
+
+        &.precio {
+          color: $success-color;
+          font-weight: 700;
+          font-size: 1.125rem;
+        }
+      }
+
+      &.highlight {
+        background: linear-gradient(135deg, rgba(46, 204, 113, 0.1) 0%, rgba(39, 174, 96, 0.1) 100%);
+        border: 2px solid rgba(46, 204, 113, 0.3);
+      }
+    }
+  }
+
+  .vehiculos-plan-section {
+    padding: 1rem;
+    background: white;
+    border-top: 1px solid #e9ecef;
+
+    h5 {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: $info-color;
+      font-size: 0.9375rem;
+      font-weight: 700;
+      margin: 0 0 0.75rem 0;
+
+      mat-icon {
+        font-size: 1.125rem;
+        width: 1.125rem;
+        height: 1.125rem;
+      }
+    }
+
+    .vehiculos-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+  }
+}
+
+// Cortes de caja
+.cortes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 1.5rem;
+}
+
+.corte-caja-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 2px solid #e9ecef;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+    border-color: #667eea;
+  }
+
+  .corte-caja-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+    border-bottom: 2px solid #e9ecef;
+
+    .corte-id {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #2c3e50;
+      font-weight: 700;
+      font-size: 1rem;
+
+      mat-icon {
+        color: #667eea;
+        font-size: 1.25rem;
+        width: 1.25rem;
+        height: 1.25rem;
+      }
+    }
+  }
+
+  .corte-caja-body {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+
+    .corte-stat {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem;
+      background: #f8f9fa;
+      border-radius: 6px;
+
+      .label {
+        color: #7f8c8d;
+        font-size: 0.8125rem;
+        font-weight: 600;
+      }
+
+      .value {
+        color: #2c3e50;
+        font-weight: 600;
+        text-align: right;
+      }
+
+      &.highlight {
+        background: linear-gradient(135deg, rgba(155, 89, 182, 0.1) 0%, rgba(142, 68, 173, 0.1) 100%);
+        border: 2px solid rgba(155, 89, 182, 0.3);
+
+        .valor {
+          .precio-grande {
+            color: $purple-color;
+            font-weight: 700;
+            font-size: 1.375rem;
+          }
+        }
+      }
+    }
+  }
+
+  .comercios-corte-section {
+    padding: 1rem;
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+
+    h5 {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #667eea;
+      font-size: 0.9375rem;
+      font-weight: 700;
+      margin: 0 0 0.75rem 0;
+
+      mat-icon {
+        font-size: 1.125rem;
+        width: 1.125rem;
+        height: 1.125rem;
+      }
+    }
+
+    .comercios-list-compact {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+
+      .comercio-item-compact {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.625rem;
+        background: white;
+        border-radius: 6px;
+        border-left: 3px solid $success-color;
+        gap: 0.5rem;
+
+        .comercio-nombre {
+          flex: 1;
+          color: #2c3e50;
+          font-weight: 600;
+          font-size: 0.875rem;
+        }
+
+        .comercio-monto {
+          color: $success-color;
+          font-weight: 700;
+          font-size: 0.9375rem;
+        }
+
+        .small-chip {
+          font-size: 0.6875rem;
+          padding: 0.25rem 0.5rem;
+          height: auto;
+        }
+      }
+    }
+  }
+}
+
+// Chips
+mat-chip {
+  font-weight: 600;
+  font-size: 0.8125rem;
+  padding: 0.375rem 0.875rem;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+
+  mat-icon {
+    font-size: 1rem;
+    width: 1rem;
+    height: 1rem;
+  }
+
+  &.chip-activo,
+  &.chip-exitoso,
+  &.chip-completado {
+    background: $success-color !important;
+    color: white !important;
+  }
+
+  &.chip-inactivo {
+    background: #95a5a6 !important;
+    color: white !important;
+  }
+
+  &.chip-pendiente,
+  &.chip-preliminar {
+    background: $warning-color !important;
+    color: white !important;
+  }
+
+  &.chip-fallido {
+    background: $error-color !important;
+    color: white !important;
+  }
+
+  &.small-chip {
+    font-size: 0.6875rem;
+    padding: 0.25rem 0.5rem;
+
+    mat-icon {
+      font-size: 0.875rem;
+      width: 0.875rem;
+      height: 0.875rem;
+    }
+  }
+}
+
+// Loading y Sin resultados
+.loading-container,
+.no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 12px;
+
+  mat-icon {
+    font-size: 5rem;
+    width: 5rem;
+    height: 5rem;
+    color: #bdc3c7;
+    margin-bottom: 1rem;
+  }
+
+  p {
+    color: #7f8c8d;
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin: 0.5rem 0;
+  }
+
+  mat-spinner {
+    margin-bottom: 1.5rem;
+  }
+}
+
+// Responsive
+@media (max-width: 1024px) {
+  .info-grid,
+  .plan-detalles-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+
+  .suscriptores-grid,
+  .planes-corporativos-grid,
+  .cortes-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+
+  .ocupacion-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .crear-usuario-container {
+    padding: 1rem 0.5rem;
+  }
+
+  .usuario-card {
+    mat-card-header {
+      padding: 1.5rem;
+
+      mat-card-title {
+        font-size: 1.5rem;
+      }
+    }
+  }
+
+  .tab-content {
+    padding: 1.5rem;
+  }
+
+  .download-buttons {
+    flex-direction: column;
+
+    .btn-download {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  .reporte-container {
+    padding: 1.5rem;
+  }
+
+  .reporte-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .info-grid,
+  .plan-detalles-grid,
+  .suscriptores-grid,
+  .planes-corporativos-grid,
+  .cortes-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .table-container {
+    font-size: 0.75rem;
+  }
+
+  .custom-tabs {
+    ::ng-deep {
+      .mat-mdc-tab {
+        min-width: 120px;
+        padding: 0 0.75rem;
+
+        .mdc-tab__text-label {
+          font-size: 0.8125rem;
+        }
+
+        .tab-icon {
+          font-size: 1.125rem;
+          width: 1.125rem;
+          height: 1.125rem;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .tab-content {
+    padding: 1rem;
+  }
+
+  .reporte-container {
+    padding: 1rem;
+  }
+
+  .custom-tabs {
+    ::ng-deep {
+      .mat-mdc-tab {
+        .mdc-tab__text-label {
+          flex-direction: column;
+          gap: 0.25rem;
+        }
+      }
+    }
+  }
+}
+
+// Clases globales para snackbar
+:host ::ng-deep {
+  .success {
+    background-color: #2ecc71 !important;
+    color: white !important;
+  }
+
+  .error {
+    background-color: #e74c3c !important;
+    color: white !important;
+  }
+
+  .warning {
+    background-color: #f39c12 !important;
+    color: white !important;
+  }
+
+  .info {
+    background-color: #3498db !important;
+    color: white !important;
+  }
+}
+
+// Animaciones
+@keyframes cardAppear {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.suscriptor-card,
+.plan-corporativo-card,
+.corte-caja-card,
+.incidencia-card {
+  animation: cardAppear 0.4s ease forwards;
+
+  @for $i from 1 through 10 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{$i * 0.05}s;
+    }
+  }
+}
+
+// Estilos para secciones de reportes por sucursal/plan/comercio
+.sucursal-reporte-section,
+.plan-reporte-section,
+.comercio-afiliado-section {
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid #e9ecef;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+// Comercio Afiliado - Card de información principal
+.comercio-header-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  .comercio-info-principal {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+
+    .comercio-avatar {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      mat-icon {
+        font-size: 3rem;
+        width: 3rem;
+        height: 3rem;
+        color: #667eea;
+      }
+    }
+
+    .comercio-datos-principales {
+      h4 {
+        margin: 0 0 0.5rem 0;
+        color: #2c3e50;
+        font-size: 1.5rem;
+        font-weight: 700;
+      }
+
+      .razon-social {
+        color: #7f8c8d;
+        font-size: 0.9375rem;
+        margin: 0 0 0.75rem 0;
+      }
+
+      .tipo-comercio-badge {
+        display: inline-block;
+        padding: 0.375rem 1rem;
+        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        color: white;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+    }
+  }
+}
+
+// Convenios Grid
+.convenios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.convenio-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 2px solid #e9ecef;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+    border-color: #667eea;
+  }
+
+  .convenio-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: linear-gradient(135deg, rgba(52, 152, 219, 0.05) 0%, rgba(41, 128, 185, 0.05) 100%);
+    border-bottom: 1px solid #e9ecef;
+
+    .convenio-sucursal {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #2c3e50;
+      font-weight: 700;
+      font-size: 1rem;
+
+      mat-icon {
+        color: $info-color;
+        font-size: 1.25rem;
+        width: 1.25rem;
+        height: 1.25rem;
+      }
+    }
+  }
+
+  .convenio-body {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    .convenio-stat {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.625rem;
+      background: #f8f9fa;
+      border-radius: 6px;
+
+      .label {
+        color: #7f8c8d;
+        font-size: 0.8125rem;
+        font-weight: 600;
+      }
+
+      .value {
+        color: #2c3e50;
+        font-weight: 600;
+
+        &.precio {
+          color: $success-color;
+          font-weight: 700;
+        }
+      }
+    }
+  }
+}
+
+// Resumen de liquidaciones
+.resumen-liquidaciones {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+
+  .resumen-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 10px;
+    border-left: 4px solid $info-color;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+    mat-icon {
+      color: $info-color;
+      font-size: 2.5rem;
+      width: 2.5rem;
+      height: 2.5rem;
+    }
+
+    div {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+
+      .label {
+        color: #7f8c8d;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+
+      .value {
+        color: #2c3e50;
+        font-size: 1.25rem;
+        font-weight: 700;
+      }
+    }
+
+    &.total {
+      border-left-color: $success-color;
+
+      mat-icon {
+        color: $success-color;
+      }
+
+      .precio-grande {
+        color: $success-color;
+        font-size: 1.75rem;
+      }
+    }
+  }
+}
+
+// Clientes Beneficiados Grid
+.clientes-beneficiados-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.cliente-beneficiado-card {
+  background: white;
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 2px solid #e9ecef;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(46, 204, 113, 0.2);
+    border-color: $success-color;
+  }
+
+  .cliente-beneficiado-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #e9ecef;
+
+    mat-icon {
+      color: $success-color;
+      font-size: 2.5rem;
+      width: 2.5rem;
+      height: 2.5rem;
+    }
+
+    div {
+      h5 {
+        margin: 0 0 0.25rem 0;
+        color: #2c3e50;
+        font-weight: 700;
+        font-size: 1rem;
+      }
+
+      .sucursal-cliente {
+        margin: 0;
+        color: #7f8c8d;
+        font-size: 0.875rem;
+      }
+    }
+  }
+
+  .cliente-beneficiado-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    .cliente-stat {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      background: #f8f9fa;
+      border-radius: 6px;
+      color: #2c3e50;
+      font-size: 0.875rem;
+
+      mat-icon {
+        color: $success-color;
+        font-size: 1.125rem;
+        width: 1.125rem;
+        height: 1.125rem;
+      }
+    }
+  }
+}
+
+// Precio grande para totales
+.precio-grande {
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+}
+
+// Ajustes responsive para comercios
+@media (max-width: 1024px) {
+  .convenios-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+
+  .comercio-header-card {
+    .comercio-info-principal {
+      .comercio-avatar {
+        width: 60px;
+        height: 60px;
+
+        mat-icon {
+          font-size: 2.5rem;
+          width: 2.5rem;
+          height: 2.5rem;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .comercio-header-card {
+    flex-direction: column;
+    gap: 1rem;
+
+    .comercio-info-principal {
+      flex-direction: column;
+      text-align: center;
+      gap: 1rem;
+    }
+  }
+
+  .convenios-grid,
+  .clientes-beneficiados-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .resumen-liquidaciones {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .comercio-datos-principales {
+    h4 {
+      font-size: 1.25rem !important;
+    }
+  }
+
+  .resumen-item {
+    div {
+      .value {
+        font-size: 1rem !important;
+      }
+    }
+
+    &.total {
+      .precio-grande {
+        font-size: 1.25rem !important;
+      }
+    }
+  }
+}

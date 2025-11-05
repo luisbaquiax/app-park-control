@@ -2,7 +2,7 @@ import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { environment } from "../../../environments/environments";
 import { Observable } from "rxjs";
-import { ActualizarPeriodoResponse, CortesResponse, DetallePago } from "../../models/empresa/corte.model";
+import { ActualizarPeriodoResponse, CortesResponse, DetallePago, TransaccionTicket } from "../../models/empresa/corte.model";
 
 @Injectable({ providedIn: 'root' })
 export class CorteService {
@@ -17,6 +17,10 @@ export class CorteService {
 
     obtenerDetallePagos(idUsuarioEmpresa: number): Observable<DetallePago[]> {
         return this.http.get<DetallePago[]>(`${this.DIRECCION_API}/liquidaciones/detalles-pagos-suscripciones/${idUsuarioEmpresa}`);
+    }
+
+    obtenerTransaccionesTickets(idUsuarioEmpresa: number): Observable<TransaccionTicket[]> {
+        return this.http.get<TransaccionTicket[]>(`${this.DIRECCION_API}/liquidaciones/detalles-transacciones-tickets/${idUsuarioEmpresa}`);
     }
 
     /* Métodos PUT */

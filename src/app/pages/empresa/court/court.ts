@@ -6,7 +6,8 @@ import { CorteService } from '../../../services/empresa/corte.service';
 import {
   CortesResponse,
   CorteCaja,
-  DetallePago
+  DetallePago,
+  TransaccionTicket
 } from '../../../models/empresa/corte.model';
 import { MatTabsModule } from '@angular/material/tabs';
 
@@ -22,11 +23,13 @@ export class Court implements OnInit {
   // Estados de carga
   isLoadingCortes = false;
   isLoadingPagos = false;
+  isLoadingTransacciones = false;
   isUpdatingPeriodo = false;
 
   // Datos
   cortesCaja: CorteCaja[] = [];
   detallesPagos: DetallePago[] = [];
+  transaccionesTickets: TransaccionTicket[] = [];
 
   // Modales
   mostrarModalDetallesCorte = false;
@@ -52,6 +55,7 @@ export class Court implements OnInit {
     if (this.idUsuarioEmpresa > 0) {
       this.cargarCortes();
       this.cargarDetallesPagos();
+      this.cargarTransaccionesTickets();
     } else {
       this.mostrarMensaje('No se encontró el ID de empresa', 'error');
     }
@@ -85,6 +89,23 @@ export class Court implements OnInit {
         this.isLoadingPagos = false;
         const mensajeError = error.error?.message || 'Error al cargar los detalles de pagos';
         this.mostrarMensaje(mensajeError, 'error');
+      }
+    });
+  }
+
+  cargarTransaccionesTickets(): void {
+    this.isLoadingTransacciones = true;
+
+    this.corteService.obtenerTransaccionesTickets(this.idUsuarioEmpresa).subscribe({
+      next: (response: TransaccionTicket[]) => {
+        this.isLoadingTransacciones = false;
+        this.transaccionesTickets = response || [];
+      },
+      error: (error: any) => {
+        this.isLoadingTransacciones = false;
+        const mensajeError = error.error?.message || 'Error al cargar las transacciones de tickets';
+        this.mostrarMensaje(mensajeError, 'error');
+        this.transaccionesTickets = [];
       }
     });
   }
@@ -131,6 +152,7 @@ export class Court implements OnInit {
         this.cerrarModalConfirmacion();
         this.cargarCortes();
         this.cargarDetallesPagos();
+        this.cargarTransaccionesTickets();
       },
       error: (error) => {
         this.isUpdatingPeriodo = false;
@@ -249,6 +271,11 @@ export class Court implements OnInit {
     return this.detallesPagos.filter(p => p.estadoPago.toUpperCase() === estado.toUpperCase()).length;
   }
 
+  contarTransaccionesPorEstado(estado: string): number {
+    if (!this.transaccionesTickets || this.transaccionesTickets.length === 0) return 0;
+    return this.transaccionesTickets.filter(t => t.estado.toUpperCase() === estado.toUpperCase()).length;
+  }
+
   calcularTotalPagos(): number {
     if (!this.detallesPagos) return 0;
     return this.detallesPagos.reduce((total, pago) => {
@@ -261,6 +288,14 @@ export class Court implements OnInit {
     if (!this.cortesCaja) return 0;
     return this.cortesCaja.reduce((total, corte) => {
       const monto = typeof corte.totalNeto === 'string' ? parseFloat(corte.totalNeto) : corte.totalNeto;
+      return total + monto;
+    }, 0);
+  }
+
+  calcularTotalTransacciones(): number {
+    if (!this.transaccionesTickets || this.transaccionesTickets.length === 0) return 0;
+    return this.transaccionesTickets.reduce((total, transaccion) => {
+      const monto = typeof transaccion.total === 'string' ? parseFloat(transaccion.total) : transaccion.total;
       return total + monto;
     }, 0);
   }
@@ -278,6 +313,22 @@ export class Court implements OnInit {
         return 'account_balance_wallet';
       default:
         return 'payment';
+    }
+  }
+
+  obtenerTipoCobroIcono(tipo: string): string {
+    const tipoUpper = tipo.toUpperCase();
+    switch (tipoUpper) {
+      case 'HORA':
+      case 'HORAS':
+        return 'schedule';
+      case 'DIA':
+      case 'DIAS':
+        return 'today';
+      case 'FRACCION':
+        return 'timer';
+      default:
+        return 'payments';
     }
   }
 

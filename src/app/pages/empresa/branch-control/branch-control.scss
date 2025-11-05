@@ -1569,3 +1569,199 @@
     }
   }
 }
+
+/* Sección de Información de la Empresa - Diseño Minimalista Corporativo */
+.empresa-info-section {
+  margin-bottom: 24px;
+  animation: slideDown 0.4s ease-out;
+}
+
+.empresa-info-card {
+  background: linear-gradient(to right, #ffffff 0%, #f8f9fa 100%);
+  border-left: 5px solid #5e72e4;
+  border-radius: 8px;
+  padding: 20px 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 150px;
+    height: 150px;
+    background: linear-gradient(135deg, rgba(94, 114, 228, 0.05) 0%, rgba(94, 114, 228, 0.02) 100%);
+    border-radius: 50%;
+    transform: translate(30%, -30%);
+    pointer-events: none;
+  }
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(94, 114, 228, 0.15);
+    transform: translateY(-1px);
+    border-left-color: #324cdd;
+  }
+}
+
+.empresa-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.empresa-icon {
+  background: linear-gradient(135deg, #5e72e4 0%, #825ee4 100%);
+  padding: 14px;
+  border-radius: 12px;
+  color: white;
+  font-size: 28px;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(94, 114, 228, 0.3);
+  flex-shrink: 0;
+}
+
+.empresa-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.empresa-nombre {
+  margin: 0 0 8px 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #2d3748;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.empresa-direccion {
+  margin: 0;
+  font-size: 14px;
+  color: #718096;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  line-height: 1.6;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    color: #5e72e4;
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+
+  span {
+    flex: 1;
+    word-break: break-word;
+  }
+}
+
+/* Animación */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Variante con borde superior (opcional) */
+.empresa-info-card.border-top-variant {
+  border-left: none;
+  border-top: 4px solid #5e72e4;
+}
+
+/* Variante oscura (opcional) */
+.empresa-info-card.dark-variant {
+  background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+  border-left-color: #5e72e4;
+
+  &::before {
+    background: linear-gradient(135deg, rgba(94, 114, 228, 0.1) 0%, rgba(94, 114, 228, 0.05) 100%);
+  }
+
+  .empresa-nombre {
+    color: #ffffff;
+  }
+
+  .empresa-direccion {
+    color: #cbd5e0;
+
+    mat-icon {
+      color: #90cdf4;
+    }
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .empresa-info-card {
+    padding: 16px 18px;
+    border-left-width: 4px;
+  }
+
+  .empresa-header {
+    gap: 16px;
+  }
+
+  .empresa-icon {
+    font-size: 24px;
+    width: 48px;
+    height: 48px;
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  .empresa-nombre {
+    font-size: 18px;
+  }
+
+  .empresa-direccion {
+    font-size: 13px;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .empresa-info-section {
+    margin-bottom: 16px;
+  }
+
+  .empresa-info-card {
+    padding: 14px 16px;
+  }
+
+  .empresa-header {
+    gap: 12px;
+  }
+
+  .empresa-icon {
+    font-size: 22px;
+    width: 44px;
+    height: 44px;
+    padding: 11px;
+  }
+
+  .empresa-nombre {
+    font-size: 17px;
+  }
+}
