@@ -111,6 +111,7 @@ export class NavigationBar {
       icon: 'confirmation_number',
       label: 'Incidencia Ticket',
       route: '/incidencia-ticket',
+    },
     //gestionar vehiculos y clientes
     {
       icon: 'airport_shuttle',
