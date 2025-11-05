@@ -111,6 +111,17 @@ export class NavigationBar {
       icon: 'confirmation_number',
       label: 'Incidencia Ticket',
       route: '/incidencia-ticket',
+    //gestionar vehiculos y clientes
+    {
+      icon: 'airport_shuttle',
+      label: 'Gestionar Vehiculos',
+      route: '/gestion-vehiculos',
+      roles: ['SUCURSAL'],
+    },
+    {
+      icon: 'garage',
+      label: 'Vehiculos y propietarios',
+      route: '/vehiculos-propietario',
       roles: ['SUCURSAL'],
     },
     // OPCIONES DEL USUARIO CLIENTE
