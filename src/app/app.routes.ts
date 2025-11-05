@@ -53,7 +53,13 @@ export const routes: Routes = [
     {
       path: 'permiso-temporal', loadComponent: () => import('./pages/cliente/temporary-permit/temporary-permit').then(m => m.TemporaryPermit), title: "Permiso Temporal"
     },
-     {
+    {
+      path: 'permiso-temporal-backoffice', loadComponent: () => import('./pages/backoffice/temporary-permit-backoffice/temporary-permit-backoffice').then(m => m.TemporaryPermitBackoffice), title: "Permiso Temporal Backoffice"
+    },
+    {
+      path: 'corte', loadComponent: () => import('./pages/empresa/court/court').then(m => m.Court), title: "Cortes de Caja"
+    },
+    {
       path: 'gestion-vehiculos', loadComponent: () => import('./pages/sucursal/gestion-vehiculos-component/gestion-vehiculos-component').then(m => m.GestionVehiculosComponent), title: "Gestion Vehiculos"
     },
     {
@@ -65,7 +71,6 @@ export const routes: Routes = [
     {
       path: 'ver-tickets', loadComponent:() => import('./pages/cliente/ticktes/ticktes').then(m => m.Ticktes), title: "Ver Tickets"
     },
-    {
-      path: '**', redirectTo: '/login'
+      path: 'gestion-flotilla' , loadComponent: () => import('./pages/empresa/flotilla/flotilla').then(m => m.Flotilla), title: "Gestión Flotilla"
     }
 ];
