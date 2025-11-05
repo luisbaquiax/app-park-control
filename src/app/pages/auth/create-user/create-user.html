@@ -251,7 +251,6 @@
                       type="button">
                 <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
               </button>
-              <mat-hint>Esta es una contraseña temporal. El usuario deberá cambiarla en su primer inicio</mat-hint>
               <mat-error *ngIf="usuarioForm.get('contraseniaHash')?.hasError('required')">
                 La contraseña es requerida
               </mat-error>
