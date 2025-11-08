@@ -89,6 +89,12 @@ export class NavigationBar {
       roles: ['EMPRESA'],
     },
     {
+      icon: 'directions_car',
+      label: 'Gestión Tarifa Global',
+      route: '/gestion-tarifa-global',
+      roles: ['EMPRESA'],
+    },
+    {
       icon: 'bar_chart',
       label: 'Reportes',
       route: '/reportes',
